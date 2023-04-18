@@ -5,7 +5,7 @@
         <el-menu-item><template #title><span>测试系统</span></template></el-menu-item>
         <el-menu-item index="/"><el-icon>
                 <ScaleToOriginal />
-            </el-icon><template #title><span>系统首页</span></template></el-menu-item>
+            </el-icon><span>系统首页</span></el-menu-item>
         <el-sub-menu index="/goods">
             <template #title><el-icon>
                     <location />

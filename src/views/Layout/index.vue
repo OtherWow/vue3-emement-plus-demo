@@ -2,8 +2,8 @@
     <div class="menu">
         <Menu :isClose="isClose" />
     </div>
-    <div class="content">
-        <Content :isClose="isClose" />
+    <div class="content" :class="{ active: isClose }">
+        <Content :isClose="isClose" @change="change" />
     </div>
 </template>
 
@@ -19,8 +19,12 @@ export default {
     },
     setup() {
         let isClose = ref(false)
+        const change = () => {
+            isClose.value = !isClose.value
+        }
         return {
-            isClose
+            isClose,
+            change
         }
 
     }
@@ -39,5 +43,9 @@ export default {
 
 .content {
     padding-left: 200px;
+}
+
+.active {
+    padding-left: 64px;
 }
 </style>
