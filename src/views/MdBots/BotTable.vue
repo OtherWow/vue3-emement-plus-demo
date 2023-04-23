@@ -24,7 +24,11 @@
         </el-table>
     </div>
 </template>
-  
+<script>
+export default {
+    props: ['bots']
+}
+</script>
 <style scoped>
 .el-tag {
     font-size: 12px;
@@ -35,10 +39,3 @@
     margin-right: 8px;
 }
 </style>
-  
-<script>
-export default {
-    props: ['bots']
-}
-</script>
-  

@@ -13,12 +13,3 @@ export default createStore({
   }
 })
 
-import { reactive } from 'vue';
-import { useRoute } from 'vue-router';
-const route = useRoute()
-export const store = reactive({
-  openTabs: [{
-    label: route.meta.title,
-    path: route.path,
-  }],
-});

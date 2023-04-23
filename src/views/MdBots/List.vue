@@ -5,7 +5,7 @@
         <bot-table :bots="bots" @start="startBot" @stop="stopBot" @edit="editBot" @delete="deleteBot"></bot-table>
     </div>
 </template>
-
+  
 <script>
 import { ref } from 'vue';
 import axios from 'axios';
@@ -47,7 +47,7 @@ export default {
 
         // 定义修改机器人的函数
         const editBot = (bot) => {
-            // 实现修改机器人的功能
+            router.push(`/md_bots/edit_bot/${bot.id}`);
         };
 
         // 定义删除机器人的函数
@@ -71,5 +71,6 @@ export default {
     },
 };
 </script>
-
+  
 <style lang="less" scoped></style>
+  

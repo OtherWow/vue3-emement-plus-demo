@@ -23,24 +23,26 @@
 
     <div class="tabs-container">
         <el-tabs v-model="activeTab" type="border-card" closable @tab-remove="removeTab" @tab-click="clickTab">
-            <el-tab-pane v-for="tab in tabs" :key="tab.path" :label="tab.label" :name="tab.path"></el-tab-pane>
+            <el-tab-pane v-for="tab in global.openTabs" :key="tab.path" :label="tab.label" :name="tab.path"></el-tab-pane>
         </el-tabs>
     </div>
 
     <div class="wapper">
-        <router-view></router-view>
+        <router-view v-slot="{ Component }">
+            <component :is="Component" v-bind="Component.props" @remove-tab="removeTab" @add-tab="addTab" />
+        </router-view>
     </div>
 </template>
 
 <script>
 import dayjs from 'dayjs'
 import { useRouter, useRoute } from 'vue-router'
-import { ref, onUnmounted, inject } from 'vue'
+import { ref, onUnmounted, inject, onMounted } from 'vue'
 export default {
     props: ['isClose'],
     emits: ['change'],
     setup(props, { emit }) {
-        const store = inject('$store');
+        const global = inject('$global');
         const route = useRoute()
         const router = useRouter()
 
@@ -51,21 +53,31 @@ export default {
             router.push(tab.props.name)
         }
 
+        onMounted(() => {
+            const route = useRoute();
+            addTab(route);
+        });
+
         const addTab = (route) => {
-            const existingTab = store.openTabs.value.find((tab) => tab.path === route.path);
+            console.log("触发addTab", route.path, route.meta.title, global.openTabs)
+            const existingTab = global.openTabs.find((tab) => tab.path === route.path);
             if (!existingTab) {
-                store.openTabs.value.push({
+                global.openTabs.push({
                     label: route.meta.title,
                     path: route.path,
                 });
+                console.log("新增tab成功", route.path, route.meta.title, global.openTabs)
             }
             activeTab.value = route.path;
         };
 
         const removeTab = (targetPath) => {
-            store.openTabs.value = store.openTabs.value.filter((tab) => tab.path !== targetPath);
+            console.log("触发removeTab", targetPath, global.openTabs, route.path)
+            targetPath = targetPath.includes('${') ? route.path : targetPath;
+            global.openTabs = global.openTabs.filter((tab) => tab.path !== targetPath);
             // 取出最后一项，然后页面跳转到最后一项。如果没有了就跳转到系统首页
-            const lastTab = tabs.value[tabs.value.length - 1];
+            const lastTab = global.openTabs[global.openTabs.length - 1];
+            console.log("删除tab成功", targetPath, global.openTabs, lastTab)
             if (lastTab) {
                 router.push(lastTab.path);
             } else {
@@ -108,7 +120,10 @@ export default {
             change,
             time,
             loginout,
-            tabs, removeTab, activeTab, clickTab
+            global,
+            removeTab,
+            activeTab,
+            clickTab, addTab
         }
     }
 }

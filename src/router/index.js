@@ -13,22 +13,22 @@ const routes = [
         path: '/',
         name: 'home',
         component: Home,
-        meta: { title: '系统首页' },
+        meta: { title: '系统首页' }
       }, {
         path: '/goods',
         component: () => import('@/views/Goods'),
         children: [
           {
             path: 'list',
-            name: 'list',
+            name: 'goods_list',
             component: () => import('@/views/Goods/List.vue'),
-            meta: { title: '产品列表' },
+            meta: { title: '产品列表' }
           },
           {
             path: 'category',
-            name: 'category',
+            name: 'goods_category',
             component: () => import('@/views/Goods/Category.vue'),
-            meta: { title: '产品分类' },
+            meta: { title: '产品分类' }
           }
         ]
       }
@@ -38,21 +38,27 @@ const routes = [
         children: [
           {
             path: 'list',
-            name: 'list',
+            name: 'md_bots_list',
             component: () => import('@/views/MdBots/List.vue'),
-            meta: { title: '马丁机器人列表' },
+            meta: { title: '马丁机器人列表' }
           },
           {
             path: 'detail',
-            name: 'detail',
+            name: 'md_bots_detail',
             component: () => import('@/views/MdBots/Detail.vue'),
-            meta: { title: '马丁机器人详情' },
+            meta: { title: '马丁机器人详情' }
           },
           {
             path: 'create_bot',
-            name: 'createBot',
+            name: 'md_bots_create_bot',
             component: () => import('@/views/MdBots/CreateBot.vue'),
-            meta: { title: '新建马丁机器人' },
+            meta: { title: '新建马丁机器人' }
+          }, {
+            path: 'edit_bot/:botId',
+            name: 'md_bots_edit_bot',
+            component: () => import('@/views/MdBots/CreateBot.vue'),
+            props: (route) => ({ editMode: true, botId: route.params.botId }),
+            meta: { title: '修改马丁机器人' }
           }
         ]
       }
@@ -61,7 +67,7 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login
-  }
+  },
 ]
 
 const router = createRouter({
