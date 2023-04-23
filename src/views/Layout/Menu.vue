@@ -15,6 +15,15 @@
                 <el-menu-item index="/goods/category">产品分类</el-menu-item>
             </el-menu-item-group>
         </el-sub-menu>
+        <el-sub-menu index="/md_bots">
+            <template #title><el-icon>
+                    <location />
+                </el-icon><span>马丁机器人管理</span></template>
+            <el-menu-item-group>
+                <el-menu-item index="/md_bots/list">马丁列表</el-menu-item>
+                <el-menu-item index="/md_bots/detail">马丁明细</el-menu-item>
+            </el-menu-item-group>
+        </el-sub-menu>
     </el-menu>
 </template>
 

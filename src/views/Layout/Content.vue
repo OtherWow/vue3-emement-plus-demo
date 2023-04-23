@@ -19,6 +19,14 @@
         </div>
     </div>
 
+
+
+    <div class="tabs-container">
+        <el-tabs v-model="activeTab" type="border-card" closable @tab-remove="removeTab" @tab-click="clickTab">
+            <el-tab-pane v-for="tab in tabs" :key="tab.path" :label="tab.label" :name="tab.path"></el-tab-pane>
+        </el-tabs>
+    </div>
+
     <div class="wapper">
         <router-view></router-view>
     </div>
@@ -26,17 +34,55 @@
 
 <script>
 import dayjs from 'dayjs'
-import { useRouter } from 'vue-router'
-import { ref, onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { ref, onUnmounted, inject } from 'vue'
 export default {
     props: ['isClose'],
     emits: ['change'],
     setup(props, { emit }) {
+        const store = inject('$store');
+        const route = useRoute()
+        const router = useRouter()
+
+        let activeTab = ref(route.path);
+        let time = ref(dayjs().format('YYYY-MM-DD HH:mm:ss'))
+
+        const clickTab = (tab) => {
+            router.push(tab.props.name)
+        }
+
+        const addTab = (route) => {
+            const existingTab = store.openTabs.value.find((tab) => tab.path === route.path);
+            if (!existingTab) {
+                store.openTabs.value.push({
+                    label: route.meta.title,
+                    path: route.path,
+                });
+            }
+            activeTab.value = route.path;
+        };
+
+        const removeTab = (targetPath) => {
+            store.openTabs.value = store.openTabs.value.filter((tab) => tab.path !== targetPath);
+            // 取出最后一项，然后页面跳转到最后一项。如果没有了就跳转到系统首页
+            const lastTab = tabs.value[tabs.value.length - 1];
+            if (lastTab) {
+                router.push(lastTab.path);
+            } else {
+                router.push('/');
+            }
+        };
+
+
+        router.afterEach((to) => {
+            addTab(to);
+        });
+
         const change = () => {
             emit('change')
         }
 
-        let time = ref(dayjs().format('YYYY-MM-DD HH:mm:ss'))
+
         // 更新时间的函数
         const updateTime = () => {
             time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
@@ -50,15 +96,19 @@ export default {
             clearInterval(timer)
         })
 
-        const router = useRouter()
+
         const loginout = () => {
             localStorage.removeItem('token')
             router.push('/login')
         }
+
+
+
         return {
             change,
             time,
-            loginout
+            loginout,
+            tabs, removeTab, activeTab, clickTab
         }
     }
 }

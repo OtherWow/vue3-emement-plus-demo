@@ -3,9 +3,7 @@ import Layout from '@/views/Layout'
 import Login from '@/views/Login'
 import Home from '@/views/Home'
 
-const Goods = () => import('@/views/Goods')
-const GoodsList = () => import('@/views/Goods/List.vue')
-const GoodsCategory = () => import('@/views/Goods/Category.vue')
+
 const routes = [
   {
     path: '/',
@@ -14,20 +12,47 @@ const routes = [
       {
         path: '/',
         name: 'home',
-        component: Home
+        component: Home,
+        meta: { title: '系统首页' },
       }, {
         path: '/goods',
-        component: Goods,
+        component: () => import('@/views/Goods'),
         children: [
           {
             path: 'list',
             name: 'list',
-            component: GoodsList
+            component: () => import('@/views/Goods/List.vue'),
+            meta: { title: '产品列表' },
           },
           {
             path: 'category',
             name: 'category',
-            component: GoodsCategory
+            component: () => import('@/views/Goods/Category.vue'),
+            meta: { title: '产品分类' },
+          }
+        ]
+      }
+      , {
+        path: '/md_bots',
+        component: () => import('@/views/MdBots'),
+        children: [
+          {
+            path: 'list',
+            name: 'list',
+            component: () => import('@/views/MdBots/List.vue'),
+            meta: { title: '马丁机器人列表' },
+          },
+          {
+            path: 'detail',
+            name: 'detail',
+            component: () => import('@/views/MdBots/Detail.vue'),
+            meta: { title: '马丁机器人详情' },
+          },
+          {
+            path: 'create_bot',
+            name: 'createBot',
+            component: () => import('@/views/MdBots/CreateBot.vue'),
+            meta: { title: '新建马丁机器人' },
           }
         ]
       }
