@@ -50,34 +50,46 @@ export default {
         let time = ref(dayjs().format('YYYY-MM-DD HH:mm:ss'))
 
         const clickTab = (tab) => {
+            // console.log("触发clickTab", tab.props.name)
             router.push(tab.props.name)
         }
 
+        router.afterEach((to) => {
+            // console.log("触发afterEach,调用addTab", to)
+            addTab(to);
+        });
+
         onMounted(() => {
+            // console.log("触发onMounted")
             const route = useRoute();
             addTab(route);
         });
 
         const addTab = (route) => {
-            console.log("触发addTab", route.path, route.meta.title, global.openTabs)
+            // console.log("触发addTab", route.path, route.meta.title, global.openTabs)
             const existingTab = global.openTabs.find((tab) => tab.path === route.path);
             if (!existingTab) {
                 global.openTabs.push({
                     label: route.meta.title,
                     path: route.path,
                 });
-                console.log("新增tab成功", route.path, route.meta.title, global.openTabs)
+                // console.log("新增tab成功", route.path, route.meta.title, global.openTabs)
             }
+            // console.log("设置activeTab", route.path)
             activeTab.value = route.path;
         };
 
         const removeTab = (targetPath) => {
-            console.log("触发removeTab", targetPath, global.openTabs, route.path)
+            // console.log("触发removeTab", targetPath, global.openTabs, route.path)
             targetPath = targetPath.includes('${') ? route.path : targetPath;
+            const existingTab = global.openTabs.find((tab) => tab.path === targetPath);
+            if (!existingTab) {
+                return;
+            }
             global.openTabs = global.openTabs.filter((tab) => tab.path !== targetPath);
             // 取出最后一项，然后页面跳转到最后一项。如果没有了就跳转到系统首页
             const lastTab = global.openTabs[global.openTabs.length - 1];
-            console.log("删除tab成功", targetPath, global.openTabs, lastTab)
+            // console.log("删除tab成功", targetPath, global.openTabs, lastTab)
             if (lastTab) {
                 router.push(lastTab.path);
             } else {
@@ -86,9 +98,7 @@ export default {
         };
 
 
-        router.afterEach((to) => {
-            addTab(to);
-        });
+
 
         const change = () => {
             emit('change')

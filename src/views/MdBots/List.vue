@@ -8,9 +8,9 @@
   
 <script>
 import { ref } from 'vue';
-import axios from 'axios';
 import BotTable from './BotTable.vue';
 import { useRouter } from 'vue-router';
+import { api_get_all_md_bots, api_start_md_bot, api_stop_md_bot, api_delete_md_bot } from '@/api/md_bots';
 
 export default {
     components: {
@@ -24,7 +24,7 @@ export default {
 
         // 定义获取机器人数据的函数
         const fetchBots = async () => {
-            const response = await axios.get('http://43.156.110.163:8000/md_bots/bots');
+            const response = await api_get_all_md_bots();
             bots.value = response.data;
         };
 
@@ -35,13 +35,13 @@ export default {
 
         // 定义启动机器人的函数
         const startBot = async (bot) => {
-            await axios.post(`http://43.156.110.163:8000/md_bots/start_bot/${bot.id}`);
+            await api_start_md_bot(bot.id);
             await fetchBots();
         };
 
         // 定义停止机器人的函数
         const stopBot = async (bot) => {
-            await axios.post(`http://43.156.110.163:8000/md_bots/stop_bot/${bot.id}`);
+            await api_stop_md_bot(bot.id);
             await fetchBots();
         };
 
@@ -52,7 +52,7 @@ export default {
 
         // 定义删除机器人的函数
         const deleteBot = async (bot) => {
-            await axios.delete(`http://43.156.110.163:8000/md_bots/delete_bot/${bot.id}`);
+            await api_delete_md_bot(bot.id);
             await fetchBots();
         };
 
