@@ -1,6 +1,5 @@
 <template>
-    <el-button :type="type" :size="size" :disabled="disabled || loading" :icon="loading ? 'el-icon-loading' : icon"
-        @click="handleClick">
+    <el-button :type="type" :size="size" :disabled="disabled || loading" :loading="loading" @click="handleClick">
         <slot></slot>
     </el-button>
 </template>
@@ -11,9 +10,14 @@ import { ref } from 'vue';
 export default {
     name: 'LoadingButton',
     props: {
-        type: String,
-        size: String,
-        icon: String,
+        type: {
+            type: String,
+            default: 'primary'
+        },
+        size: {
+            type: String,
+            default: 'default'
+        },
         disabled: Boolean,
         action: Function
     },

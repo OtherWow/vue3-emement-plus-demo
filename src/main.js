@@ -23,5 +23,5 @@ const globalState = reactive({
 // 使用 provide 提供全局变量给所有子组件
 app.provide('$global', globalState);
 app.provide('$echarts', echarts)
-
+app.component('loading-button', LoadingButton);
 app.use(store).use(router).mount('#app')
