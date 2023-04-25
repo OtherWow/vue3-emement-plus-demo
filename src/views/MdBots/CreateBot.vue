@@ -34,10 +34,10 @@
                                         <el-select v-model="pairs_value" filterable placeholder="Select" clearable
                                             style="width: 100%">
                                             <el-option v-for="item in pairs_options" :key="item.value" :label="item.label"
-                                                :value="item.value">
+                                                :value="item.value"
+                                                style="display: flex;text-align: center;align-items: center;">
                                                 <img :src="getIconUrl(item)"
-                                                    style="width: 20px;
-                                                                                                                                                                                                                                                                                                height: 20px; margin-right: 10px;" />
+                                                    style="width: 20px;height: 20px; margin-right: 10px;" />
                                                 {{ item.label }}
 
 
@@ -267,8 +267,7 @@
                 <el-card class="box-card">
                     <el-tabs v-model="activeName" class="demo-tabs" style="margin-top: 10px;">
                         <el-tab-pane label="账户详情" name="first">
-
-                            <el-descriptions :column=2>
+                            <!-- <el-descriptions :column=2>
                                 <el-descriptions-item label="余额" align="left">
                                 </el-descriptions-item>
                                 <el-descriptions-item label="" align="right">
@@ -276,7 +275,81 @@
                                 <el-descriptions-item label="Address">No.1188, Wuzhong Avenue, Wuzhong District, Suzhou,
                                     Jiangsu
                                     Province</el-descriptions-item>
+                            </el-descriptions> -->
+                            <el-descriptions :column=1 style="margin-bottom:0;padding:0;">
+                                <el-descriptions-item label="现货" align="center"><el-tag size="large">{{ user_spot_total_usdt
+                                }}</el-tag>
+                                </el-descriptions-item>
                             </el-descriptions>
+                            <el-table :data="user_spot_info_table_data" style="width: 100%">
+                                <el-table-column label="资产" width="80" align="center">
+                                    <template #default="scope">
+                                        <div style="display: flex; align-items: center">
+                                            <span style="margin-left: 10px">{{ scope.row.asset }}</span>
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="余额" align="center">
+                                    <template #default="scope">
+                                        <el-tag size="large">{{ scope.row.free }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="冻结" align="center">
+                                    <template #default="scope">
+                                        <el-tag size="large">{{ scope.row.locked }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="总价值(U)" align="center">
+                                    <template #default="scope">
+                                        <el-tag size="large">{{ scope.row.usdtValuation }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+
+
+
+                            <el-descriptions :column=1 style="margin-top:30px;">
+                                <el-descriptions-item label="U本位合约" align="center"><el-tag size="large">{{
+                                    user_perp_total_usdt }}</el-tag>
+                                </el-descriptions-item>
+                            </el-descriptions>
+                            <el-table :data="user_perp_info_table_data" style="width: 100%">
+                                <el-table-column label="资产" align="center">
+                                    <template #default="scope">
+                                        <div style="display: flex; align-items: center">
+                                            <span style="margin-left: 10px">{{ scope.row.asset }}</span>
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="钱包余额" align="center">
+                                    <template #default="scope">
+                                        <el-tag size="large">{{ scope.row.walletBalance }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="未实现盈亏" align="center">
+                                    <template #default="scope">
+                                        <el-tag :type="scope.row.type" size="large">{{ scope.row.unrealizedProfit
+                                        }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="已用保证金" align="center">
+                                    <template #default="scope">
+                                        <el-tag size="large">{{ scope.row.initialMargin }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="可用保证金" align="center">
+                                    <template #default="scope">
+                                        <el-tag size="large">{{ scope.row.availableBalance }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="保证金余额" align="center">
+                                    <template #default="scope">
+                                        <el-tag size="large">{{ scope.row.marginBalance }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+
+
 
 
                         </el-tab-pane>
@@ -295,8 +368,8 @@ import { ref, watch, inject, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter, useRoute } from 'vue-router';
 import { api_get_md_bot, api_add_md_bot, api_update_md_bot } from '@/api/md_bots';
-import { api_获取所有交易对 } from '@/api/binance_api'
-
+import { api_获取所有交易对, api_获取用户持仓 } from '@/api/binance_api'
+import { fapi_获取用户持仓 } from '@/api/binance_fapi'
 export default {
     props: {
         editMode: {
@@ -327,8 +400,8 @@ export default {
         const pairs_value = ref('1') //交易对
         let pairs_options = ref([])
 
-        const 获取最新交易对 = () => {
-            return api_获取所有交易对(false)
+        const 获取最新交易对 = (use_cache = true) => {
+            return api_获取所有交易对(use_cache)
                 .then((response) => {
                     pairs_options.value = response.data;
                     pairs_value.value = response.data[0].value
@@ -337,7 +410,55 @@ export default {
                     console.error("Error fetching data:", error);
                 });
         };
-        // 
+
+        // 现货获取用户持仓表格数据
+        const user_spot_total_usdt = ref(0)
+        const user_spot_info_table_data = ref([])
+        const 现货获取用户持仓 = () => {
+            return api_获取用户持仓()
+                .then((response) => {
+                    console.log(response.data)
+                    user_spot_info_table_data.value = response.data
+                    // 遍历user_spot_info_table_data.value,统计usdtValuation
+                    user_spot_total_usdt.value = 0
+                    user_spot_info_table_data.value.forEach((item) => {
+                        user_spot_total_usdt.value += item.usdtValuation
+                    })
+
+                })
+                .catch((error) => {
+                    console.error("Error fetching data:", error);
+                });
+        };
+        现货获取用户持仓()
+
+        //合约获取用户资金表格数据
+        const user_perp_total_usdt = ref(0)
+        const user_perp_info_table_data = ref([])
+        const 合约获取用户持仓 = () => {
+            return fapi_获取用户持仓()
+                .then((response) => {
+                    console.log(response.data)
+                    user_perp_info_table_data.value = response.data
+                    // 遍历user_perp_info_table_data.value,如果unrealizedProfit>0,则type=success,=0为'',否则type=danger
+                    user_perp_total_usdt.value = 0
+                    user_perp_info_table_data.value.forEach((item) => {
+                        user_perp_total_usdt.value += item.marginBalance
+                        if (item.unrealizedProfit > 0) {
+                            item.type = 'success'
+                        } else if (item.unrealizedProfit == 0) {
+                            item.type = ''
+                        } else {
+                            item.type = 'danger'
+                        }
+                    })
+                })
+                .catch((error) => {
+                    console.error("Error fetching data:", error);
+                });
+        };
+        合约获取用户持仓()
+
 
         const getIconUrl = (item) => {
             // 提取货币符号（例如，从 'BTCUSDT' 中提取 'BTC'）
@@ -349,7 +470,7 @@ export default {
             const iconUrl = `https://app.3commas.io/currency/icon/${symbol}`;
             return iconUrl;
         };
-        获取最新交易对()
+        获取最新交易对(false)
         const form = ref({
             symbol: '',
             base_order_size: '',
@@ -411,7 +532,14 @@ export default {
             pairs_value,
             pairs_options,
             activeName,
-            获取最新交易对, getIconUrl, radio_Strategy, radio_fisrt_order_type
+            获取最新交易对,
+            getIconUrl,
+            radio_Strategy,
+            radio_fisrt_order_type,
+            user_spot_info_table_data,
+            user_perp_info_table_data,
+            user_spot_total_usdt,
+            user_perp_total_usdt
         };
     },
 };
@@ -447,9 +575,17 @@ export default {
     margin: 0
 }
 
-/deep/ .el-tabs__item {
+:deep(.el-tabs__item) {
     padding-bottom: 20px;
     font-size: 16px;
+}
+
+:deep(.el-descriptions__label) {
+    font-size: 16px;
+    font-weight: bolder;
+    // 修改字体为黑体
+    font-family: "Microsoft YaHei";
+    color: rgb(192, 199, 204)
 }
 
 .my-radio-group {
@@ -459,7 +595,7 @@ export default {
 .my-radio-50 {
     width: 50%;
 
-    /deep/ .el-radio-button__inner {
+    :deep(.el-radio-button__inner) {
         width: 100%;
     }
 }

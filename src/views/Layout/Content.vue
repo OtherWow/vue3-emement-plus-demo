@@ -7,8 +7,22 @@
             <el-icon v-else @click="change">
                 <Fold />
             </el-icon>
+
+        </div>
+        <div class="ticker">
+            <div style="text-align: center;width: 100px;"><span
+                    style="font-size: 12px; font-weight: bold;color: rgb(192,199,204);margin-bottom: 2px;">BTC/USDT</span><br>
+                <span :style="{ color: btc_ticker.percentageColor }" style="font-weight: bold;">{{
+                    btc_ticker.price
+                }}$</span><br>
+                <span :style="{ color: btc_ticker.percentageColor }" style="font-weight: bold;font-size: 12px;">{{
+                    btc_ticker.percentage }}%</span>
+            </div>
+
         </div>
         <div class="right">
+
+            <div class="line">|</div>
             <div class="time">{{ time }}</div>
             <div class="line">|</div>
             <div class="loginout" @click="loginout">
@@ -58,9 +72,26 @@ export default {
             // console.log("触发afterEach,调用addTab", to)
             addTab(to);
         });
+        const btc_ticker = ref({ price: 0, percentage: 0, percentageColor: 'rgb(0,165,154)' });// 绿色
+        const connectWebSocket = () => {
+            const ws = new WebSocket("ws://google.cccx.top:8000/binance/api/ws");
+            ws.onmessage = (event) => {
+                // console.log("接收到消息", event.data);
+                const data = JSON.parse(event.data);
+                btc_ticker.value.price = parseFloat(data.price).toFixed(2);
+                btc_ticker.value.percentage = parseFloat(data.percentage).toFixed(2);
+                if (btc_ticker.value.percentage >= 0) {
+                    btc_ticker.value.percentageColor = 'rgb(0,165,154)'; // 绿色
+                } else {
+                    btc_ticker.value.percentageColor = 'rgb(238,125,139)';// 红色
+                }
+            };
+        };
+
 
         onMounted(() => {
             // console.log("触发onMounted")
+            connectWebSocket();
             const route = useRoute();
             addTab(route);
         });
@@ -133,7 +164,7 @@ export default {
             global,
             removeTab,
             activeTab,
-            clickTab, addTab
+            clickTab, addTab, btc_ticker
         }
     }
 }
@@ -141,28 +172,32 @@ export default {
 
 <style lang="less" scoped>
 .header {
-    height: 50px;
-    line-height: 50px;
-    background-color: #1e78bf;
-    color: #fff;
+    background-color: #fff;
+    color: #000;
     display: flex;
+    align-items: center;
+    padding: 9px 0px;
 
     .icon {
         font-size: 24px;
-        flex: 1;
 
         i {
             cursor: pointer;
         }
     }
 
+    .ticker {
+        margin-left: 10px;
+        flex: 1;
+    }
+
     .right {
         padding-right: 20px;
         display: flex;
+        align-items: center;
 
         .time {
             font-size: 12px;
-            //加粗
             font-weight: bold;
         }
 
@@ -175,9 +210,27 @@ export default {
             margin-top: 2px;
             cursor: pointer;
         }
+
+
     }
+
 }
 
+.ticker,
+.price,
+.percentage {
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+
+.price,
+.percentage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
 
 .wapper {

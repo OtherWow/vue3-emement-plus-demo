@@ -1,6 +1,6 @@
 <template>
-    <el-menu :default-active="route.path" class="el-menu-vertical-demo" :collapse="isClose" background-color="#112f50"
-        text-color="#fff" active-text-color="#ffd04b" router>
+    <el-menu :default-active="route.path" class="el-menu-vertical-demo" :collapse="isClose" active-text-color="#ffd04b"
+        background-color="rgb(47, 64, 80)" text-color="#fff" router>
 
         <el-menu-item><template #title><span>测试系统</span></template></el-menu-item>
         <el-menu-item index="/"><el-icon>
