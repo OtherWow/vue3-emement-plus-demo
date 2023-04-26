@@ -278,7 +278,9 @@
                             </el-descriptions> -->
                             <el-descriptions :column=1 style="margin-bottom:0;padding:0;">
                                 <el-descriptions-item label="现货" align="center"><el-tag size="large">{{ user_spot_total_usdt
-                                }}</el-tag>
+                                }}</el-tag> <el-tag :type="现货盈亏tag颜色" size="large" style="margin-left: 5px;">{{
+    现货总盈亏
+}}</el-tag>
                                 </el-descriptions-item>
                             </el-descriptions>
                             <el-table :data="user_spot_info_table_data" style="width: 100%">
@@ -289,19 +291,22 @@
                                         </div>
                                     </template>
                                 </el-table-column>
-                                <el-table-column label="余额" align="center">
+                                <el-table-column label="数量" align="center">
                                     <template #default="scope">
                                         <el-tag size="large">{{ scope.row.free }}</el-tag>
                                     </template>
                                 </el-table-column>
-                                <el-table-column label="冻结" align="center">
-                                    <template #default="scope">
-                                        <el-tag size="large">{{ scope.row.locked }}</el-tag>
-                                    </template>
-                                </el-table-column>
+
                                 <el-table-column label="总价值(U)" align="center">
                                     <template #default="scope">
                                         <el-tag size="large">{{ scope.row.usdtValuation }}</el-tag>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column label="相对0点浮动盈亏" align="center">
+                                    <template #default="scope">
+                                        <el-tag :type="scope.row.type" size="large">{{ scope.row.盈亏
+                                        }}</el-tag>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -310,7 +315,9 @@
 
                             <el-descriptions :column=1 style="margin-top:30px;">
                                 <el-descriptions-item label="U本位合约" align="center"><el-tag size="large">{{
-                                    user_perp_total_usdt }}</el-tag>
+                                    user_perp_total_usdt }}</el-tag> <el-tag :type="合约盈亏tag颜色" size="large"
+                                        style="margin-left: 5px;">{{ 合约总盈亏
+                                        }}</el-tag>
                                 </el-descriptions-item>
                             </el-descriptions>
                             <el-table :data="user_perp_info_table_data" style="width: 100%">
@@ -368,7 +375,7 @@ import { ref, watch, inject, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter, useRoute } from 'vue-router';
 import { api_get_md_bot, api_add_md_bot, api_update_md_bot } from '@/api/md_bots';
-import { api_获取所有交易对, api_获取用户持仓 } from '@/api/binance_api'
+import { api_获取所有交易对, api_获取用户持仓, api_获取今日的统计记录 } from '@/api/binance_api'
 import { fapi_获取用户持仓 } from '@/api/binance_fapi'
 export default {
     props: {
@@ -395,7 +402,10 @@ export default {
                 value: '2',
                 label: '合约马丁',
             }
-        ]
+        ];
+
+
+
 
         const pairs_value = ref('1') //交易对
         let pairs_options = ref([])
@@ -411,6 +421,31 @@ export default {
                 });
         };
 
+        let 零点现货统计 = 0;
+        let 零点合约统计 = 0;
+        const 现货总盈亏 = ref(0);
+        const 合约总盈亏 = ref(0);
+        const 现货盈亏tag颜色 = ref('success');
+        const 合约盈亏tag颜色 = ref('success');
+        let 统计数据 = [];
+        (async () => {
+            try {
+                const response = await api_获取今日的统计记录();
+                console.log(response.data);
+                统计数据 = response.data
+                // 遍历data
+                for (let i = 0; i < response.data.length; i++) {
+                    if (response.data[i].type == 10) {
+                        零点现货统计 = response.data[i].value
+                    } else if (response.data[i].type == 20) {
+                        零点合约统计 = response.data[i].value
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        })();
+
         // 现货获取用户持仓表格数据
         const user_spot_total_usdt = ref(0)
         const user_spot_info_table_data = ref([])
@@ -422,8 +457,35 @@ export default {
                     // 遍历user_spot_info_table_data.value,统计usdtValuation
                     user_spot_total_usdt.value = 0
                     user_spot_info_table_data.value.forEach((item) => {
-                        user_spot_total_usdt.value += item.usdtValuation
+                        // 遍历统计数据，如果统计数据的type==1 并且cryptocurrency等于item.asset,则给item添加一个属性 零点价值
+                        for (let i = 0; i < 统计数据.length; i++) {
+                            console.log(统计数据[i].type, item.asset, 统计数据[i].cryptocurrency, 统计数据[i].type == 1 && 统计数据[i].cryptocurrency == item.asset)
+                            if (统计数据[i].type == 1 && 统计数据[i].cryptocurrency == item.asset) {
+                                item.零点价值 = 统计数据[i].value;
+                                // 保留2位小数
+                                item.盈亏 = (item.usdtValuation - item.零点价值).toFixed(2);
+                                if (item.盈亏 > 0) {
+                                    item.type = 'success'
+                                } else if (item.盈亏 == 0) {
+                                    item.type = ''
+                                } else {
+                                    item.type = 'danger'
+                                }
+                                break;
+                            }
+                        }
+                        user_spot_total_usdt.value += item.usdtValuation;
                     })
+                    // user_spot_total_usdt保留2位小数
+                    user_spot_total_usdt.value = user_spot_total_usdt.value.toFixed(2)
+                    现货总盈亏.value = (user_spot_total_usdt.value - 零点现货统计).toFixed(2)
+                    if (现货总盈亏.value > 0) {
+                        现货盈亏tag颜色 = 'success'
+                    } else if (现货总盈亏.value == 0) {
+                        现货盈亏tag颜色 = ''
+                    } else {
+                        现货盈亏tag颜色 = 'danger'
+                    }
 
                 })
                 .catch((error) => {
@@ -452,6 +514,15 @@ export default {
                             item.type = 'danger'
                         }
                     })
+                    user_perp_total_usdt.value = user_perp_total_usdt.value.toFixed(2)
+                    合约总盈亏.value = (user_perp_total_usdt.value - 零点合约统计).toFixed(2)
+                    if (合约总盈亏.value > 0) {
+                        合约盈亏tag颜色 = 'success'
+                    } else if (合约总盈亏.value == 0) {
+                        合约盈亏tag颜色 = ''
+                    } else {
+                        合约盈亏tag颜色 = 'danger'
+                    }
                 })
                 .catch((error) => {
                     console.error("Error fetching data:", error);
@@ -539,7 +610,11 @@ export default {
             user_spot_info_table_data,
             user_perp_info_table_data,
             user_spot_total_usdt,
-            user_perp_total_usdt
+            user_perp_total_usdt,
+            现货总盈亏,
+            合约总盈亏,
+            现货盈亏tag颜色,
+            合约盈亏tag颜色,
         };
     },
 };
