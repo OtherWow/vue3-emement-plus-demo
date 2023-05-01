@@ -31,21 +31,39 @@
                                 </el-col>
                                 <el-col :span="12">
                                     <el-form-item label="交易对">
-                                        <el-select v-model="pairs_value" filterable placeholder="Select" clearable
-                                            style="width: 100%">
+                                        <el-select v-model="pairs_value" @change="handleChange" filterable
+                                            placeholder="Select" clearable style="width: 100%;" suffix-icon="Star">
+
+                                            <!-- prefix 插槽 -->
+                                            <template #prefix>
+                                                <img v-if="selectedItem" :src="selectedItem.icon_url"
+                                                    style="width: 20px;height: 20px; margin-right: 10px;" />
+                                            </template>
+
                                             <el-option v-for="item in pairs_options" :key="item.value" :label="item.label"
                                                 :value="item.value"
                                                 style="display: flex;text-align: center;align-items: center;">
-                                                <img :src="getIconUrl(item)"
+                                                <img :src="item.icon_url"
                                                     style="width: 20px;height: 20px; margin-right: 10px;" />
                                                 {{ item.label }}
-
-
+                                                <el-icon @click.stop="toggleStar(item)" style="margin-left: auto">
+                                                    <Star v-if="!item.isStarFilled" />
+                                                    <StarFilled v-else />
+                                                </el-icon>
                                             </el-option>
+
+                                            <!-- empty 插槽 -->
+                                            <template #empty>
+                                                <div style="text-align: center; padding: 10px;">
+                                                    <p>暂无可用交易对</p>
+                                                </div>
+                                            </template>
+
                                         </el-select>
-
-
                                     </el-form-item>
+                                    <!--
+                                                    <el-icon><StarFilled /></el-icon>
+                                                -->
                                 </el-col>
                                 <el-col :span="4">
                                     <loading-button :action="获取最新交易对">获取最新交易对</loading-button>
@@ -370,7 +388,7 @@
     </div>
 </template>
   
-<script>
+<script setup>
 import { ref, watch, inject, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter, useRoute } from 'vue-router';
@@ -407,19 +425,6 @@ export default {
 
 
 
-        const pairs_value = ref('1') //交易对
-        let pairs_options = ref([])
-
-        const 获取最新交易对 = (use_cache = true) => {
-            return api_获取所有交易对(use_cache)
-                .then((response) => {
-                    pairs_options.value = response.data;
-                    pairs_value.value = response.data[0].value
-                })
-                .catch((error) => {
-                    console.error("Error fetching data:", error);
-                });
-        };
 
         let 零点现货统计 = 0;
         let 零点合约统计 = 0;
@@ -431,7 +436,7 @@ export default {
         (async () => {
             try {
                 const response = await api_获取今日的统计记录();
-                console.log(response.data);
+                // console.log(response.data);
                 统计数据 = response.data
                 // 遍历data
                 for (let i = 0; i < response.data.length; i++) {
@@ -452,14 +457,14 @@ export default {
         const 现货获取用户持仓 = () => {
             return api_获取用户持仓()
                 .then((response) => {
-                    console.log(response.data)
+                    // console.log(response.data)
                     user_spot_info_table_data.value = response.data
                     // 遍历user_spot_info_table_data.value,统计usdtValuation
                     user_spot_total_usdt.value = 0
                     user_spot_info_table_data.value.forEach((item) => {
                         // 遍历统计数据，如果统计数据的type==1 并且cryptocurrency等于item.asset,则给item添加一个属性 零点价值
                         for (let i = 0; i < 统计数据.length; i++) {
-                            console.log(统计数据[i].type, item.asset, 统计数据[i].cryptocurrency, 统计数据[i].type == 1 && 统计数据[i].cryptocurrency == item.asset)
+                            // console.log(统计数据[i].type, item.asset, 统计数据[i].cryptocurrency, 统计数据[i].type == 1 && 统计数据[i].cryptocurrency == item.asset)
                             if (统计数据[i].type == 1 && 统计数据[i].cryptocurrency == item.asset) {
                                 item.零点价值 = 统计数据[i].value;
                                 // 保留2位小数
@@ -480,11 +485,11 @@ export default {
                     user_spot_total_usdt.value = user_spot_total_usdt.value.toFixed(2)
                     现货总盈亏.value = (user_spot_total_usdt.value - 零点现货统计).toFixed(2)
                     if (现货总盈亏.value > 0) {
-                        现货盈亏tag颜色 = 'success'
+                        现货盈亏tag颜色.value = 'success'
                     } else if (现货总盈亏.value == 0) {
-                        现货盈亏tag颜色 = ''
+                        现货盈亏tag颜色.value = ''
                     } else {
-                        现货盈亏tag颜色 = 'danger'
+                        现货盈亏tag颜色.value = 'danger'
                     }
 
                 })
@@ -500,7 +505,7 @@ export default {
         const 合约获取用户持仓 = () => {
             return fapi_获取用户持仓()
                 .then((response) => {
-                    console.log(response.data)
+                    // console.log(response.data)
                     user_perp_info_table_data.value = response.data
                     // 遍历user_perp_info_table_data.value,如果unrealizedProfit>0,则type=success,=0为'',否则type=danger
                     user_perp_total_usdt.value = 0
@@ -517,11 +522,11 @@ export default {
                     user_perp_total_usdt.value = user_perp_total_usdt.value.toFixed(2)
                     合约总盈亏.value = (user_perp_total_usdt.value - 零点合约统计).toFixed(2)
                     if (合约总盈亏.value > 0) {
-                        合约盈亏tag颜色 = 'success'
+                        合约盈亏tag颜色.value = 'success'
                     } else if (合约总盈亏.value == 0) {
-                        合约盈亏tag颜色 = ''
+                        合约盈亏tag颜色.value = ''
                     } else {
-                        合约盈亏tag颜色 = 'danger'
+                        合约盈亏tag颜色.value = 'danger'
                     }
                 })
                 .catch((error) => {
@@ -530,18 +535,29 @@ export default {
         };
         合约获取用户持仓()
 
+        const selectedItem = ref({})
+        const pairs_value = ref('1') //交易对
+        const pairs_options = ref([])
 
-        const getIconUrl = (item) => {
-            // 提取货币符号（例如，从 'BTCUSDT' 中提取 'BTC'）
-            const symbol = item.label.slice(0, -5);
-            if (symbol == 'USDSB') {
-                return 'https://app.3commas.io/currency/icon/BTC';
-            }
-            // 使用 Cryptoicons 生成图标 URL
-            const iconUrl = `https://app.3commas.io/currency/icon/${symbol}`;
-            return iconUrl;
+        const 获取最新交易对 = (use_cache = true) => {
+            return api_获取所有交易对(use_cache)
+                .then((response) => {
+                    pairs_options.value = response.data;
+                    pairs_value.value = response.data[0].value
+                    selectedItem.value = response.data[0]
+                })
+                .catch((error) => {
+                    console.error("Error fetching data:", error);
+                });
         };
+        const handleChange = (value) => {
+            selectedItem.value = pairs_options.value.find(option => option.value === value);
+        }
+
         获取最新交易对(false)
+        const toggleStar = (item) => {
+            console.log(item, "点击了收藏图标")
+        }
         const form = ref({
             symbol: '',
             base_order_size: '',
@@ -568,7 +584,7 @@ export default {
 
 
         const submitForm = async () => {
-            console.log('表单数据：', form.value);
+            // console.log('表单数据：', form.value);
 
             try {
                 let response;
@@ -604,7 +620,6 @@ export default {
             pairs_options,
             activeName,
             获取最新交易对,
-            getIconUrl,
             radio_Strategy,
             radio_fisrt_order_type,
             user_spot_info_table_data,
@@ -615,6 +630,9 @@ export default {
             合约总盈亏,
             现货盈亏tag颜色,
             合约盈亏tag颜色,
+            handleChange,
+            selectedItem,
+            toggleStar
         };
     },
 };
