@@ -15,6 +15,14 @@
                 <el-menu-item index="/goods/category">产品分类</el-menu-item>
             </el-menu-item-group>
         </el-sub-menu>
+        <el-sub-menu index="/exchange_infos">
+            <template #title><el-icon>
+                    <location />
+                </el-icon><span>交易所账号管理</span></template>
+            <el-menu-item-group>
+                <el-menu-item index="/exchange_infos/list">交易所账号列表</el-menu-item>
+            </el-menu-item-group>
+        </el-sub-menu>
         <el-sub-menu index="/md_bots">
             <template #title><el-icon>
                     <location />

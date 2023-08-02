@@ -7,25 +7,25 @@ export const api_get_all_md_bots = () => {
 
 //获取指定id的马丁机器人
 export const api_get_md_bot = (id) => {
-    return http.get(`/md_bots/bot/${botId}`);
+    return http.get(`/md_bots/bot/${id}`);
 };
 
 
 //启动指定id的马丁机器人
 export const api_start_md_bot = (id) => {
-    return http.get(`/md_bots/start_bot/${bot.id}`);
+    return http.get(`/md_bots/start_bot/${id}`);
 };
 
 
 //停止指定id的马丁机器人
 export const api_stop_md_bot = (id) => {
-    return http.get(`/md_bots/stop_bot/${bot.id}`);
+    return http.get(`/md_bots/stop_bot/${id}`);
 };
 
 
 //删除指定id的马丁机器人
 export const api_delete_md_bot = (id) => {
-    return http.delete(`/md_bots/delete_bot/${bot.id}`);
+    return http.delete(`/md_bots/delete_bot/${id}`);
 };
 
 //新增马丁机器人

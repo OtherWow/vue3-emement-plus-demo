@@ -3,9 +3,6 @@
         <el-container>
             <el-main style="padding-right: 15px;">
                 <div>
-                    <h1 v-if="!editMode" style="margin-bottom: 30px;"> 创建马丁机器人</h1>
-                    <h1 v-if="editMode">编辑马丁机器人</h1>
-
                     <el-form label-width="120px">
 
                         <el-card class="box-card">
@@ -82,8 +79,8 @@
                                 <el-col :span="12">
                                     <el-row style="font-size: 10px;margin-bottom: 5px;">交易方向 (现货马丁只能做多)</el-row>
                                     <el-radio-group v-model="radio_Strategy" class="my-radio-group">
-                                        <el-radio-button label="做多" class="my-radio-50" name="radio_short" />
-                                        <el-radio-button label="做空" class="my-radio-50" name="radio_long" />
+                                        <el-radio-button label="做多" class="my-radio-50" />
+                                        <el-radio-button label="做空" class="my-radio-50" disabled />
                                     </el-radio-group>
                                 </el-col>
                                 <el-col :span="12">
@@ -128,8 +125,8 @@
                                 <el-col :span="12">
                                     <el-row style="font-size: 10px;margin-bottom: 5px;">止盈条件</el-row>
                                     <el-radio-group v-model="radio_Strategy" class="my-radio-group">
-                                        <el-radio-button label="做多" class="my-radio-50" name="radio_short" />
-                                        <el-radio-button label="做空" class="my-radio-50" name="radio_long" />
+                                        <el-radio-button label="做多" class="my-radio-50" />
+                                        <el-radio-button label="做空" class="my-radio-50" />
                                     </el-radio-group>
                                 </el-col>
                                 <el-col :span="12">
@@ -389,253 +386,238 @@
 </template>
   
 <script setup>
-import { ref, watch, inject, onMounted } from 'vue';
-import { ElMessage } from 'element-plus';
-import { useRouter, useRoute } from 'vue-router';
-import { api_get_md_bot, api_add_md_bot, api_update_md_bot } from '@/api/md_bots';
-import { api_获取所有交易对, api_获取用户持仓, api_获取今日的统计记录 } from '@/api/binance_api'
+// 引入所需的库和方法
+import { ref, watch, inject, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { useRouter, useRoute } from 'vue-router'
+import {
+    api_get_md_bot,
+    api_add_md_bot,
+    api_update_md_bot,
+} from '@/api/md_bots'
+import {
+    api_获取所有交易对,
+    api_获取用户持仓,
+    api_获取今日的统计记录,
+} from '@/api/binance_api'
 import { fapi_获取用户持仓 } from '@/api/binance_fapi'
-export default {
-    props: {
-        editMode: {
-            type: Boolean,
-            default: false,
-        },
-        botId: {
-            type: String,
-            default: '',
-        },
+
+// 定义 props
+const props = defineProps({
+    // 编辑模式
+    editMode: {
+        type: Boolean,
+        default: false,
     },
-    setup(props, { emit }) {
-        const radio_Strategy = ref('做多') //默认做空
-        const radio_fisrt_order_type = ref('市价单') //默认市价单
-        const activeName = ref('first') //默认激活账户详情
-        const tread_type_value = ref('1') //交易类型
-        const tread_type_options = [
-            {
-                value: '1',
-                label: '现货马丁',
-            },
-            {
-                value: '2',
-                label: '合约马丁',
+    // 机器人 ID
+    botId: {
+        type: String,
+        default: '',
+    },
+})
+
+const radio_Strategy = ref('做多') //默认做空
+const radio_fisrt_order_type = ref('市价单') //默认市价单
+const activeName = ref('first') //默认激活账户详情
+const tread_type_value = ref('1') //交易类型
+const tread_type_options = [
+    {
+        value: '1',
+        label: '现货马丁',
+    },
+    {
+        value: '2',
+        label: '合约马丁',
+    }
+];
+
+
+let 零点现货统计 = 0;
+let 零点合约统计 = 0;
+const 现货总盈亏 = ref(0);
+const 合约总盈亏 = ref(0);
+const 现货盈亏tag颜色 = ref('success');
+const 合约盈亏tag颜色 = ref('success');
+let 统计数据 = [];
+(async () => {
+    try {
+        const response = await api_获取今日的统计记录();
+        // console.log(response.data);
+        统计数据 = response.data
+        // 遍历data
+        for (let i = 0; i < response.data.length; i++) {
+            if (response.data[i].type == 10) {
+                零点现货统计 = response.data[i].value
+            } else if (response.data[i].type == 20) {
+                零点合约统计 = response.data[i].value
             }
-        ];
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+})();
 
-
-
-
-
-        let 零点现货统计 = 0;
-        let 零点合约统计 = 0;
-        const 现货总盈亏 = ref(0);
-        const 合约总盈亏 = ref(0);
-        const 现货盈亏tag颜色 = ref('success');
-        const 合约盈亏tag颜色 = ref('success');
-        let 统计数据 = [];
-        (async () => {
-            try {
-                const response = await api_获取今日的统计记录();
-                // console.log(response.data);
-                统计数据 = response.data
-                // 遍历data
-                for (let i = 0; i < response.data.length; i++) {
-                    if (response.data[i].type == 10) {
-                        零点现货统计 = response.data[i].value
-                    } else if (response.data[i].type == 20) {
-                        零点合约统计 = response.data[i].value
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        })();
-
-        // 现货获取用户持仓表格数据
-        const user_spot_total_usdt = ref(0)
-        const user_spot_info_table_data = ref([])
-        const 现货获取用户持仓 = () => {
-            return api_获取用户持仓()
-                .then((response) => {
-                    // console.log(response.data)
-                    user_spot_info_table_data.value = response.data
-                    // 遍历user_spot_info_table_data.value,统计usdtValuation
-                    user_spot_total_usdt.value = 0
-                    user_spot_info_table_data.value.forEach((item) => {
-                        // 遍历统计数据，如果统计数据的type==1 并且cryptocurrency等于item.asset,则给item添加一个属性 零点价值
-                        for (let i = 0; i < 统计数据.length; i++) {
-                            // console.log(统计数据[i].type, item.asset, 统计数据[i].cryptocurrency, 统计数据[i].type == 1 && 统计数据[i].cryptocurrency == item.asset)
-                            if (统计数据[i].type == 1 && 统计数据[i].cryptocurrency == item.asset) {
-                                item.零点价值 = 统计数据[i].value;
-                                // 保留2位小数
-                                item.盈亏 = (item.usdtValuation - item.零点价值).toFixed(2);
-                                if (item.盈亏 > 0) {
-                                    item.type = 'success'
-                                } else if (item.盈亏 == 0) {
-                                    item.type = ''
-                                } else {
-                                    item.type = 'danger'
-                                }
-                                break;
-                            }
-                        }
-                        user_spot_total_usdt.value += item.usdtValuation;
-                    })
-                    // user_spot_total_usdt保留2位小数
-                    user_spot_total_usdt.value = user_spot_total_usdt.value.toFixed(2)
-                    现货总盈亏.value = (user_spot_total_usdt.value - 零点现货统计).toFixed(2)
-                    if (现货总盈亏.value > 0) {
-                        现货盈亏tag颜色.value = 'success'
-                    } else if (现货总盈亏.value == 0) {
-                        现货盈亏tag颜色.value = ''
-                    } else {
-                        现货盈亏tag颜色.value = 'danger'
-                    }
-
-                })
-                .catch((error) => {
-                    console.error("Error fetching data:", error);
-                });
-        };
-        现货获取用户持仓()
-
-        //合约获取用户资金表格数据
-        const user_perp_total_usdt = ref(0)
-        const user_perp_info_table_data = ref([])
-        const 合约获取用户持仓 = () => {
-            return fapi_获取用户持仓()
-                .then((response) => {
-                    // console.log(response.data)
-                    user_perp_info_table_data.value = response.data
-                    // 遍历user_perp_info_table_data.value,如果unrealizedProfit>0,则type=success,=0为'',否则type=danger
-                    user_perp_total_usdt.value = 0
-                    user_perp_info_table_data.value.forEach((item) => {
-                        user_perp_total_usdt.value += item.marginBalance
-                        if (item.unrealizedProfit > 0) {
+// 现货获取用户持仓表格数据
+const user_spot_total_usdt = ref(0)
+const user_spot_info_table_data = ref([])
+const 现货获取用户持仓 = () => {
+    return api_获取用户持仓()
+        .then((response) => {
+            // console.log(response.data)
+            user_spot_info_table_data.value = response.data
+            // 遍历user_spot_info_table_data.value,统计usdtValuation
+            user_spot_total_usdt.value = 0
+            user_spot_info_table_data.value.forEach((item) => {
+                // 遍历统计数据，如果统计数据的type==1 并且cryptocurrency等于item.asset,则给item添加一个属性 零点价值
+                for (let i = 0; i < 统计数据.length; i++) {
+                    // console.log(统计数据[i].type, item.asset, 统计数据[i].cryptocurrency, 统计数据[i].type == 1 && 统计数据[i].cryptocurrency == item.asset)
+                    if (统计数据[i].type == 1 && 统计数据[i].cryptocurrency == item.asset) {
+                        item.零点价值 = 统计数据[i].value;
+                        // 保留2位小数
+                        item.盈亏 = (item.usdtValuation - item.零点价值).toFixed(2);
+                        if (item.盈亏 > 0) {
                             item.type = 'success'
-                        } else if (item.unrealizedProfit == 0) {
+                        } else if (item.盈亏 == 0) {
                             item.type = ''
                         } else {
                             item.type = 'danger'
                         }
-                    })
-                    user_perp_total_usdt.value = user_perp_total_usdt.value.toFixed(2)
-                    合约总盈亏.value = (user_perp_total_usdt.value - 零点合约统计).toFixed(2)
-                    if (合约总盈亏.value > 0) {
-                        合约盈亏tag颜色.value = 'success'
-                    } else if (合约总盈亏.value == 0) {
-                        合约盈亏tag颜色.value = ''
-                    } else {
-                        合约盈亏tag颜色.value = 'danger'
+                        break;
                     }
-                })
-                .catch((error) => {
-                    console.error("Error fetching data:", error);
-                });
-        };
-        合约获取用户持仓()
-
-        const selectedItem = ref({})
-        const pairs_value = ref('1') //交易对
-        const pairs_options = ref([])
-
-        const 获取最新交易对 = (use_cache = true) => {
-            return api_获取所有交易对(use_cache)
-                .then((response) => {
-                    pairs_options.value = response.data;
-                    pairs_value.value = response.data[0].value
-                    selectedItem.value = response.data[0]
-                })
-                .catch((error) => {
-                    console.error("Error fetching data:", error);
-                });
-        };
-        const handleChange = (value) => {
-            selectedItem.value = pairs_options.value.find(option => option.value === value);
-        }
-
-        获取最新交易对(false)
-        const toggleStar = (item) => {
-            console.log(item, "点击了收藏图标")
-        }
-        const form = ref({
-            symbol: '',
-            base_order_size: '',
-            safety_order_size: '',
-            leverage: '',
-            max_orders: '',
-        });
-
-        const route = useRoute();
-
-        const { editMode, botId } = props;
-
-        onMounted(async () => {
-            if (editMode && botId) {
-                try {
-                    const response = await api_get_md_bot(botId);
-                    form.value = response.data;
-                } catch (error) {
-                    console.error('获取机器人数据失败：', error);
                 }
+                user_spot_total_usdt.value += item.usdtValuation;
+            })
+            // user_spot_total_usdt保留2位小数
+            user_spot_total_usdt.value = user_spot_total_usdt.value.toFixed(2)
+            现货总盈亏.value = (user_spot_total_usdt.value - 零点现货统计).toFixed(2)
+            if (现货总盈亏.value > 0) {
+                现货盈亏tag颜色.value = 'success'
+            } else if (现货总盈亏.value == 0) {
+                现货盈亏tag颜色.value = ''
+            } else {
+                现货盈亏tag颜色.value = 'danger'
             }
+
+        })
+        .catch((error) => {
+            console.error("Error fetching data:", error);
         });
-
-
-
-        const submitForm = async () => {
-            // console.log('表单数据：', form.value);
-
-            try {
-                let response;
-                if (editMode && botId) {
-                    response = await api_update_md_bot(botId, form.value);
-                    console.log('更新成功：', response.data);
-                    ElMessage.success('更新成功');
-                } else {
-                    response = api_add_md_bot(form.value);
-                    console.log('创建成功：', response.data);
-                    ElMessage.success('创建成功');
-                }
-                // console.log("触发createBot的add-tab事件")
-                emit('add-tab', {
-                    meta: {
-                        title: '马丁机器人列表',
-                    },
-                    path: '/md_bots/list',
-                })
-                // console.log("触发createBot的remove-tab事件")
-                emit('remove-tab', editMode ? '/md_bots/edit_bot/${botId}' : '/md_bots/create_bot');
-            } catch (error) {
-                console.error(editMode ? '更新失败：' : '创建失败：', error);
-            }
-        };
-
-        return {
-            form,
-            submitForm,
-            tread_type_value,
-            tread_type_options,
-            pairs_value,
-            pairs_options,
-            activeName,
-            获取最新交易对,
-            radio_Strategy,
-            radio_fisrt_order_type,
-            user_spot_info_table_data,
-            user_perp_info_table_data,
-            user_spot_total_usdt,
-            user_perp_total_usdt,
-            现货总盈亏,
-            合约总盈亏,
-            现货盈亏tag颜色,
-            合约盈亏tag颜色,
-            handleChange,
-            selectedItem,
-            toggleStar
-        };
-    },
 };
+现货获取用户持仓()
+
+//合约获取用户资金表格数据
+const user_perp_total_usdt = ref(0)
+const user_perp_info_table_data = ref([])
+const 合约获取用户持仓 = () => {
+    return fapi_获取用户持仓()
+        .then((response) => {
+            // console.log(response.data)
+            user_perp_info_table_data.value = response.data
+            // 遍历user_perp_info_table_data.value,如果unrealizedProfit>0,则type=success,=0为'',否则type=danger
+            user_perp_total_usdt.value = 0
+            user_perp_info_table_data.value.forEach((item) => {
+                user_perp_total_usdt.value += item.marginBalance
+                if (item.unrealizedProfit > 0) {
+                    item.type = 'success'
+                } else if (item.unrealizedProfit == 0) {
+                    item.type = ''
+                } else {
+                    item.type = 'danger'
+                }
+            })
+            user_perp_total_usdt.value = user_perp_total_usdt.value.toFixed(2)
+            合约总盈亏.value = (user_perp_total_usdt.value - 零点合约统计).toFixed(2)
+            if (合约总盈亏.value > 0) {
+                合约盈亏tag颜色.value = 'success'
+            } else if (合约总盈亏.value == 0) {
+                合约盈亏tag颜色.value = ''
+            } else {
+                合约盈亏tag颜色.value = 'danger'
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching data:", error);
+        });
+};
+合约获取用户持仓()
+
+const selectedItem = ref({})
+const pairs_value = ref('1') //交易对
+const pairs_options = ref([])
+
+const 获取最新交易对 = (use_cache = true) => {
+    return api_获取所有交易对(use_cache)
+        .then((response) => {
+            pairs_options.value = response.data;
+            pairs_value.value = response.data[0].value
+            selectedItem.value = response.data[0]
+        })
+        .catch((error) => {
+            console.error("Error fetching data:", error);
+        });
+};
+const handleChange = (value) => {
+    selectedItem.value = pairs_options.value.find(option => option.value === value);
+}
+
+获取最新交易对(false)
+const toggleStar = (item) => {
+    console.log(item, "点击了收藏图标")
+}
+const form = ref({
+    symbol: '',
+    base_order_size: '',
+    safety_order_size: '',
+    leverage: '',
+    max_orders: '',
+});
+
+const route = useRoute();
+
+const { editMode, botId } = props;
+
+onMounted(async () => {
+    if (editMode && botId) {
+        try {
+            const response = await api_get_md_bot(botId);
+            form.value = response.data;
+        } catch (error) {
+            console.error('获取机器人数据失败：', error);
+        }
+    }
+});
+
+
+
+const submitForm = async () => {
+    console.log('表单数据：', form.value);
+
+    try {
+        let response;
+        if (editMode && botId) {
+            response = await api_update_md_bot(botId, form.value);
+            console.log('更新成功：', response.data);
+            ElMessage.success('更新成功');
+        } else {
+            response = api_add_md_bot(form.value);
+            console.log('创建成功：', response.data);
+            ElMessage.success('创建成功');
+        }
+        // console.log("触发createBot的add-tab事件")
+        emit('add-tab', {
+            meta: {
+                title: '马丁机器人列表',
+            },
+            path: '/md_bots/list',
+        })
+        // console.log("触发createBot的remove-tab事件")
+        emit('remove-tab', editMode ? '/md_bots/edit_bot/${botId}' : '/md_bots/create_bot');
+    } catch (error) {
+        console.error(editMode ? '更新失败：' : '创建失败：', error);
+    }
+};
+
+
 </script>
 <style lang="less" scoped>
 .el-row {

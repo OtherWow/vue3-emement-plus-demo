@@ -74,19 +74,43 @@ export default {
         });
         const btc_ticker = ref({ price: 0, percentage: 0, percentageColor: 'rgb(0,165,154)' });// 绿色
         const connectWebSocket = () => {
+            // 创建一个新的WebSocket连接
             const ws = new WebSocket("ws://google.cccx.top:8000/binance/api/ws");
+            // 当WebSocket连接建立成功
+            ws.onopen = () => {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    ws.send(JSON.stringify({
+                        type: 'authentication',
+                        token: token
+                    }));
+                }
+            };
+            // 当从服务器接收到消息时，处理返回的数据
             ws.onmessage = (event) => {
-                // console.log("接收到消息", event.data);
+                // 解析从服务器接收到的JSON数据
                 const data = JSON.parse(event.data);
+
+                // 格式化并更新价格和百分比
                 btc_ticker.value.price = parseFloat(data.price).toFixed(2);
                 btc_ticker.value.percentage = parseFloat(data.percentage).toFixed(2);
+
+                // 根据百分比变化设置颜色
                 if (btc_ticker.value.percentage >= 0) {
                     btc_ticker.value.percentageColor = 'rgb(0,165,154)'; // 绿色
                 } else {
                     btc_ticker.value.percentageColor = 'rgb(238,125,139)';// 红色
                 }
             };
+
+            // 当窗口关闭或刷新时，关闭WebSocket连接
+            window.addEventListener('beforeunload', () => {
+                console.log("触发beforeunload-layout")
+                // 发送一个关闭帧，告诉服务器我们打算关闭连接
+                ws.close();
+            });
         };
+
 
 
         onMounted(() => {

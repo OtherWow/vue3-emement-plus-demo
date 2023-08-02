@@ -1,9 +1,14 @@
 <template>
-    <div class="home">
-        <h1>马丁机器人管理列表</h1>
-        <el-button type="primary" size="small" @click="createBot">创建机器人</el-button>
-        <bot-table :bots="bots" @start="startBot" @stop="stopBot" @edit="editBot" @delete="deleteBot"></bot-table>
-    </div>
+    <el-container>
+        <el-main>
+            <el-row :gutter="20" style="margin-bottom: 20px;">
+                <el-col :span="6">
+                    <el-button type="primary" @click="createBot">创建机器人</el-button>
+                </el-col>
+            </el-row>
+            <bot-table :bots="bots" @start="startBot" @stop="stopBot" @edit="editBot" @delete="deleteBot"></bot-table>
+        </el-main>
+    </el-container>
 </template>
   
 <script>
@@ -52,8 +57,26 @@ export default {
 
         // 定义删除机器人的函数
         const deleteBot = async (bot) => {
-            await api_delete_md_bot(bot.id);
-            await fetchBots();
+            //弹出确认框让用户二次确认删除
+            const confirm = await ElMessageBox.confirm('此操作将永久删除该机器人, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+            });
+            // 如果用户点击了取消按钮, 则直接返回
+            if (confirm !== 'confirm') {
+                return;
+            }
+            // 根据删除的结果弹出对应的提示，并展示删除失败的原因
+            const response = await api_delete_md_bot(bot.id);
+            if (response.status === 200) {
+                ElMessage.success('删除成功!');
+                await fetchBots();
+            } else {
+                ElMessage.error('删除失败: ' + response.data.message);
+            }
+
+
         };
 
         // 在 setup 函数内部调用 fetchBots 函数获取机器人数据

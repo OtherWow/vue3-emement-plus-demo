@@ -38,6 +38,12 @@ export default {
                     console.error("WebSocket error: ", error);
                 };
                 symbol.value = "";
+                // 当窗口关闭或刷新时，关闭WebSocket连接
+                window.addEventListener('beforeunload', () => {
+                    console.log("触发beforeunload")
+                    // 发送一个关闭帧，告诉服务器我们打算关闭连接
+                    ws.close();
+                });
             }
         };
 
