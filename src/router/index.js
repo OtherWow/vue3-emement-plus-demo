@@ -12,7 +12,7 @@ const routes = [
       {
         path: '/',
         name: 'home',
-        component: Home,
+        component: () => import('@/views/Home'),
         meta: { title: '系统首页', requiresAuth: true }, // 需要鉴权的路由
       }, {
         path: '/goods',
