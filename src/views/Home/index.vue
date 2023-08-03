@@ -180,6 +180,7 @@ onMounted(async () => {
         const currentSeconds = new Date().getSeconds();
         if (currentSeconds === 22) {
             刷新每分钟振幅排行();
+            刷新4小时内币种上榜次数排行();
         }
     }, 1000); // Run this every second
 });
