@@ -7,7 +7,7 @@ import store from './store'
 import 'normalize.css'
 import './assets/css/base.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import echarts from './plugins/Echarts'
+import * as echarts from 'echarts';
 import LoadingButton from '@/components/LoadingButton.vue';
 
 const app = createApp(App)
