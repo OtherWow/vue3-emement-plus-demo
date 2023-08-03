@@ -15,3 +15,8 @@ export const fapi_获取当前分钟的振幅排行 = () => {
 export const fapi_获取指定币种的所有振幅数据 = (symbol) => {
     return http.get(`/binance/fapi/amplitude_1m_all/${symbol}`);
 };
+
+//获取4小时内币种上榜次数排行
+export const fapi_获取4小时内币种上榜次数排行 = () => {
+    return http.get(`/binance/fapi/amplitude_1m_top20_4h_count`);
+};

@@ -13,5 +13,9 @@ module.exports = defineConfig({
         resolvers: [ElementPlusResolver()],
       }),
     ],
+  },
+  devServer: {
+    host: '0.0.0.0',
+    port: 17081, // 设置想要的端口号
   }
 })

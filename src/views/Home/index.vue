@@ -35,7 +35,26 @@
 
 
                         </el-tab-pane>
-                        <el-tab-pane label="4小时内振幅上榜数量排行" name="second">Config</el-tab-pane>
+                        <el-tab-pane label="4小时内振幅上榜数量排行" name="second">
+                            <el-table :data="amplitude_1m_top20_4h_count_table_data" style="width: 100%"
+                                :max-height="cardHeight - 110">
+                                <el-table-column prop="index" label="排名" align="center" width="80"></el-table-column>
+                                <el-table-column label="交易对" align="center">
+                                    <template #default="scope">
+                                        <el-button @click="刷新指定币种的振幅数据(scope.row.symbol)">{{
+                                            scope.row.symbol }}</el-button>
+                                    </template>
+
+                                </el-table-column>
+                                <el-table-column label="上榜次数" align="center">
+                                    <template #default="scope">
+                                        <el-tag type="success" effect="dark" size="large">{{ scope.row.count
+                                        }}</el-tag>
+                                    </template>
+                                </el-table-column>
+
+                            </el-table>
+                        </el-tab-pane>
                     </el-tabs>
 
                 </el-card></el-aside>
@@ -45,10 +64,11 @@
 
 <script setup>
 import { inject, onMounted, ref, onBeforeUnmount } from 'vue';
-import { fapi_获取当前分钟的振幅排行, fapi_获取指定币种的所有振幅数据 } from '@/api/binance_fapi'
+import { fapi_获取当前分钟的振幅排行, fapi_获取指定币种的所有振幅数据, fapi_获取4小时内币种上榜次数排行 } from '@/api/binance_fapi'
 
 
 let amplitude_1m_20_table_data = ref([]);  // initial empty data
+let amplitude_1m_top20_4h_count_table_data = ref([]);  // initial empty data
 let amplitude_1m_all_data = ref({});  // initial empty data
 let intervalId = ref(null);
 const cardHeight = ref(0);  // default height
@@ -67,6 +87,15 @@ const 刷新每分钟振幅排行 = async () => {
     amplitude_1m_20_table_data.value = res.data;
     return res.data;
 };
+
+const 刷新4小时内币种上榜次数排行 = async () => {
+    const res = await fapi_获取4小时内币种上榜次数排行();
+    console.log("刷新4小时内币种上榜次数排行");
+    console.log(res.data);
+    amplitude_1m_top20_4h_count_table_data.value = res.data;
+    return res.data;
+};
+
 
 const 刷新指定币种的振幅数据 = async (symbol) => {
     const res = await fapi_获取指定币种的所有振幅数据(symbol);
@@ -140,6 +169,7 @@ const 刷新指定币种的振幅数据 = async (symbol) => {
 onMounted(async () => {
     updateHeight();
     const data = await 刷新每分钟振幅排行();
+    刷新4小时内币种上榜次数排行();
     if (data && data.length > 0) {
         console.log(data[0].symbol);
         const symbol = data[0].symbol;
