@@ -13,7 +13,7 @@
                 <el-card class="box-card" :style="{ height: cardHeight + 'px' }">
                     <el-tabs v-model="activeTab" class="demo-tabs" style="margin-top: 10px;">
                         <el-tab-pane label="每分钟振幅排行" name="first">
-                            <el-table :data="amplitude_1m_20_table_data" style="width: 100%" :max-height="cardHeight - 110">
+                            <el-table :data="amplitude_1m_20_table_data" style="width: 100%" :height="cardHeight - 110">
                                 <el-table-column prop="index" label="排名" align="center" width="80"></el-table-column>
                                 <el-table-column label="交易对" align="center">
                                     <template #default="scope">
@@ -37,7 +37,7 @@
                         </el-tab-pane>
                         <el-tab-pane label="4小时内振幅上榜数量排行" name="second">
                             <el-table :data="amplitude_1m_top20_4h_count_table_data" style="width: 100%"
-                                :max-height="cardHeight - 110">
+                                :height="cardHeight - 110">
                                 <el-table-column prop="index" label="排名" align="center" width="80"></el-table-column>
                                 <el-table-column label="交易对" align="center">
                                     <template #default="scope">
