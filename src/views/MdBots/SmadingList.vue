@@ -10,9 +10,15 @@
                 :summary-method="getSummaries" show-summary>
                 <el-table-column fixed="left" prop="name" label="交易所账号名称" width="130" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column fixed="left" prop="symbol" label="交易对" width="120" show-overflow-tooltip
-                    align="center"></el-table-column>
+                <el-table-column fixed="left" prop="symbol" label="交易对" width="120" show-overflow-tooltip align="center">
+                    <template #default="scope">
+                        <el-tag type="info" effect="dark">{{ scope.row.symbol }}</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="运行时间" label="运行时间" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="最新价格" label="最新价格" width="90" show-overflow-tooltip align="center"></el-table-column>
+                <el-table-column prop="触发对冲单次数" label="触发对冲单次数" width="140" show-overflow-tooltip
+                    align="center"></el-table-column>
                 <el-table-column prop="第几次对冲单" label="第几次对冲单" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="第几次补单" label="第几次补单" width="110" show-overflow-tooltip
