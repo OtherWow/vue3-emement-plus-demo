@@ -32,6 +32,24 @@ const routes = [
           }
         ]
       }, {
+        path: '/FundingRate',
+        component: () => import('@/views/FundingRate'),
+        children: [
+          {
+            path: 'list',
+            name: 'FundingRate_list',
+            component: () => import('@/views/FundingRate/List.vue'),
+            meta: { title: '资金费率策略列表', requiresAuth: true }, // 需要鉴权的路由
+          }
+          // ,
+          // {
+          //   path: 'category',
+          //   name: 'goods_category',
+          //   component: () => import('@/views/Goods/Category.vue'),
+          //   meta: { title: '产品分类', requiresAuth: true }, // 需要鉴权的路由
+          // }
+        ]
+      }, {
         path: '/exchange_infos',
         component: () => import('@/views/ExchangeInfos'),
         children: [
@@ -52,6 +70,12 @@ const routes = [
             name: 'md_bots_list',
             component: () => import('@/views/MdBots/List.vue'),
             meta: { title: '马丁机器人列表', requiresAuth: true }, // 需要鉴权的路由
+          },
+          {
+            path: 'smadingList',
+            name: 'smadingList',
+            component: () => import('@/views/MdBots/SmadingList.vue'),
+            meta: { title: '双马丁机器人列表', requiresAuth: true }, // 需要鉴权的路由
           },
           {
             path: 'detail',

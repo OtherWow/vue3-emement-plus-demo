@@ -1,4 +1,4 @@
-import http from './http';
+import { http } from './http';
 
 //获取所有马丁机器人
 export const api_get_all_md_bots = () => {

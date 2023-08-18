@@ -55,6 +55,21 @@
 
                             </el-table>
                         </el-tab-pane>
+                        <el-tab-pane label="资金费率排行" name="three">
+                            <el-table :data="funding_rate_top20_now_table_data" style="width: 100%"
+                                :height="cardHeight - 110">
+                                <el-table-column prop="index" label="排名" align="center" width="80"></el-table-column>
+                                <el-table-column prop="symbol" label="交易对" align="center"></el-table-column>
+                                <el-table-column label="资金费率" align="center">
+                                    <template #default="scope">
+                                        <el-tag type="success" effect="dark" size="large">{{ scope.row.funding_rate
+                                        }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="next_rate_time" label="倒计时" align="center"
+                                    width="80"></el-table-column>
+                            </el-table>
+                        </el-tab-pane>
                     </el-tabs>
 
                 </el-card></el-aside>
@@ -64,11 +79,12 @@
 
 <script setup>
 import { inject, onMounted, ref, onBeforeUnmount } from 'vue';
-import { fapi_获取当前分钟的振幅排行, fapi_获取指定币种的所有振幅数据, fapi_获取4小时内币种上榜次数排行 } from '@/api/binance_fapi'
+import { fapi_获取当前分钟的振幅排行, fapi_获取指定币种的所有振幅数据, fapi_获取4小时内币种上榜次数排行, fapi_获取最新的资金费率排行前20 } from '@/api/binance_fapi'
 
 
 let amplitude_1m_20_table_data = ref([]);  // initial empty data
 let amplitude_1m_top20_4h_count_table_data = ref([]);  // initial empty data
+let funding_rate_top20_now_table_data = ref([]);  // initial empty data
 let amplitude_1m_all_data = ref({});  // initial empty data
 let intervalId = ref(null);
 const cardHeight = ref(0);  // default height
@@ -85,6 +101,13 @@ const 刷新每分钟振幅排行 = async () => {
     const res = await fapi_获取当前分钟的振幅排行();
     console.log(res.data);
     amplitude_1m_20_table_data.value = res.data;
+    return res.data;
+};
+
+const 刷新最新的资金费率排行前20 = async () => {
+    const res = await fapi_获取最新的资金费率排行前20();
+    console.log(res.data);
+    funding_rate_top20_now_table_data.value = res.data;
     return res.data;
 };
 
@@ -182,6 +205,7 @@ onMounted(async () => {
             刷新每分钟振幅排行();
             刷新4小时内币种上榜次数排行();
         }
+        刷新最新的资金费率排行前20();
     }, 1000); // Run this every second
 });
 

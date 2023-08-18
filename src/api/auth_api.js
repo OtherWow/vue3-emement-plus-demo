@@ -1,4 +1,4 @@
-import http from './http';
+import { http } from './http';
 
 //登录
 export const api_登录 = (username, password) => {

@@ -4,7 +4,7 @@
 
         <el-menu-item><template #title><span>测试系统</span></template></el-menu-item>
         <el-menu-item index="/"><el-icon>
-                <ScaleToOriginal />
+                <House />
             </el-icon><span>系统首页</span></el-menu-item>
         <el-sub-menu index="/goods">
             <template #title><el-icon>
@@ -15,9 +15,17 @@
                 <el-menu-item index="/goods/category">产品分类</el-menu-item>
             </el-menu-item-group>
         </el-sub-menu>
+        <el-sub-menu index="/FundingRate">
+            <template #title><el-icon>
+                    <Coin />
+                </el-icon><span>资金费率策略管理</span></template>
+            <el-menu-item-group>
+                <el-menu-item index="/FundingRate/list">资金费率策略列表</el-menu-item>
+            </el-menu-item-group>
+        </el-sub-menu>
         <el-sub-menu index="/exchange_infos">
             <template #title><el-icon>
-                    <location />
+                    <Connection />
                 </el-icon><span>交易所账号管理</span></template>
             <el-menu-item-group>
                 <el-menu-item index="/exchange_infos/list">交易所账号列表</el-menu-item>
@@ -28,7 +36,8 @@
                     <location />
                 </el-icon><span>马丁机器人管理</span></template>
             <el-menu-item-group>
-                <el-menu-item index="/md_bots/list">马丁列表</el-menu-item>
+                <el-menu-item index="/md_bots/list">马丁机器人列表</el-menu-item>
+                <el-menu-item index="/md_bots/smadingList">双马丁机器人列表</el-menu-item>
                 <el-menu-item index="/md_bots/detail">马丁明细</el-menu-item>
             </el-menu-item-group>
         </el-sub-menu>

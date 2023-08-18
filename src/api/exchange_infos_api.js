@@ -1,4 +1,4 @@
-import http from './http';
+import { http } from './http';
 const base_url = '/exchange_infos';
 //获取当前用户的所有交易所信息，包括交易所的名称、API密钥和API密钥对应的密码，以及是否为主账号
 export const 查询当前用户的所有交易所信息 = () => {

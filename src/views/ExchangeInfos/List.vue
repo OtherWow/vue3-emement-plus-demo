@@ -97,6 +97,14 @@ async function getExchangeInfos() {
 // 新增或编辑交易所信息
 async function submitExchange() {
     console.log(currentExchange.value);
+    // 如果 currentExchange.exchange_api_key currentExchange.exchange_api_secret包含* 就返回错误提示
+    if (currentExchange.value.exchange_api_key.includes("*") || currentExchange.value.exchange_api_secret.includes("*")) {
+        ElMessage({
+            message: "API Key和API Secret不能包含*",
+            type: "error"
+        });
+        return;
+    }
     if (currentExchange.value.id) {
         // 如果有id，代表是编辑操作
         dialogTitle.value = "编辑交易所账号";
