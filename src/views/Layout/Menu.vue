@@ -38,6 +38,7 @@
             <el-menu-item-group>
                 <el-menu-item index="/md_bots/list">马丁机器人列表</el-menu-item>
                 <el-menu-item index="/md_bots/smadingList">双马丁机器人列表</el-menu-item>
+                <el-menu-item index="/md_bots/smadingMonitor">双马丁监控墙</el-menu-item>
                 <el-menu-item index="/md_bots/detail">马丁明细</el-menu-item>
             </el-menu-item-group>
         </el-sub-menu>

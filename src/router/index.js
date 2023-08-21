@@ -76,6 +76,11 @@ const routes = [
             name: 'smadingList',
             component: () => import('@/views/MdBots/SmadingList.vue'),
             meta: { title: '双马丁机器人列表', requiresAuth: true }, // 需要鉴权的路由
+          }, {
+            path: 'smadingMonitor',
+            name: 'smadingMonitor',
+            component: () => import('@/views/MdBots/SmadingMonitor.vue'),
+            meta: { title: '双马丁监控墙', requiresAuth: true }, // 需要鉴权的路由
           },
           {
             path: 'detail',
