@@ -32,8 +32,8 @@ const responseInterceptorError = (error) => {
 
 // 创建用于连接到第一台服务器的axios实例
 const http = axios.create({
-    // baseURL: 'http://google.cccx.top:8000',
-    baseURL: 'http://localhost:8000',
+    baseURL: 'http://google.cccx.top:8000',
+    // baseURL: 'http://localhost:8000',
     timeout: 60000,
 });
 

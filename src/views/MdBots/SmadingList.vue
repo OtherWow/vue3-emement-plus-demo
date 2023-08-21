@@ -12,9 +12,9 @@
                     <el-button type="primary" @click="getStartegyList()">刷新</el-button>
                 </el-col>
             </el-row>
-            <el-table :data="smading_strategy_list" style="width: 100%" :fit="false" border highlight-current-row
-                :row-class-name="tableRowClassName" @current-change="handleSelectionChangeOuter">
-                <el-table-column type="index" width="50" />
+            <el-table ref='singleTableRef' :data="smading_strategy_list" style="width: 100%" :fit="false" border
+                highlight-current-row @current-change="handleSelectionChangeOuter">
+
                 <el-table-column type="expand">
                     <template #default="props">
                         <el-row :gutter="20" style="margin-left: 60px; margin-top: 5px;">
@@ -28,9 +28,9 @@
                         <el-table :data="props.row.symbol_infos" style="margin-left: 50px;width:80%"
                             @selection-change="handleSelectionChangeInner">
                             <el-table-column type="selection" width="55" />
-                            <el-table-column type="index" width="50" />
-                            <el-table-column label="交易对" prop="symbol" />
-                            <el-table-column label="交易对精度" prop="symbol_price_precision" />
+                            <el-table-column type="index" width="55" label="序号" align="center" />
+                            <el-table-column label="交易对" prop="symbol" align="center" />
+                            <el-table-column label="交易对精度" prop="symbol_price_precision" align="center" />
                             <el-table-column label="运行中" width="90" show-overflow-tooltip align="center">
                                 <template #default="{ row }">
                                     <el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">{{ row
@@ -54,7 +54,7 @@
                         </el-table>
                     </template>
                 </el-table-column>
-
+                <el-table-column type="index" width="55" label="序号" align="center" />
                 <el-table-column prop="exchange_name" label="交易所账号名称" width="130" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="strategy_note" label="策略备注" width="300" show-overflow-tooltip
@@ -548,6 +548,16 @@ const handleSelectionChangeOuter = (selected) => {
     selectedStrategy.value = selected;
 };
 
+const handleClose = (done) => {
+    dialogVisible.value = false;
+    // logDialogVisible.value = false;
+    done();
+};
+
+const singleTableRef = ref(null);
+const setCurrent = (row) => {
+    singleTableRef.value.setCurrentRow(row)
+}
 // 复制策略的方法
 const copyStrategy = () => {
     if (!selectedStrategy.value) {
@@ -574,6 +584,8 @@ const copyStrategy = () => {
 
     });
     updateSymbolPrecisionFields(currentStrategy.value.symbols);
+    currentStrategy.value.id = null;
+    setCurrent();
     dialogVisible.value = true;
     editDisabled.value = false;
 };
@@ -667,13 +679,15 @@ function editStrategy(item) {
     for (let key in symbol_precisions) {
         delete symbol_precisions[key];
     }
-    currentStrategy.value.symbol_infos.forEach(symbol_info => {
-        symbol_precisions[symbol_info['symbol']] = symbol_info['symbol_price_precision'];
-        currentStrategy.value.symbols.push(symbol_info['symbol']);
+    if (currentStrategy.value.symbol_infos && currentStrategy.value.symbol_infos.length > 0) {
+        currentStrategy.value.symbol_infos.forEach(symbol_info => {
+            symbol_precisions[symbol_info['symbol']] = symbol_info['symbol_price_precision'];
+            currentStrategy.value.symbols.push(symbol_info['symbol']);
 
-    });
-    console.log(symbol_precisions);
-    updateSymbolPrecisionFields(currentStrategy.value.symbols);
+        });
+        updateSymbolPrecisionFields(currentStrategy.value.symbols);
+    }
+
 
     // console.log(exchange_info)
     // exchange_info.value.exchange_name = item.exchange_name;
@@ -745,29 +759,58 @@ async function submitStrategy() {
     currentStrategy.value.exchange_id = exchange_info.value.id;
     currentStrategy.value.exchange_name = exchange_info.value.exchange_name;
     currentStrategy.value.symbol_precisions = symbol_precisions;
-    try {
-        const res = await api_新增双马丁策略(currentStrategy.value);
-        // console.log("res", res);
-        if (res.status === 200 && res.data.code === 200) {
-            // console.log(res.data.data);
+    // console.log(currentStrategy.value);
+    if (currentStrategy.value.id) {
+        try {
+            const res = await api_更新指定id的双马丁策略(currentStrategy.value.id, currentStrategy.value);
+            // console.log("res", res);
+            if (res.status === 200 && res.data.code === 200) {
+                // console.log(res.data.data);
+
+                await getStartegyList();
+                ElMessage({
+                    message: "更新双马丁策略成功",
+                    type: "success"
+                });
+                dialogVisible.value = false;
+            } else {
+                ElMessage({
+                    message: "更新双马丁策略失败：" + res.data.msg,
+                    type: "error"
+                });
+            }
+        } catch (error) {
             ElMessage({
-                message: "新增双马丁策略成功",
-                type: "success"
-            });
-            dialogVisible.value = false;
-            await getStartegyList();
-        } else {
-            ElMessage({
-                message: "新增双马丁策略失败：" + res.data.msg,
+                message: "更新双马丁策略失败：" + error,
                 type: "error"
             });
         }
-    } catch (error) {
-        ElMessage({
-            message: "新增双马丁策略失败：" + error,
-            type: "error"
-        });
+    } else {
+        try {
+            const res = await api_新增双马丁策略(currentStrategy.value);
+            // console.log("res", res);
+            if (res.status === 200 && res.data.code === 200) {
+                // console.log(res.data.data);
+                await getStartegyList();
+                ElMessage({
+                    message: "新增双马丁策略成功",
+                    type: "success"
+                });
+                dialogVisible.value = false;
+            } else {
+                ElMessage({
+                    message: "新增双马丁策略失败：" + res.data.msg,
+                    type: "error"
+                });
+            }
+        } catch (error) {
+            ElMessage({
+                message: "新增双马丁策略失败：" + error,
+                type: "error"
+            });
+        }
     }
+
 }
 
 const deleteStrategy = async (row) => {
@@ -776,11 +819,11 @@ const deleteStrategy = async (row) => {
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
+            await getStartegyList();
             ElMessage({
                 message: "删除双马丁策略成功",
                 type: "success"
             });
-            await getStartegyList();
         } else {
             ElMessage({
                 message: "删除双马丁策略失败：" + res.data.msg,
