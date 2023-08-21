@@ -13,7 +13,8 @@
                 </el-col>
             </el-row>
             <el-table ref='singleTableRef' :data="smading_strategy_list" style="width: 100%" :fit="false" border
-                highlight-current-row @current-change="handleSelectionChangeOuter">
+                highlight-current-row @current-change="handleSelectionChangeOuter" @expand-change="onExpandChange"
+                :expand-row-keys="expandedRowKeys" row-key="id">
 
                 <el-table-column type="expand">
                     <template #default="props">
@@ -45,7 +46,7 @@
                                         :disabled="row.is_run">启动</el-button>
                                     <el-button type="primary" size="small" @click="stopStrategy(row)" plain
                                         :disabled="!row.is_run">停止</el-button>
-                                    <el-button type="danger" size="small" @click="deleteStrategy(row)"
+                                    <el-button type="danger" size="small" @click="deleteSymbolStrategy(row)"
                                         :disabled="row.is_run">删除</el-button>
                                     <el-button type="success" size="small" @click="showLog(row)"
                                         :disabled="row.is_run">查看操作日志</el-button>
@@ -55,9 +56,9 @@
                     </template>
                 </el-table-column>
                 <el-table-column type="index" width="55" label="序号" align="center" />
-                <el-table-column prop="exchange_name" label="交易所账号名称" width="130" show-overflow-tooltip
+                <el-table-column prop="exchange_name" label="交易所账号名称" width="125" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="strategy_note" label="策略备注" width="300" show-overflow-tooltip
+                <el-table-column prop="strategy_note" label="策略备注" width="150" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column label="持仓情况" width="90" show-overflow-tooltip align="center">
                     <template #default="{ row }">
@@ -68,6 +69,14 @@
                         }}</el-tag>
                     </template>
                 </el-table-column>
+                <el-table-column prop="pos_value_1st" label="首单价值" width="85" show-overflow-tooltip
+                    align="center"></el-table-column>
+                <el-table-column prop="cover_order_pos_value_1st" label="补单首单" width="85" show-overflow-tooltip
+                    align="center"></el-table-column>
+                <el-table-column prop="all_cover_order_count" label="补单次数" width="85" show-overflow-tooltip
+                    align="center"></el-table-column>
+
+
 
                 <el-table-column label="对冲马丁" width="90" show-overflow-tooltip align="center">
                     <template #default="{ row }">
@@ -151,7 +160,7 @@
                                 <el-col :span="12">
                                     <el-form-item label="交易所账号" required>
                                         <el-select v-model="exchange_info" clearable placeholder="请选择" style="width:100%"
-                                            filterable value-key="id" :disabled="editDisabled">
+                                            filterable value-key="id">
                                             <el-option v-for="item in exchange_options" :key="item.id"
                                                 :label="item.exchange_name" :value="item" />
                                         </el-select>
@@ -183,7 +192,7 @@
                             <!-- 交易对的多选框 -->
                             <el-form-item label="币种" required>
                                 <el-select v-model="currentStrategy.symbols" @change="updateSymbolPrecisionFields" clearable
-                                    placeholder="请选择" style="width:100%" multiple filterable :disabled="editDisabled">
+                                    placeholder="请选择" style="width:100%" multiple filterable>
                                     <el-option v-for="item in symbol_options" :key="item.symbol" :label="item.symbol"
                                         :value="item.symbol" />
                                 </el-select>
@@ -500,7 +509,7 @@
 </template>
   
 <script setup>
-import { ref, onMounted, onBeforeUnmount, reactive } from 'vue';
+import { nextTick, ref, onMounted, onBeforeUnmount, reactive } from 'vue';
 import {
     api_获取交易对列表,
 } from "@/api/funding_rate_strategy_api";
@@ -512,7 +521,8 @@ import {
     api_停止指定id的双马丁策略,
     api_删除指定id的双马丁策略,
     api_新增双马丁策略,
-    api_更新指定id的双马丁策略
+    api_更新指定id的双马丁策略,
+    api_删除指定id的交易对双马丁策略,
 } from "@/api/smading_strategy_api";
 
 
@@ -532,6 +542,13 @@ onMounted(() => {
 onBeforeUnmount(() => {
 
 });
+
+//刷新时也保持展开状态
+const expandedRowKeys = ref([]);
+const onExpandChange = (row, expanded) => {
+    // console.log(row, expanded);
+    expandedRowKeys.value = expanded.value
+};
 
 
 const multipleSelection = ref([])
@@ -699,12 +716,19 @@ const exchange_options = ref([]);
 
 // 获取交易对信息
 async function getSymbolList() {
+
     try {
         const res = await api_获取交易对列表();
         // console.log("res", res);
-        if (res.status === 200) {
+        if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
             symbol_options.value = res.data.data;
+
+        } else {
+            ElMessage({
+                message: "查询交易对列表失败：" + res.data.msg,
+                type: "error"
+            });
         }
     } catch (error) {
         ElMessage({
@@ -712,6 +736,7 @@ async function getSymbolList() {
             type: "error"
         });
     }
+
 }
 
 // 获取交易所信息
@@ -735,12 +760,14 @@ async function getExchangeInfoList() {
 const smading_strategy_list = ref([]);
 // 获取策略信息
 async function getStartegyList() {
+
     try {
         const res = await api_获取双马丁策略列表();
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             console.log(res.data.data);
             smading_strategy_list.value = res.data.data;
+
         } else {
             ElMessage({
                 message: "查询双马丁策略列表失败：" + res.data.msg,
@@ -753,6 +780,7 @@ async function getStartegyList() {
             type: "error"
         });
     }
+
 }
 
 async function submitStrategy() {
@@ -833,6 +861,31 @@ const deleteStrategy = async (row) => {
     } catch (error) {
         ElMessage({
             message: "删除双马丁策略失败：" + error,
+            type: "error"
+        });
+    }
+}
+
+const deleteSymbolStrategy = async (row) => {
+    try {
+        const res = await api_删除指定id的交易对双马丁策略(row.id);
+        // console.log("res", res);
+        if (res.status === 200 && res.data.code === 200) {
+            // console.log(res.data.data);
+            await getStartegyList();
+            ElMessage({
+                message: "删除交易对双马丁策略成功",
+                type: "success"
+            });
+        } else {
+            ElMessage({
+                message: "删除交易对双马丁策略失败：" + res.data.msg,
+                type: "error"
+            });
+        }
+    } catch (error) {
+        ElMessage({
+            message: "删除交易对双马丁策略失败：" + error,
             type: "error"
         });
     }

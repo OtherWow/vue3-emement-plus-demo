@@ -30,6 +30,11 @@ export const api_删除指定id的双马丁策略 = (id) => {
     return http.delete(`/${model_url}/${id}`);
 };
 
+//删除指定id的交易对双马丁策略
+export const api_删除指定id的交易对双马丁策略 = (id) => {
+    return http.delete(`/${model_url}/symbol/${id}`);
+};
+
 //新增双马丁策略
 export const api_新增双马丁策略 = (data) => {
     return http.post(`/${model_url}/`, data);
