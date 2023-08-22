@@ -136,7 +136,8 @@
                     <template #default="{ row }">
 
                         <el-button type="primary" size="small" @click="editStrategy(row)" plain>编辑</el-button>
-                        <el-button type="danger" size="small" @click="deleteStrategy(row)">删除</el-button>
+                        <el-button type="danger" size="small" @click="deleteStrategy(row)"
+                            :disabled="row.is_run">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -145,7 +146,8 @@
                 :close-on-click-modal="false">
                 <el-form :model="currentStrategy" label-width="150px">
                     <div class="dialog-content">
-                        <el-card class="box-card" style="margin-bottom: 20px;margin-right: 20px;">
+                        <el-card class="box-card"
+                            style="margin-bottom: 20px;margin-right: 20px;margin-left: 20px;margin-top: 20px;">
                             <template #header>
                                 <div class="card-header">
                                     <span>马丁策略基础设置</span>
@@ -159,7 +161,7 @@
                                 <el-col :span="12">
                                     <el-form-item label="交易所账号" required>
                                         <el-select v-model="exchange_info" clearable placeholder="请选择" style="width:100%"
-                                            filterable value-key="id">
+                                            filterable value-key="id" :disabled="currentStrategy.is_run">
                                             <el-option v-for="item in exchange_options" :key="item.id"
                                                 :label="item.exchange_name" :value="item" />
                                         </el-select>
@@ -173,7 +175,8 @@
                                 <el-col :span="12">
                                     <div>
                                         <el-form-item label="主马丁持仓方向" required>
-                                            <el-radio-group v-model="currentStrategy.position_side" class="my-radio-group">
+                                            <el-radio-group v-model="currentStrategy.position_side" class="my-radio-group"
+                                                :disabled="currentStrategy.is_run">
                                                 <el-radio-button :label="'LONG'" class="my-radio-50">
                                                     <template #default>做多</template>
                                                 </el-radio-button>
@@ -210,7 +213,8 @@
 
                         </el-card>
 
-                        <el-card class="box-card" style="margin-right: 20px;">
+                        <el-card class="box-card" style="margin-right: 20px;margin-left: 20px;"
+                            :disabled="currentStrategy.is_run">
                             <template #header>
                                 <div class="card-header">
                                     <span>下单设置</span>
@@ -219,13 +223,14 @@
                             <el-row :gutter="20">
                                 <el-col :span="12">
                                     <el-form-item label="首单价值" required>
-                                        <el-input type="number" v-model.number="currentStrategy.pos_value_1st"><template
+                                        <el-input type="number" :disabled="currentStrategy.is_run"
+                                            v-model.number="currentStrategy.pos_value_1st"><template
                                                 #append>USDT</template></el-input>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12">
                                     <el-form-item label="补单首单价值" required>
-                                        <el-input type="number"
+                                        <el-input type="number" :disabled="currentStrategy.is_run"
                                             v-model.number="currentStrategy.cover_order_pos_value_1st"><template
                                                 #append>USDT</template></el-input>
                                     </el-form-item>
@@ -234,34 +239,39 @@
                             <el-row :gutter="20">
                                 <el-col :span="12">
                                     <el-form-item label="补单次数" required>
-                                        <el-input v-model.number="currentStrategy.all_cover_order_count"><template
+                                        <el-input :disabled="currentStrategy.is_run"
+                                            v-model.number="currentStrategy.all_cover_order_count"><template
                                                 #append>次</template></el-input>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12">
                                     <el-form-item label="补单波动" required>
-                                        <el-input v-model.number="currentStrategy.price_pct_trigger_cover"
-                                            type="number"><template #append>%</template></el-input>
+                                        <el-input :disabled="currentStrategy.is_run"
+                                            v-model.number="currentStrategy.price_pct_trigger_cover" type="number"><template
+                                                #append>%</template></el-input>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
                             <el-row :gutter="20">
                                 <el-col :span="12">
                                     <el-form-item label="补单倍数" required>
-                                        <el-input type="number" v-model.number="currentStrategy.cover_value_mult"><template
+                                        <el-input :disabled="currentStrategy.is_run" type="number"
+                                            v-model.number="currentStrategy.cover_value_mult"><template
                                                 #append>倍</template></el-input>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12">
                                     <el-form-item label="加速补单百分比" required>
-                                        <el-input type="number" v-model.number="currentStrategy.accel_cover_pct"
+                                        <el-input :disabled="currentStrategy.is_run" type="number"
+                                            v-model.number="currentStrategy.accel_cover_pct"
                                             placeholder="正数加快补单负数放慢补单"><template #append>%</template></el-input>
                                     </el-form-item>
                                 </el-col>
 
                             </el-row>
                         </el-card>
-                        <el-card class="box-card" style="margin-top: 20px;margin-bottom: 20px;margin-right: 20px;">
+                        <el-card class="box-card"
+                            style="margin-top: 20px;margin-bottom: 20px;margin-right: 20px;margin-left: 20px;">
                             <template #header>
                                 <div class="card-header">
                                     <span>对冲马丁设置</span>
@@ -271,8 +281,8 @@
                                 <el-col :span="12">
                                     <div>
                                         <el-form-item label="对冲马丁" required>
-                                            <el-radio-group v-model.number="currentStrategy.open_hedge_mading"
-                                                class="my-radio-group">
+                                            <el-radio-group :disabled="currentStrategy.is_run"
+                                                v-model.number="currentStrategy.open_hedge_mading" class="my-radio-group">
                                                 <el-radio-button :label="true" class="my-radio-50">
                                                     <template #default>开启</template>
                                                 </el-radio-button>
@@ -294,12 +304,13 @@
                                 <el-col :span="12">
 
                                     <el-form-item label="对冲马丁第几单触发" required>
-                                        <el-input v-model.number="currentStrategy.tigger_hedge_mading_num"></el-input>
+                                        <el-input :disabled="currentStrategy.is_run"
+                                            v-model.number="currentStrategy.tigger_hedge_mading_num"></el-input>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12">
                                     <el-form-item label="对冲马丁首单价值" required>
-                                        <el-input type="number"
+                                        <el-input :disabled="currentStrategy.is_run" type="number"
                                             v-model.number="currentStrategy.hedge_mading_pos_value_1st"><template
                                                 #append>USDT</template></el-input>
                                     </el-form-item>
@@ -309,7 +320,7 @@
                                 <el-col :span="12">
                                     <div>
                                         <el-form-item label="对冲触发后停止补单" required>
-                                            <el-radio-group
+                                            <el-radio-group :disabled="currentStrategy.is_run"
                                                 v-model.number="currentStrategy.open_tigger_hedge_mading_stop_cover"
                                                 class="my-radio-group">
                                                 <el-radio-button :label="true" class="my-radio-50">
@@ -333,12 +344,13 @@
                                 v-if="currentStrategy.open_hedge_mading && !currentStrategy.open_tigger_hedge_mading_stop_cover">
                                 <el-col :span="12">
                                     <el-form-item label="对冲马丁第几单补单" required>
-                                        <el-input v-model.number="currentStrategy.tigger_hedge_mading_cover_num"></el-input>
+                                        <el-input :disabled="currentStrategy.is_run"
+                                            v-model.number="currentStrategy.tigger_hedge_mading_cover_num"></el-input>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12">
                                     <el-form-item label="补单首单价值" required>
-                                        <el-input type="number"
+                                        <el-input type="number" :disabled="currentStrategy.is_run"
                                             v-model.number="currentStrategy.hedge_mading_cover_pos_value_1st"><template
                                                 #append>USDT</template></el-input>
                                     </el-form-item>
@@ -348,7 +360,7 @@
                                 v-if="currentStrategy.open_hedge_mading && !currentStrategy.open_tigger_hedge_mading_stop_cover">
                                 <el-col :span="12">
                                     <el-form-item label="对冲马丁补单倍数" required>
-                                        <el-input type="number"
+                                        <el-input type="number" :disabled="currentStrategy.is_run"
                                             v-model.number="currentStrategy.hedge_mading_cover_mult"><template
                                                 #append>倍</template></el-input>
                                     </el-form-item>
@@ -358,7 +370,8 @@
                                 </el-col>
                             </el-row>
                         </el-card>
-                        <el-card class="box-card" style="margin-top: 20px;margin-bottom: 20px;margin-right: 20px;">
+                        <el-card class="box-card"
+                            style="margin-top: 20px;margin-bottom: 20px;margin-right: 20px;margin-left: 20px;">
                             <template #header>
                                 <div class="card-header">
                                     <span>止盈止损设置</span>
@@ -368,8 +381,8 @@
                                 <el-col :span="12">
                                     <div>
                                         <el-form-item label="止盈" required>
-                                            <el-radio-group v-model.number="currentStrategy.open_take_profit"
-                                                class="my-radio-group">
+                                            <el-radio-group :disabled="currentStrategy.is_run"
+                                                v-model.number="currentStrategy.open_take_profit" class="my-radio-group">
                                                 <el-radio-button :label="true" class="my-radio-50">
                                                     <template #default>开启</template>
                                                 </el-radio-button>
@@ -389,8 +402,8 @@
                                 <el-col :span="12" v-if="currentStrategy.open_take_profit">
                                     <div>
                                         <el-form-item label="止盈方式" required>
-                                            <el-radio-group v-model="currentStrategy.take_profit_type"
-                                                class="my-radio-group">
+                                            <el-radio-group :disabled="currentStrategy.is_run"
+                                                v-model="currentStrategy.take_profit_type" class="my-radio-group">
                                                 <el-radio-button :label="'price'" class="my-radio-50">
                                                     <template #default>固定止盈</template>
                                                 </el-radio-button>
@@ -404,14 +417,15 @@
                                 <el-col :span="12"
                                     v-if="currentStrategy.open_take_profit && currentStrategy.take_profit_type === 'price'">
                                     <el-form-item label="止盈价格" required>
-                                        <el-input type="number" v-model.number="currentStrategy.take_profit_price"><template
+                                        <el-input :disabled="currentStrategy.is_run" type="number"
+                                            v-model.number="currentStrategy.take_profit_price"><template
                                                 #append>USDT</template></el-input>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12"
                                     v-if="currentStrategy.open_take_profit && currentStrategy.take_profit_type === 'percent'">
                                     <el-form-item label="止盈百分比" required>
-                                        <el-input type="number"
+                                        <el-input :disabled="currentStrategy.is_run" type="number"
                                             v-model.number="currentStrategy.take_profit_percent"><template
                                                 #append>%</template></el-input>
                                     </el-form-item>
@@ -421,7 +435,8 @@
                                 <el-col :span="12">
                                     <div>
                                         <el-form-item label="浮动止盈" required>
-                                            <el-radio-group v-model.number="currentStrategy.open_float_take_profit"
+                                            <el-radio-group :disabled="currentStrategy.is_run"
+                                                v-model.number="currentStrategy.open_float_take_profit"
                                                 class="my-radio-group">
                                                 <el-radio-button :label="true" class="my-radio-50">
                                                     <template #default>开启</template>
@@ -437,7 +452,7 @@
                                 </el-col>
                                 <el-col :span="12" v-if="currentStrategy.open_float_take_profit">
                                     <el-form-item label="浮动止盈价格" required>
-                                        <el-input type="number"
+                                        <el-input :disabled="currentStrategy.is_run" type="number"
                                             v-model.number="currentStrategy.float_take_profit_price"><template
                                                 #append>USDT</template></el-input>
                                     </el-form-item>
@@ -449,7 +464,8 @@
                                 <el-col :span="12">
                                     <div>
                                         <el-form-item label="浮盈止盈价格回撤" required>
-                                            <el-radio-group v-model.number="currentStrategy.open_float_take_profit_back"
+                                            <el-radio-group :disabled="currentStrategy.is_run"
+                                                v-model.number="currentStrategy.open_float_take_profit_back"
                                                 class="my-radio-group">
                                                 <el-radio-button :label="true" class="my-radio-50">
                                                     <template #default>开启</template>
@@ -464,7 +480,7 @@
 
                                 <el-col :span="12" v-if="currentStrategy.open_float_take_profit_back">
                                     <el-form-item label="浮盈止盈回撤价格" required>
-                                        <el-input type="number"
+                                        <el-input :disabled="currentStrategy.is_run" type="number"
                                             v-model.number="currentStrategy.float_take_profit_back_price"><template
                                                 #append>USDT</template></el-input>
                                     </el-form-item>
@@ -475,8 +491,8 @@
                                 <el-col :span="12">
                                     <div>
                                         <el-form-item label="开启止损" required>
-                                            <el-radio-group v-model.number="currentStrategy.open_stop_profit"
-                                                class="my-radio-group">
+                                            <el-radio-group :disabled="currentStrategy.is_run"
+                                                v-model.number="currentStrategy.open_stop_profit" class="my-radio-group">
                                                 <el-radio-button :label="true" class="my-radio-50">
                                                     <template #default>开启</template>
                                                 </el-radio-button>
@@ -604,10 +620,9 @@ const copyStrategy = () => {
 
     });
     updateSymbolPrecisionFields(currentStrategy.value.symbols);
-    currentStrategy.value.id = null;
+    currentStrategy.value.is_copy = true;
     setCurrent();
     dialogVisible.value = true;
-    editDisabled.value = false;
 };
 
 
@@ -670,7 +685,6 @@ const exchange_info = ref({
 });
 const dialogVisible = ref(false);
 const dialogTitle = ref("新增双马丁策略");
-const editDisabled = ref(false);
 function addStrategy() {
     dialogTitle.value = "新增双马丁策略";
     // 清空currentStrategy
@@ -680,12 +694,12 @@ function addStrategy() {
         exchange_name: ""
     };
     dialogVisible.value = true;
-    editDisabled.value = false;
 }
 
 // 编辑双马丁策略
 function editStrategy(item) {
-    // console.log(item);
+    console.log(item);
+    delete currentStrategy.value.is_copy;
     dialogTitle.value = "编辑双马丁策略";
     currentStrategy.value = item;
     // 需要先判断exchange_options是否为空 然后通过exchange_options找到对应的交易所名称 
@@ -711,7 +725,6 @@ function editStrategy(item) {
     // console.log(exchange_info)
     // exchange_info.value.exchange_name = item.exchange_name;
     dialogVisible.value = true;
-    editDisabled.value = true;
 }
 
 const exchange_options = ref([]);
@@ -769,7 +782,6 @@ async function getStartegyList() {
         if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
             smading_strategy_list.value = res.data.data;
-
         } else {
             ElMessage({
                 message: "查询双马丁策略列表失败：" + res.data.msg,
@@ -789,6 +801,10 @@ async function submitStrategy() {
     currentStrategy.value.exchange_id = exchange_info.value.id;
     currentStrategy.value.exchange_name = exchange_info.value.exchange_name;
     currentStrategy.value.symbol_precisions = symbol_precisions;
+    if (currentStrategy.value.is_copy) {
+        delete currentStrategy.value.id;
+        delete currentStrategy.value.is_copy;
+    }
     // console.log(currentStrategy.value);
     if (currentStrategy.value.id) {
         try {
@@ -1068,6 +1084,10 @@ const selectDeleteSymbolStrategy = async (parent_row) => {
     :deep(.el-radio-button__inner) {
         width: 100%;
     }
+}
+
+:deep(.el-dialog__body) {
+    padding-top: 0;
 }
 
 :deep(.el-dialog) {

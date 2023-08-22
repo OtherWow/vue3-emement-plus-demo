@@ -3,10 +3,7 @@ const model_url = 'smading_strategy'
 
 //获取双马丁策略列表
 export const api_获取双马丁策略列表 = async () => {
-    const response = await http.get(`/${model_url}/list`);
-    // 使用new Promise与setTimeout结合，等待1秒
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return response;
+    return await http.get(`/${model_url}/list`);
 };
 
 
