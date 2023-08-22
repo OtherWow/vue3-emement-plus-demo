@@ -14,14 +14,14 @@ export const api_获取指定id的双马丁策略详情 = (id) => {
 
 
 //启动指定id的双马丁策略
-export const api_启动指定id的双马丁策略 = (id) => {
-    return http_tokyo.post(`/${model_url}/start/${id}`);
+export const api_启动指定id的双马丁策略 = (data) => {
+    return http_tokyo.post(`/${model_url}/symbols/start/`, data);
 };
 
 
 //停止指定id的双马丁策略
-export const api_停止指定id的双马丁策略 = (id) => {
-    return http_tokyo.post(`/${model_url}/stop/${id}`);
+export const api_停止指定id的双马丁策略 = (data) => {
+    return http_tokyo.post(`/${model_url}/symbols/stop/`, data);
 };
 
 
@@ -33,6 +33,11 @@ export const api_删除指定id的双马丁策略 = (id) => {
 //删除指定id的交易对双马丁策略
 export const api_删除指定id的交易对双马丁策略 = (id) => {
     return http.delete(`/${model_url}/symbol/${id}`);
+};
+
+//删除指定ids的交易对双马丁策略
+export const api_删除指定ids的交易对双马丁策略 = (ids) => {
+    return http.post(`/${model_url}/symbols/delete`, ids);
 };
 
 //新增双马丁策略

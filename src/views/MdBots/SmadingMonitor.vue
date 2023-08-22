@@ -10,6 +10,7 @@
                 highlight-current-row :summary-method="getSummaries" show-summary :height="monitor_table_height"
                 :row-class-name="tableRowClassName" :cell-class-name="cellClassName" @filter-change="handleFilterChange"
                 scrollbar-always-on>
+                <el-table-column type="index" width="55" label="序号" align="center" />
                 <el-table-column prop="name" label="交易所账号名称" width="140" show-overflow-tooltip align="center"
                     :filters="nameFilters" filter-placement="bottom-end" column-key="name"></el-table-column>
                 <el-table-column prop="symbol" label="交易对" width="120" show-overflow-tooltip align="center"
