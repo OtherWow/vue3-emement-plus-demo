@@ -60,6 +60,18 @@
                     align="center"></el-table-column>
                 <el-table-column prop="strategy_note" label="策略备注" width="150" show-overflow-tooltip
                     align="center"></el-table-column>
+                <el-table-column label="运行中" width="90" show-overflow-tooltip align="center">
+                    <template #default="{ row }">
+                        <el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">{{ row
+                            .is_run ? '是' :
+                            '否'
+                        }}</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="symbol_num" label="交易对数量" width="100" show-overflow-tooltip
+                    align="center"></el-table-column>
+                <el-table-column prop="run_num" label="运行中数量" width="100" show-overflow-tooltip
+                    align="center"></el-table-column>
                 <el-table-column label="持仓情况" width="90" show-overflow-tooltip align="center">
                     <template #default="{ row }">
                         <el-tag :type="row.position_side === 'LONG' ? 'success' : 'danger'" effect="dark">{{
@@ -69,14 +81,8 @@
                         }}</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column label="运行中" width="90" show-overflow-tooltip align="center">
-                    <template #default="{ row }">
-                        <el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">{{ row
-                            .is_run ? '是' :
-                            '否'
-                        }}</el-tag>
-                    </template>
-                </el-table-column>
+
+
                 <el-table-column prop="pos_value_1st" label="首单价值" width="85" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="cover_order_pos_value_1st" label="补单首单" width="85" show-overflow-tooltip
