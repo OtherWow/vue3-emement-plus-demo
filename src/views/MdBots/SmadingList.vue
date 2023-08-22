@@ -578,6 +578,8 @@ const setCurrent = (row) => {
 }
 // 复制策略的方法
 const copyStrategy = () => {
+    //先清空原来的交易所选项
+    exchange_info.value = {};
     if (!selectedStrategy.value) {
         console.warn('请先选择一个策略!');
         return;
