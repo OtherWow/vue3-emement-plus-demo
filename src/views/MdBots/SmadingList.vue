@@ -685,15 +685,15 @@ function addStrategy() {
 
 // 编辑双马丁策略
 function editStrategy(item) {
+    debugger
     // console.log(item);
     dialogTitle.value = "编辑双马丁策略";
     currentStrategy.value = item;
-    exchange_info.value.id = item.exchange_id;
     // 需要先判断exchange_options是否为空 然后通过exchange_options找到对应的交易所名称 
     const currentExchange = exchange_options.value.find((exchange) => {
         return exchange.id === item.exchange_id;
     });
-    exchange_info.value.exchange_name = currentExchange.exchange_name;
+    exchange_info.value = currentExchange;
     // 循环 currentStrategy.value.symbol_infos 给symbol_options加入对应的symbol
     currentStrategy.value.symbols = [];
     for (let key in symbol_precisions) {
