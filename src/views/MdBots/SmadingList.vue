@@ -69,6 +69,14 @@
                         }}</el-tag>
                     </template>
                 </el-table-column>
+                <el-table-column label="运行中" width="90" show-overflow-tooltip align="center">
+                    <template #default="{ row }">
+                        <el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">{{ row
+                            .is_run ? '是' :
+                            '否'
+                        }}</el-tag>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="pos_value_1st" label="首单价值" width="85" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="cover_order_pos_value_1st" label="补单首单" width="85" show-overflow-tooltip
@@ -540,6 +548,7 @@ import {
     api_删除指定id的交易对双马丁策略,
     api_删除指定ids的交易对双马丁策略,
 } from "@/api/smading_strategy_api";
+import { ElMessage } from 'element-plus';
 
 
 
@@ -598,9 +607,10 @@ const copyStrategy = () => {
     exchange_info.value = {};
     if (!selectedStrategy.value) {
         console.warn('请先选择一个策略!');
+        ElMessage.warning('请先选择一个策略!');
         return;
     }
-    currentStrategy.value = selectedStrategy.value
+    currentStrategy.value = { ...selectedStrategy.value }
 
     dialogTitle.value = "新增双马丁策略";
     exchange_info.value.id = currentStrategy.value.exchange_id;
@@ -620,7 +630,7 @@ const copyStrategy = () => {
 
     });
     updateSymbolPrecisionFields(currentStrategy.value.symbols);
-    currentStrategy.value.is_copy = true;
+    currentStrategy.value.id = null;
     setCurrent();
     dialogVisible.value = true;
 };
@@ -699,7 +709,6 @@ function addStrategy() {
 // 编辑双马丁策略
 function editStrategy(item) {
     console.log(item);
-    delete currentStrategy.value.is_copy;
     dialogTitle.value = "编辑双马丁策略";
     currentStrategy.value = item;
     // 需要先判断exchange_options是否为空 然后通过exchange_options找到对应的交易所名称 
@@ -801,10 +810,7 @@ async function submitStrategy() {
     currentStrategy.value.exchange_id = exchange_info.value.id;
     currentStrategy.value.exchange_name = exchange_info.value.exchange_name;
     currentStrategy.value.symbol_precisions = symbol_precisions;
-    if (currentStrategy.value.is_copy) {
-        delete currentStrategy.value.id;
-        delete currentStrategy.value.is_copy;
-    }
+
     // console.log(currentStrategy.value);
     if (currentStrategy.value.id) {
         try {
