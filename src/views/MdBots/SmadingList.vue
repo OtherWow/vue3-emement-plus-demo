@@ -685,7 +685,6 @@ function addStrategy() {
 
 // 编辑双马丁策略
 function editStrategy(item) {
-    debugger
     // console.log(item);
     dialogTitle.value = "编辑双马丁策略";
     currentStrategy.value = item;
