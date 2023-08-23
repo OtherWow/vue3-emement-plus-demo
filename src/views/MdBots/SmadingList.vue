@@ -641,6 +641,7 @@ const copyStrategy = () => {
     });
     updateSymbolPrecisionFields(currentStrategy.value.symbols);
     currentStrategy.value.id = null;
+    currentStrategy.value.is_run = false;
     setCurrent();
     dialogVisible.value = true;
 };
