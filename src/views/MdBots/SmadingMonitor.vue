@@ -30,12 +30,23 @@
                 <el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="止盈总利润" label="止盈总利润" width="100" show-overflow-tooltip
                     align="center"></el-table-column>
-
+                <el-table-column prop="做空止盈次数" label="做空止盈次数" width="90" show-overflow-tooltip
+                    align="center"></el-table-column>
+                <el-table-column prop="做空止盈总利润" label="做空止盈总利润" width="100" show-overflow-tooltip
+                    align="center"></el-table-column>
+                <el-table-column prop="做多止盈次数" label="做多止盈次数" width="90" show-overflow-tooltip
+                    align="center"></el-table-column>
+                <el-table-column prop="做多止盈总利润" label="做多止盈总利润" width="100" show-overflow-tooltip
+                    align="center"></el-table-column>
                 <el-table-column prop="触发对冲单次数" label="触发对冲单次数" width="140" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="第几次对冲单" label="第几次对冲单" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="第几次补单" label="第几次补单" width="110" show-overflow-tooltip
+                    align="center"></el-table-column>
+                <el-table-column prop="做空第几次补单" label="做空第几次补单" width="110" show-overflow-tooltip
+                    align="center"></el-table-column>
+                <el-table-column prop="做多第几次补单" label="做多第几次补单" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="做空仓位数量" label="做空仓位数量" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
