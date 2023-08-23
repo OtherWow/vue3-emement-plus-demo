@@ -74,10 +74,7 @@
                     align="center"></el-table-column>
                 <el-table-column label="持仓情况" width="90" show-overflow-tooltip align="center">
                     <template #default="{ row }">
-                        <el-tag :type="row.position_side === 'LONG' ? 'success' : 'danger'" effect="dark">{{
-                            row.position_side === 'LONG' ?
-                            '做多' :
-                            '做空'
+                        <el-tag :type="getTagType(row.position_side)" effect="dark">{{ getTagLabel(row.position_side)
                         }}</el-tag>
                     </template>
                 </el-table-column>
@@ -186,22 +183,25 @@
                             </el-row>
 
                             <el-row :gutter="20">
-                                <el-col :span="12">
+                                <el-col :span="18">
                                     <div>
                                         <el-form-item label="主马丁持仓方向" required>
                                             <el-radio-group v-model="currentStrategy.position_side" class="my-radio-group"
                                                 :disabled="currentStrategy.is_run">
-                                                <el-radio-button :label="'LONG'" class="my-radio-50">
+                                                <el-radio-button :label="'LONG'" class="my-radio-33">
                                                     <template #default>做多</template>
                                                 </el-radio-button>
-                                                <el-radio-button :label="'SHORT'" class="my-radio-50">
+                                                <el-radio-button :label="'SHORT'" class="my-radio-33">
                                                     <template #default>做空</template>
+                                                </el-radio-button>
+                                                <el-radio-button :label="'BOTH'" class="my-radio-33">
+                                                    <template #default>双向</template>
                                                 </el-radio-button>
                                             </el-radio-group>
                                         </el-form-item>
                                     </div>
                                 </el-col>
-                                <el-col :span="12">
+                                <el-col :span="6">
 
                                 </el-col>
                             </el-row>
@@ -577,6 +577,21 @@ onMounted(() => {
 onBeforeUnmount(() => {
 
 });
+
+
+const getTagType = (position_side) => {
+    if (position_side === 'LONG') return 'success';
+    if (position_side === 'SHORT') return 'danger';
+    if (position_side === 'BOTH') return 'warning'; // 或其他 ElementUI tag 的类型
+    return ''; // 默认值
+}
+
+const getTagLabel = (position_side) => {
+    if (position_side === 'LONG') return '做多';
+    if (position_side === 'SHORT') return '做空';
+    if (position_side === 'BOTH') return '双向'; // 您可以根据需要更改这里的文本
+    return ''; // 默认值
+}
 
 //刷新时也保持展开状态
 const expandedRowKeys = ref([]);
@@ -1098,6 +1113,14 @@ const selectDeleteSymbolStrategy = async (parent_row) => {
 
 .my-radio-50 {
     width: 50%;
+
+    :deep(.el-radio-button__inner) {
+        width: 100%;
+    }
+}
+
+.my-radio-33 {
+    width: 33.33%;
 
     :deep(.el-radio-button__inner) {
         width: 100%;
