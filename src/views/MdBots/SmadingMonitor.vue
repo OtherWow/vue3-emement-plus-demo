@@ -9,16 +9,17 @@
             <el-table id="monitor_table" :data="smading_infos_list" style="width: 100%" :fit="false" border
                 highlight-current-row :summary-method="getSummaries" show-summary :height="monitor_table_height"
                 :row-class-name="tableRowClassName" :cell-class-name="cellClassName" @filter-change="handleFilterChange"
-                scrollbar-always-on>
-                <el-table-column type="index" width="55" label="序号" align="center" />
-                <el-table-column prop="name" label="交易所账号名称" width="140" show-overflow-tooltip align="center"
-                    :filters="nameFilters" filter-placement="bottom-end" column-key="name"></el-table-column>
-                <el-table-column prop="symbol" label="交易对" width="120" show-overflow-tooltip align="center"
+                scrollbar-always-on show-overflow-tooltip>
+                <el-table-column fixed="left" prop="symbol" label="交易对" width="120" show-overflow-tooltip align="center"
                     :filters="symbolFilters" filter-placement="bottom-end" column-key="symbol">
                     <template #default="scope">
                         <el-tag type="info" effect="dark">{{ scope.row.symbol }}</el-tag>
                     </template>
                 </el-table-column>
+                <el-table-column type="index" width="55" label="序号" align="center" />
+                <el-table-column prop="name" label="交易所账号名称" width="140" show-overflow-tooltip align="center"
+                    :filters="nameFilters" filter-placement="bottom-end" column-key="name"></el-table-column>
+
                 <el-table-column prop="启动资金" label="启动资金" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="账户余额" label="账户余额" width="110" show-overflow-tooltip
@@ -63,11 +64,11 @@
 
                 <el-table-column prop="总浮盈(已扣手续费)" label="总浮盈(已扣手续费)" width="150" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="仓位浮动盈亏" label="仓位浮动盈亏" width="130" show-overflow-tooltip
+                <el-table-column fixed="right" prop="仓位浮动盈亏" label="仓位浮动盈亏" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column fixed="right" prop="总手续费" label="总手续费" width="85" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column fixed="right" prop="总盈利" label="总盈利" width="80" show-overflow-tooltip
+                <el-table-column fixed="right" prop="总盈利" label="总盈利" width="100" show-overflow-tooltip
                     align="center"></el-table-column>
 
 
@@ -237,13 +238,13 @@ const getSummaries = (param) => {
             sums[index] = '总计';
             return;
         }
-        if (index === 1) {
+        if (index === 2) {
             sums[index] = '已实现盈亏';
             return;
         }
-        if (index === 4) {
-            sums[4] = (Number(sums[3]) - Number(sums[2])).toFixed(1);
-            console.log(sums[4], sums[3], sums[2]);
+        if (index === 5) {
+            sums[5] = (Number(sums[4]) - Number(sums[3])).toFixed(1);
+            // console.log(sums[4], sums[3], sums[2]);
             return;
         }
         const decimalPlaces = columnsToSummarize[column.property];
