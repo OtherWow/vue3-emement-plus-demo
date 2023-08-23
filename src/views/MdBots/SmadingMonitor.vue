@@ -23,6 +23,7 @@
                     align="center"></el-table-column>
                 <el-table-column prop="账户余额" label="账户余额" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
+                <el-table-column prop="当前权重" label="当前权重" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="运行时间" label="运行时间" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="最新价格" label="最新价格" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center"></el-table-column>
@@ -217,7 +218,7 @@ const columnsToSummarize = {
     '做空总盈利': 4,
     '做多总盈利': 4,
     '总手续费': 4,
-    '总盈利': 4
+    '总盈利': 3
 };
 function calculateSum(data, decimalPlaces) {
     const sum = data.reduce((acc, curr) => {
