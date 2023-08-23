@@ -24,8 +24,8 @@
                     align="center"></el-table-column>
                 <el-table-column prop="账户余额" label="账户余额" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="当前权重" label="当前权重" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="运行时间" label="运行时间" width="90" show-overflow-tooltip align="center"></el-table-column>
+                <el-table-column prop="当前权重" label="当前权重" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="最新价格" label="最新价格" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="止盈总利润" label="止盈总利润" width="100" show-overflow-tooltip
@@ -245,6 +245,12 @@ const getSummaries = (param) => {
         if (index === 5) {
             sums[5] = (Number(sums[4]) - Number(sums[3])).toFixed(1);
             // console.log(sums[4], sums[3], sums[2]);
+            return;
+        }
+        if (index === 6) {
+            // 取这一列的最大值
+            const values = data.map((item) => item[column.property]);
+            sums[index] = Math.max(...values);
             return;
         }
         const decimalPlaces = columnsToSummarize[column.property];
