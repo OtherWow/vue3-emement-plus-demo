@@ -673,7 +673,7 @@ const submitCopySymbolStrategy = async () => {
                 message: "复制交易对信息成功",
                 type: "success"
             });
-            dialogVisible.value = false;
+            copyDialogVisible.value = false;
         } else {
             ElMessage({
                 message: "复制交易对信息失败：" + res.data.msg,
@@ -1154,18 +1154,18 @@ const selectDeleteSymbolStrategy = async (parent_row) => {
                 // console.log(res.data.data);
                 await getStartegyList();
                 ElMessage({
-                    message: "停止交易对双马丁策略成功",
+                    message: "删除交易对双马丁策略成功",
                     type: "success"
                 });
             } else {
                 ElMessage({
-                    message: "停止交易对双马丁策略失败：" + res.data.msg,
+                    message: "删除交易对双马丁策略失败：" + res.data.msg,
                     type: "error"
                 });
             }
         } catch (error) {
             ElMessage({
-                message: "停止交易对双马丁策略失败：" + error,
+                message: "删除交易对双马丁策略失败：" + error,
                 type: "error"
             });
         }
