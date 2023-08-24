@@ -74,3 +74,16 @@ export const api_更新指定id的双马丁策略 = async (id, data) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     return response;
 };
+
+
+//复制交易对信息
+export const api_复制交易对信息 = async (ids, data) => {
+    const payload = {
+        strategy_ids: ids,
+        symbols_info: data
+    };
+    const response = await http.post(`/${model_url}/copy-symbols-info`, payload);
+    // 使用new Promise与setTimeout结合，等待1秒
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return response;
+};

@@ -5,6 +5,7 @@
                 <el-col :span="6">
                     <el-button type="primary" @click="addStrategy()">新增策略</el-button>
                     <el-button type="primary" @click="copyStrategy()">复制选中策略</el-button>
+                    <el-button type="primary" @click="copySymbolsInfo()">复制币种信息</el-button>
                 </el-col>
                 <el-col :span="12"></el-col>
                 <!-- 居右-->
@@ -537,6 +538,20 @@
                     <el-button type="primary" @click="submitStrategy">确定</el-button>
                 </div>
             </el-dialog>
+
+            <el-dialog v-model="copyDialogVisible" title="复制交易对信息" width="35%" :before-close="copyHandleClose"
+                :close-on-click-modal="false">
+
+                <el-select v-model="target_copy_id" @change="updateSymbolPrecisionFields" clearable placeholder="请选择对应策略的序号"
+                    style="width:100%" multiple filterable>
+                    <el-option v-for="item in strategy_index_options" :key="item.value" :label="item.label"
+                        :value="item.value" />
+                </el-select>
+                <div slot="footer" class="dialog-footer" style="margin-top: 20px;">
+                    <el-button @click="copyDialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="submitCopySymbolStrategy">确定</el-button>
+                </div>
+            </el-dialog>
         </el-main>
     </el-container>
 </template>
@@ -557,6 +572,7 @@ import {
     api_更新指定id的双马丁策略,
     api_删除指定id的交易对双马丁策略,
     api_删除指定ids的交易对双马丁策略,
+    api_复制交易对信息,
 } from "@/api/smading_strategy_api";
 import { ElMessage } from 'element-plus';
 
@@ -621,11 +637,58 @@ const handleClose = (done) => {
     // logDialogVisible.value = false;
     done();
 };
-
+const copyHandleClose = (done) => {
+    copyDialogVisible.value = false;
+    // logDialogVisible.value = false;
+    done();
+};
+const copyDialogVisible = ref(false);
 const singleTableRef = ref(null);
 const setCurrent = (row) => {
     singleTableRef.value.setCurrentRow(row)
 }
+
+const target_copy_id = ref(null);
+const strategy_index_options = ref([])
+//复制币种信息
+const copySymbolsInfo = () => {
+    if (!selectedStrategy.value) {
+        console.warn('请先选择一个策略!');
+        ElMessage.warning('请先选择一个策略!');
+        return;
+    }
+    copyDialogVisible.value = true;
+}
+//确认复制信息
+const submitCopySymbolStrategy = async () => {
+    currentStrategy.value = { ...selectedStrategy.value }
+    console.log(target_copy_id.value, currentStrategy.value)
+    try {
+        const res = await api_复制交易对信息(target_copy_id.value, currentStrategy.value.symbol_infos);
+        // console.log("res", res);
+        if (res.status === 200 && res.data.code === 200) {
+            // console.log(res.data.data);
+            await getStartegyList();
+            ElMessage({
+                message: "复制交易对信息成功",
+                type: "success"
+            });
+            dialogVisible.value = false;
+        } else {
+            ElMessage({
+                message: "复制交易对信息失败：" + res.data.msg,
+                type: "error"
+            });
+        }
+    } catch (error) {
+        ElMessage({
+            message: "复制交易对信息失败：" + error,
+            type: "error"
+        });
+    }
+
+}
+
 // 复制策略的方法
 const copyStrategy = () => {
     //先清空原来的交易所选项
@@ -818,6 +881,16 @@ async function getStartegyList() {
         if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
             smading_strategy_list.value = res.data.data;
+            // 遍历samding_strategy_list
+            strategy_index_options.value = [];
+            smading_strategy_list.value.forEach((strategy, index) => {
+                const _data = {
+                    value: strategy.id,
+                    label: strategy.exchange_name + "-" + strategy.strategy_note
+                }
+                strategy_index_options.value.push(_data);
+            });
+
         } else {
             ElMessage({
                 message: "查询双马丁策略列表失败：" + res.data.msg,
