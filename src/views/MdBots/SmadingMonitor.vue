@@ -46,8 +46,6 @@
                     align="center"></el-table-column>
                 <el-table-column prop="做空第几次补单" label="做空第几次补单" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="做多第几次补单" label="做多第几次补单" width="110" show-overflow-tooltip
-                    align="center"></el-table-column>
                 <el-table-column prop="做空仓位数量" label="做空仓位数量" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="做空仓位价格" label="做空仓位价格" width="110" show-overflow-tooltip
@@ -57,6 +55,8 @@
                 <el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="140" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="做空总盈利" label="做空总盈利" width="100" show-overflow-tooltip
+                    align="center"></el-table-column>
+                <el-table-column prop="做多第几次补单" label="做多第几次补单" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="做多仓位数量" label="做多仓位数量" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
@@ -221,6 +221,10 @@ const columnsToSummarize = {
     '启动资金': 1,
     '账户余额': 1,
     '止盈次数': 0,
+    '做空止盈次数': 0,
+    '做多止盈次数': 0,
+    '做多止盈总利润': 2,
+    '做空止盈总利润': 2,
     '仓位手续费': 4,
     '仓位浮动盈亏': 4,
     '总浮盈(已扣手续费)': 4,
