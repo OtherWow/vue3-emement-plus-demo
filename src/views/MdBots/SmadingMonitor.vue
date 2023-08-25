@@ -287,7 +287,13 @@ const tableRowClassName = ({ row }) => {
 }
 
 const cellClassName = ({ row, rowIndex, column, columnIndex }) => {
-    if (column.property === '第几次补单' && row['第几次补单'] >= 6) {
+    if (column.property === '第几次补单' && row['第几次补单'] >= 10) {
+        return 'highlight-cell';
+    }
+    if (column.property === '做空第几次补单' && row['做空第几次补单'] >= 10) {
+        return 'highlight-cell';
+    }
+    if (column.property === '做多第几次补单' && row['做多第几次补单'] >= 10) {
         return 'highlight-cell';
     }
     return '';
