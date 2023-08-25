@@ -25,6 +25,8 @@
                 <el-table-column prop="账户余额" label="账户余额" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="运行时间" label="运行时间" width="90" show-overflow-tooltip align="center"></el-table-column>
+                <el-table-column prop="每小时盈利" label="每小时盈利" width="100" show-overflow-tooltip
+                    align="center"></el-table-column>
                 <el-table-column prop="当前权重" label="当前权重" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="最新价格" label="最新价格" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center"></el-table-column>
@@ -221,6 +223,7 @@ const columnsToSummarize = {
     '启动资金': 1,
     '账户余额': 1,
     '止盈次数': 0,
+    '每小时盈利': 3,
     '做空止盈次数': 0,
     '做多止盈次数': 0,
     '做多止盈总利润': 2,
