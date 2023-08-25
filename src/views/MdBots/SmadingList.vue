@@ -22,6 +22,10 @@
                         <el-row :gutter="20" style="margin-left: 60px; margin-top: 5px;">
                             <el-button type="primary" size="small" @click="selectStartSymbolStrategy(props.row)"
                                 effect="dark">选中启动</el-button>
+                            <el-button type="primary" size="small" @click="selectPauseSymbolStrategy(props.row)"
+                                effect="dark">选中暂停</el-button>
+                            <el-button type="primary" size="small" @click="selectContinueSymbolStrategy(props.row)"
+                                effect="dark">选中恢复</el-button>
                             <el-button type="primary" size="small" @click="selectStopSymbolStrategy(props.row)"
                                 effect="dark">选中停止</el-button>
                             <el-button type="danger" size="small" @click="selectDeleteSymbolStrategy(props.row)"
@@ -31,8 +35,8 @@
                             @selection-change="(selectedRows) => handleSelectionChangeInner(selectedRows, props.row.id)">
                             <el-table-column type="selection" width="55" />
                             <el-table-column type="index" width="55" label="序号" align="center" />
-                            <el-table-column label="交易对" prop="symbol" align="center" />
-                            <el-table-column label="交易对精度" prop="symbol_price_precision" align="center" />
+                            <el-table-column label="交易对" prop="symbol" width="150" align="center" />
+                            <el-table-column label="交易对精度" prop="symbol_price_precision" width="120" align="center" />
                             <el-table-column label="运行中" width="90" show-overflow-tooltip align="center">
                                 <template #default="{ row }">
                                     <el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">{{ row
@@ -41,16 +45,27 @@
                                     }}</el-tag>
                                 </template>
                             </el-table-column>
+                            <el-table-column label="暂停中" width="90" show-overflow-tooltip align="center">
+                                <template #default="{ row }">
+                                    <el-tag :type="!row.is_pause ? 'success' : 'danger'" effect="dark">{{ row
+                                        .is_pause ? '是' :
+                                        '否'
+                                    }}</el-tag>
+                                </template>
+                            </el-table-column>
                             <el-table-column label="操作" width="380" align="center">
                                 <template #default="{ row }">
                                     <el-button type="primary" size="small" @click="startSymbolStrategy(row)" plain
                                         :disabled="row.is_run">启动</el-button>
+                                    <el-button type="primary" size="small" @click="pasueSymbolStrategy(row)" plain
+                                        :disabled="row.is_pause">暂停</el-button>
+                                    <el-button type="primary" size="small" @click="continueSymbolStrategy(row)" plain
+                                        :disabled="!row.is_pause">恢复</el-button>
                                     <el-button type="primary" size="small" @click="stopSymbolStrategy(row)" plain
                                         :disabled="!row.is_run">停止</el-button>
                                     <el-button type="danger" size="small" @click="deleteSymbolStrategy(row)"
                                         :disabled="row.is_run">删除</el-button>
-                                    <el-button type="success" size="small" @click="showLog(row)"
-                                        :disabled="row.is_run">查看操作日志</el-button>
+
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -573,6 +588,8 @@ import {
     api_删除指定id的交易对双马丁策略,
     api_删除指定ids的交易对双马丁策略,
     api_复制交易对信息,
+    api_暂停指定id的双马丁策略,
+    api_恢复指定id的双马丁策略
 } from "@/api/smading_strategy_api";
 import { ElMessage } from 'element-plus';
 
@@ -1073,6 +1090,64 @@ const startSymbolStrategy = async (row) => {
     }
 }
 
+const pauseSymbolStrategy = async (row) => {
+    const _data = []
+    _data.push(row)
+    console.log(_data, row.value)
+    try {
+        const res = await api_暂停指定id的双马丁策略(_data);
+        // console.log("res", res);
+        if (res.status === 200 && res.data.code === 200) {
+            // console.log(res.data.data);
+            await getStartegyList();
+            ElMessage({
+                message: "暂停交易对双马丁策略成功",
+                type: "success"
+            });
+        } else {
+            ElMessage({
+                message: "暂停交易对双马丁策略失败：" + res.data.msg,
+                type: "error"
+            });
+        }
+    } catch (error) {
+        ElMessage({
+            message: "暂停交易对双马丁策略失败：" + error,
+            type: "error"
+        });
+    }
+}
+
+const continueSymbolStrategy = async (row) => {
+    const _data = []
+    _data.push(row)
+    console.log(_data, row.value)
+    try {
+        const res = await api_恢复指定id的双马丁策略(_data);
+        // console.log("res", res);
+        if (res.status === 200 && res.data.code === 200) {
+            // console.log(res.data.data);
+            await getStartegyList();
+            ElMessage({
+                message: "恢复交易对双马丁策略成功",
+                type: "success"
+            });
+        } else {
+            ElMessage({
+                message: "恢复交易对双马丁策略失败：" + res.data.msg,
+                type: "error"
+            });
+        }
+    } catch (error) {
+        ElMessage({
+            message: "恢复交易对双马丁策略失败：" + error,
+            type: "error"
+        });
+    }
+}
+
+
+
 const selectStartSymbolStrategy = async (parent_row) => {
     // console.log(parent_row, parent_row.id)
     // console.log(multipleSelection.value[parent_row.id])
@@ -1141,6 +1216,9 @@ const selectStopSymbolStrategy = async (parent_row) => {
     }
 }
 
+
+
+
 const selectDeleteSymbolStrategy = async (parent_row) => {
     const ids = [];
     multipleSelection.value[parent_row.id].forEach(item => {
@@ -1176,6 +1254,80 @@ const selectDeleteSymbolStrategy = async (parent_row) => {
         });
     }
 }
+
+
+
+const selectPauseSymbolStrategy = async (parent_row) => {
+    const selected = multipleSelection.value[parent_row.id];
+    if (selected && selected.length > 0) {
+        try {
+            const res = await api_暂停指定id的双马丁策略(selected);
+            // console.log("res", res);
+            if (res.status === 200 && res.data.code === 200) {
+                // console.log(res.data.data);
+                await getStartegyList();
+                ElMessage({
+                    message: "暂停交易对双马丁策略成功",
+                    type: "success"
+                });
+            } else {
+                ElMessage({
+                    message: "暂停交易对双马丁策略失败：" + res.data.msg,
+                    type: "error"
+                });
+            }
+        } catch (error) {
+            ElMessage({
+                message: "暂停交易对双马丁策略失败：" + error,
+                type: "error"
+            });
+        }
+    } else {
+        ElMessage({
+            message: "请先选择一个交易对策略",
+            type: "error"
+        });
+    }
+}
+
+
+
+
+const selectContinueSymbolStrategy = async (parent_row) => {
+    const selected = multipleSelection.value[parent_row.id];
+    if (selected && selected.length > 0) {
+        try {
+            const res = await api_恢复指定id的双马丁策略(selected);
+            // console.log("res", res);
+            if (res.status === 200 && res.data.code === 200) {
+                // console.log(res.data.data);
+                await getStartegyList();
+                ElMessage({
+                    message: "恢复交易对双马丁策略成功",
+                    type: "success"
+                });
+            } else {
+                ElMessage({
+                    message: "恢复交易对双马丁策略失败：" + res.data.msg,
+                    type: "error"
+                });
+            }
+        } catch (error) {
+            ElMessage({
+                message: "恢复交易对双马丁策略失败：" + error,
+                type: "error"
+            });
+        }
+    } else {
+        ElMessage({
+            message: "请先选择一个交易对策略",
+            type: "error"
+        });
+    }
+}
+
+
+
 
 </script>
   

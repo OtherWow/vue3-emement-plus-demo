@@ -87,3 +87,20 @@ export const api_复制交易对信息 = async (ids, data) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     return response;
 };
+
+//暂停指定id的双马丁策略
+export const api_暂停指定id的双马丁策略 = async (data) => {
+    const response = await http_tokyo.post(`/${model_url}/symbols/pause/`, data);
+    // 使用new Promise与setTimeout结合，等待1秒
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return response;
+};
+
+
+//恢复指定id的双马丁策略
+export const api_恢复指定id的双马丁策略 = async (data) => {
+    const response = await http_tokyo.post(`/${model_url}/symbols/continue/`, data);
+    // 使用new Promise与setTimeout结合，等待1秒
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return response;
+};
