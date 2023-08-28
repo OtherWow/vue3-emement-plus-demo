@@ -155,6 +155,7 @@ function connectToWebSocket() {
 
     ws.onmessage = (event) => {
         const rawData = JSON.parse(event.data);
+        // console.log(rawData.length)
 
         // 直接创建一个排序后的名称数组
         const sortedNames = [...new Set(rawData.map(item => item.name))].sort();
@@ -170,6 +171,7 @@ function connectToWebSocket() {
             (!currentNameFilters.value.length || currentNameFilters.value.includes(item.name)) &&
             (!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(item.symbol))
         );
+        // console.log(smading_infos_list.value.length)
 
     };
 

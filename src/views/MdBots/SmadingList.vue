@@ -57,7 +57,7 @@
                                 <template #default="{ row }">
                                     <el-button type="primary" size="small" @click="startSymbolStrategy(row)" plain
                                         :disabled="row.is_run">启动</el-button>
-                                    <el-button type="primary" size="small" @click="pasueSymbolStrategy(row)" plain
+                                    <el-button type="primary" size="small" @click="pauseSymbolStrategy(row)" plain
                                         :disabled="row.is_pause">暂停</el-button>
                                     <el-button type="primary" size="small" @click="continueSymbolStrategy(row)" plain
                                         :disabled="!row.is_pause">恢复</el-button>
@@ -158,7 +158,8 @@
                     </template>
                 </el-table-column>
 
-
+                <el-table-column fixed="right" prop="exchange_name" label="交易所账号名称" width="150" show-overflow-tooltip
+                    sortable align="center"></el-table-column>
                 <el-table-column fixed="right" label="操作" width="150" align="center">
                     <template #default="{ row }">
 
