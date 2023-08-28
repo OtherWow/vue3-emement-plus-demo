@@ -564,10 +564,12 @@
                                         </el-form-item>
                                     </div>
                                 </el-col>
-                                <el-col :span="12">
-
-
-
+                                <el-col :span="12" v-if="currentStrategy.open_stop_profit">
+                                    <el-form-item label="止损等待时间" required>
+                                        <el-input :disabled="currentStrategy.is_run" type="number"
+                                            v-model.number="currentStrategy.before_stop_profit_wait_time"><template
+                                                #append>秒</template></el-input>
+                                    </el-form-item>
                                 </el-col>
                             </el-row>
 
