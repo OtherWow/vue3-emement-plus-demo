@@ -565,7 +565,7 @@
                                     </div>
                                 </el-col>
                                 <el-col :span="12" v-if="currentStrategy.open_stop_profit">
-                                    <el-form-item label="止损等待时间" required>
+                                    <el-form-item label="止损前等待时间" required>
                                         <el-input :disabled="currentStrategy.is_run" type="number"
                                             v-model.number="currentStrategy.before_stop_profit_wait_time"><template
                                                 #append>秒</template></el-input>
@@ -819,8 +819,9 @@ function currentStrategy_init() {
         open_float_take_profit_back: false,  // 是否开启浮动止盈回撤
         float_take_profit_back_price: null,  // 浮动止盈回撤价格
         open_stop_profit: false,  // 是否开启止损
-        stop_profit_wait_time: null, //止损等待时间
-        after_stop_profit_auto_pause: false,
+        stop_profit_wait_time: 0, //止损等待时间
+        after_stop_profit_auto_pause: false,// 止损后自动暂停
+        before_stop_profit_wait_time: 0, //止损前等待时间
 
     };
 }

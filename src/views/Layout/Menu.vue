@@ -2,11 +2,11 @@
     <el-menu :default-active="route.path" class="el-menu-vertical-demo" :collapse="isClose" active-text-color="#ffd04b"
         background-color="rgb(47, 64, 80)" text-color="#fff" router collapse-transition="false">
 
-        <el-menu-item><template #title><span>测试系统</span></template></el-menu-item>
+        <el-menu-item><template #title><span>7</span></template></el-menu-item>
         <el-menu-item index="/"><el-icon>
                 <House />
             </el-icon><span>系统首页</span></el-menu-item>
-        <el-sub-menu index="/goods">
+        <!-- <el-sub-menu index="/goods" :disabled="true">
             <template #title><el-icon>
                     <location />
                 </el-icon><span>产品管理</span></template>
@@ -14,7 +14,7 @@
                 <el-menu-item index="/goods/list">产品列表</el-menu-item>
                 <el-menu-item index="/goods/category">产品分类</el-menu-item>
             </el-menu-item-group>
-        </el-sub-menu>
+        </el-sub-menu> -->
         <el-sub-menu index="/FundingRate">
             <template #title><el-icon>
                     <Coin />
