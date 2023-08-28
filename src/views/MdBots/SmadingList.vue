@@ -546,6 +546,31 @@
 
                             </el-row>
 
+                            <el-row :gutter="20">
+
+                                <el-col :span="12" v-if="currentStrategy.open_stop_profit">
+                                    <div>
+                                        <el-form-item label="止损后自动暂停" required>
+                                            <el-radio-group :disabled="currentStrategy.is_run"
+                                                v-model.number="currentStrategy.after_stop_profit_auto_pause"
+                                                class="my-radio-group">
+                                                <el-radio-button :label="true" class="my-radio-50">
+                                                    <template #default>开启</template>
+                                                </el-radio-button>
+                                                <el-radio-button :label="false" class="my-radio-50">
+                                                    <template #default>关闭</template>
+                                                </el-radio-button>
+                                            </el-radio-group>
+                                        </el-form-item>
+                                    </div>
+                                </el-col>
+                                <el-col :span="12">
+
+
+
+                                </el-col>
+                            </el-row>
+
                         </el-card>
                     </div>
                 </el-form>
@@ -792,7 +817,8 @@ function currentStrategy_init() {
         open_float_take_profit_back: false,  // 是否开启浮动止盈回撤
         float_take_profit_back_price: null,  // 浮动止盈回撤价格
         open_stop_profit: false,  // 是否开启止损
-        stop_profit_wait_time: null //止损等待时间
+        stop_profit_wait_time: null, //止损等待时间
+        after_stop_profit_auto_pause: false,
 
     };
 }
@@ -908,7 +934,10 @@ async function getStartegyList() {
                 }
                 strategy_index_options.value.push(_data);
             });
-
+            ElMessage({
+                message: "查询双马丁策略列表成功",
+                type: "success"
+            });
         } else {
             ElMessage({
                 message: "查询双马丁策略列表失败：" + res.data.msg,
