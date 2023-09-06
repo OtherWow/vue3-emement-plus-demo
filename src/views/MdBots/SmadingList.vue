@@ -536,23 +536,55 @@
 
 
                                 </el-col>
-                                <el-col :span="12" v-if="currentStrategy.open_stop_profit">
+
+
+                            </el-row>
+
+                            <el-row :gutter="20"
+                                v-if="currentStrategy.open_stop_profit && currentStrategy.position_side == 'BOTH'">
+
+                                <el-col :span="12">
+                                    <div>
+                                        <el-form-item label="止损后切换对冲马丁" required>
+                                            <el-radio-group
+                                                v-model.number="currentStrategy.open_stop_profit_switch_hedge_mading"
+                                                class="my-radio-group">
+                                                <el-radio-button :label="true" class="my-radio-50">
+                                                    <template #default>开启</template>
+                                                </el-radio-button>
+                                                <el-radio-button :label="false" class="my-radio-50">
+                                                    <template #default>关闭</template>
+                                                </el-radio-button>
+                                            </el-radio-group>
+                                        </el-form-item>
+                                    </div>
+                                </el-col>
+                                <el-col :span="12" v-if="currentStrategy.open_stop_profit_switch_hedge_mading">
+                                    <el-form-item label="对冲马丁策略" required>
+                                        <el-select v-model="对冲马丁策略id" @change="当前策略对应的对冲马丁的策略改变" clearable
+                                            placeholder="请选择对应策略的序号" style="width:100%" filterable>
+                                            <el-option v-for="item in 当前策略对应的对冲马丁的策略列表" :key="item.value"
+                                                :label="item.label" :value="item.value" />
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+
+                                <el-col :span="12" v-if="!currentStrategy.open_stop_profit_switch_hedge_mading">
                                     <el-form-item label="止损等待时间" required>
-                                        <el-input :disabled="currentStrategy.is_run" type="number"
+                                        <el-input type="number"
                                             v-model.number="currentStrategy.stop_profit_wait_time"><template
                                                 #append>分钟</template></el-input>
                                     </el-form-item>
                                 </el-col>
-
                             </el-row>
 
-                            <el-row :gutter="20">
+
+                            <el-row :gutter="20" v-if="!currentStrategy.open_stop_profit_switch_hedge_mading">
 
                                 <el-col :span="12" v-if="currentStrategy.open_stop_profit">
                                     <div>
                                         <el-form-item label="止损后自动暂停" required>
-                                            <el-radio-group :disabled="currentStrategy.is_run"
-                                                v-model.number="currentStrategy.after_stop_profit_auto_pause"
+                                            <el-radio-group v-model.number="currentStrategy.after_stop_profit_auto_pause"
                                                 class="my-radio-group">
                                                 <el-radio-button :label="true" class="my-radio-50">
                                                     <template #default>开启</template>
@@ -566,12 +598,15 @@
                                 </el-col>
                                 <el-col :span="12" v-if="currentStrategy.open_stop_profit">
                                     <el-form-item label="止损前等待时间" required>
-                                        <el-input :disabled="currentStrategy.is_run" type="number"
+                                        <el-input type="number"
                                             v-model.number="currentStrategy.before_stop_profit_wait_time"><template
                                                 #append>秒</template></el-input>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
+
+
+
 
                         </el-card>
                     </div>
@@ -692,9 +727,10 @@ const singleTableRef = ref(null);
 const setCurrent = (row) => {
     singleTableRef.value.setCurrentRow(row)
 }
-
+const 对冲马丁策略id = ref(null);
 const target_copy_id = ref(null);
-const strategy_index_options = ref([])
+const strategy_index_options = ref([]) //复制策略信息的列表
+const 当前策略对应的对冲马丁的策略列表 = ref([])
 //复制币种信息
 const copySymbolsInfo = () => {
     if (!selectedStrategy.value) {
@@ -788,6 +824,10 @@ function updateSymbolPrecisionFields(symbols) {
         symbol_precisions[key] = newSymbolPrecisions[key];
     }
 }
+
+const 当前策略对应的对冲马丁的策略改变 = () => {
+    currentStrategy.value.hedge_mading_strategy_id = 对冲马丁策略id.value;
+}
 function currentStrategy_init() {
     currentStrategy.value = {
         id: null,  // 唯一标识
@@ -822,6 +862,7 @@ function currentStrategy_init() {
         stop_profit_wait_time: 0, //止损等待时间
         after_stop_profit_auto_pause: false,// 止损后自动暂停
         before_stop_profit_wait_time: 0, //止损前等待时间
+        open_stop_profit_switch_hedge_mading: false, // 打开止损后自动切换到对冲马丁策略
 
     };
 }
@@ -847,11 +888,26 @@ function addStrategy() {
 function editStrategy(item) {
     console.log(item);
     dialogTitle.value = "编辑双马丁策略";
+    当前策略对应的对冲马丁的策略列表.value = [];
     currentStrategy.value = item;
+    smading_strategy_list.value.forEach((strategy, index) => {
+        // console.log(strategy.exchange_name, currentStrategy.value.exchange_name, strategy.position_side, currentStrategy.value.position_side)
+        if (strategy.exchange_name == currentStrategy.value.exchange_name && currentStrategy.value.position_side == 'BOTH' && strategy.position_side != 'BOTH') {
+            const 持仓方向 = strategy.position_side === 'LONG' ? '做多' : '做空';
+            const _data = {
+                value: strategy.id,
+                label: strategy.exchange_name + "-" + strategy.strategy_note + "-" + 持仓方向
+            }
+            当前策略对应的对冲马丁的策略列表.value.push(_data);
+        }
+
+    });
+    // console.log("当前策略对应的对冲马丁的策略列表", 当前策略对应的对冲马丁的策略列表.value)
     // 需要先判断exchange_options是否为空 然后通过exchange_options找到对应的交易所名称 
     const currentExchange = exchange_options.value.find((exchange) => {
         return exchange.id === item.exchange_id;
     });
+    对冲马丁策略id.value = currentStrategy.value.hedge_mading_strategy_id;
     exchange_info.value = currentExchange;
     // 循环 currentStrategy.value.symbol_infos 给symbol_options加入对应的symbol
     currentStrategy.value.symbols = [];
@@ -961,7 +1017,7 @@ async function submitStrategy() {
     currentStrategy.value.exchange_name = exchange_info.value.exchange_name;
     currentStrategy.value.symbol_precisions = symbol_precisions;
 
-    // console.log(currentStrategy.value);
+    console.log(currentStrategy.value);
     if (currentStrategy.value.id) {
         try {
             const res = await api_更新指定id的双马丁策略(currentStrategy.value.id, currentStrategy.value);

@@ -42,7 +42,7 @@ http.interceptors.response.use(responseInterceptor, responseInterceptorError);
 
 // 创建用于连接到第二台服务器的axios实例
 const http_tokyo = axios.create({
-    baseURL: 'http://43.163.235.41:8000',
+    baseURL: 'http://45.159.51.99:8000',
     // baseURL: 'http://localhost:8000',
     timeout: 60000,
 });

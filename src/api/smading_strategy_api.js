@@ -104,3 +104,84 @@ export const api_恢复指定id的双马丁策略 = async (data) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     return response;
 };
+
+//    api_市价平仓,
+export const api_市价平仓 = async (symbol, strategy_id, position_side) => {
+    const data = {
+        symbol: symbol,
+        strategy_id: strategy_id,
+        position_side: position_side
+    };
+    const response = await http_tokyo.post(`/${model_url}/monitor/one_key_close_market`, data);
+    return response;
+};
+
+//    api_重新启动,
+export const api_重新启动 = async (symbol, strategy_id) => {
+    const data = {
+        symbol: symbol,
+        strategy_id: strategy_id
+    };
+    const response = await http_tokyo.post(`/${model_url}/monitor/start_again`, data);
+    return response;
+};
+
+// api_切换成对冲双马丁
+export const api_切换成对冲双马丁 = async (symbol, strategy_id) => {
+    const data = {
+        symbol: symbol,
+        strategy_id: strategy_id
+    };
+    const response = await http_tokyo.post(`/${model_url}/monitor/switch_hedge_mading2`, data);
+    return response;
+};
+
+
+// api_重挂止盈
+export const api_重挂止盈 = async (symbol, strategy_id, position_side, take_profit_price) => {
+    const data = {
+        symbol: symbol,
+        strategy_id: strategy_id,
+        position_side: position_side,
+        take_profit_price: take_profit_price
+    };
+    const response = await http_tokyo.post(`/${model_url}/monitor/repull_take_profit`, data);
+    return response;
+};
+
+
+//    api_暂停,
+export const api_暂停 = async (symbol, strategy_id) => {
+    const data = {
+        symbol: symbol,
+        strategy_id: strategy_id
+    };
+    const response = await http_tokyo.post(`/${model_url}/monitor/pause`, data);
+    return response;
+};
+
+//api_恢复
+export const api_恢复 = async (symbol, strategy_id) => {
+    const data = {
+        symbol: symbol,
+        strategy_id: strategy_id
+    };
+    const response = await http_tokyo.post(`/${model_url}/monitor/continue`, data);
+    return response;
+};
+
+//api_首页直接启动
+export const api_首页直接启动 = async (symbol, strategy_id) => {
+    const data = {
+        symbol: symbol,
+        strategy_id: strategy_id
+    };
+    const response = await http_tokyo.post(`/${model_url}/home/start`, data);
+    return response;
+};
+
+
+//api_首页查询策略列表
+export const api_首页查询策略列表 = async (symbol) => {
+    return await http_tokyo.get(`/${model_url}/home/list/${symbol}`);
+};

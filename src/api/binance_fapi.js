@@ -25,3 +25,17 @@ export const fapi_获取4小时内币种上榜次数排行 = () => {
 export const fapi_获取最新的资金费率排行前20 = () => {
     return http.get(`/binance/fapi/funding_rate_top20_now`);
 };
+
+
+
+//fapi_获取指定币种的24小时数据
+export const fapi_获取指定币种的24小时数据 = (symbol) => {
+    return http.get(`/binance/fapi/get_symbol_24h/${symbol}`);
+};
+
+
+
+//fapi_获取指定币种的k线数据
+export const fapi_获取指定币种的k线数据 = (symbol) => {
+    return http.get(`/binance/fapi/get_symbol_klines/${symbol}`);
+};
