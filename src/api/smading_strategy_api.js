@@ -170,6 +170,29 @@ export const api_恢复 = async (symbol, strategy_id) => {
     return response;
 };
 
+//api_仓位重启
+export const api_仓位重启 = async (symbol, strategy_id, position_side) => {
+    const data = {
+        symbol: symbol,
+        strategy_id: strategy_id,
+        position_side: position_side
+    };
+    const response = await http_tokyo.post(`/${model_url}/monitor/position_start_again`, data);
+    return response;
+};
+
+//api_停止
+export const api_停止 = async (symbol, strategy_id) => {
+    const data = {
+        symbol: symbol,
+        strategy_id: strategy_id
+    };
+    const response = await http_tokyo.post(`/${model_url}/monitor/stop`, data);
+    return response;
+};
+
+
+
 //api_首页直接启动
 export const api_首页直接启动 = async (symbol, strategy_id) => {
     const data = {
