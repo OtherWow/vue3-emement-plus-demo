@@ -6,15 +6,15 @@
         <el-menu-item index="/"><el-icon>
                 <House />
             </el-icon><span>系统首页</span></el-menu-item>
-        <!-- <el-sub-menu index="/goods" :disabled="true">
+        <el-sub-menu index="/user_info">
             <template #title><el-icon>
                     <location />
-                </el-icon><span>产品管理</span></template>
+                </el-icon><span>用户管理</span></template>
             <el-menu-item-group>
-                <el-menu-item index="/goods/list">产品列表</el-menu-item>
-                <el-menu-item index="/goods/category">产品分类</el-menu-item>
+                <el-menu-item index="/user_info/balance_list">用户交易所余额查询</el-menu-item>
+                <!-- <el-menu-item index="/goods/category">产品分类</el-menu-item> -->
             </el-menu-item-group>
-        </el-sub-menu> -->
+        </el-sub-menu>
         <el-sub-menu index="/FundingRate">
             <template #title><el-icon>
                     <Coin />
@@ -23,23 +23,23 @@
                 <el-menu-item index="/FundingRate/list">资金费率策略列表</el-menu-item>
             </el-menu-item-group>
         </el-sub-menu>
-        <el-sub-menu index="/exchange_infos">
+        <!-- <el-sub-menu index="/exchange_infos" :disabled="true">
             <template #title><el-icon>
                     <Connection />
                 </el-icon><span>交易所账号管理</span></template>
             <el-menu-item-group>
                 <el-menu-item index="/exchange_infos/list">交易所账号列表</el-menu-item>
             </el-menu-item-group>
-        </el-sub-menu>
+        </el-sub-menu> -->
         <el-sub-menu index="/md_bots">
             <template #title><el-icon>
                     <location />
                 </el-icon><span>马丁机器人管理</span></template>
             <el-menu-item-group>
-                <el-menu-item index="/md_bots/list">马丁机器人列表</el-menu-item>
+                <!-- <el-menu-item index="/md_bots/list">马丁机器人列表</el-menu-item> -->
                 <el-menu-item index="/md_bots/smadingList">双马丁机器人列表</el-menu-item>
                 <el-menu-item index="/md_bots/smadingMonitor">双马丁监控墙</el-menu-item>
-                <el-menu-item index="/md_bots/detail">马丁明细</el-menu-item>
+                <!-- <el-menu-item index="/md_bots/detail">马丁明细</el-menu-item> -->
             </el-menu-item-group>
         </el-sub-menu>
     </el-menu>

@@ -300,6 +300,21 @@
                                 </el-col>
 
                             </el-row>
+                            <el-row :gutter="20">
+                                <el-col :span="12">
+                                    <el-form-item label="补到多少单停止" required>
+                                        <el-input type="number" v-model.number="currentStrategy.cover_stop_num"
+                                            placeholder="比如第30补单挂上后停止挂补单.不填则表示全补"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item label="补到多少单告警" required>
+                                        <el-input type="number" v-model.number="currentStrategy.cover_alarm_num"
+                                            placeholder="比如第30补单挂上后触发告警"></el-input>
+                                    </el-form-item>
+                                </el-col>
+
+                            </el-row>
                         </el-card>
                         <el-card class="box-card"
                             style="margin-top: 20px;margin-bottom: 20px;margin-right: 20px;margin-left: 20px;">
@@ -859,6 +874,8 @@ function currentStrategy_init() {
         open_float_take_profit_back: false,  // 是否开启浮动止盈回撤
         float_take_profit_back_price: null,  // 浮动止盈回撤价格
         open_stop_profit: false,  // 是否开启止损
+        cover_stop_num: null, // 补到多少单停止
+        cover_alarm_num: null,// 补到多少单告警
         stop_profit_wait_time: 0, //止损等待时间
         after_stop_profit_auto_pause: false,// 止损后自动暂停
         before_stop_profit_wait_time: 0, //止损前等待时间
@@ -1015,6 +1032,12 @@ async function getStartegyList() {
 async function submitStrategy() {
     currentStrategy.value.exchange_id = exchange_info.value.id;
     currentStrategy.value.exchange_name = exchange_info.value.exchange_name;
+    // 遍历symbol_precisions 如果精度是空字符串的就转成0
+    for (const key in symbol_precisions) {
+        if (!symbol_precisions[key]) {
+            symbol_precisions[key] = 0;
+        }
+    }
     currentStrategy.value.symbol_precisions = symbol_precisions;
 
     console.log(currentStrategy.value);

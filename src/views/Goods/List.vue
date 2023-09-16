@@ -24,26 +24,26 @@ export default {
 
         const addSymbol = () => {
             if (symbol.value) {
-                const ws = new WebSocket(`ws://google.cccx.top:8000/binance/api/ws/price`);
-                ws.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-                    const index = priceList.findIndex((item) => item.symbol === data.symbol);
-                    if (index === -1) {
-                        priceList.push({ symbol: data.symbol, price: data.price });
-                    } else {
-                        priceList[index].price = data.price;
-                    }
-                };
-                ws.onerror = (error) => {
-                    console.error("WebSocket error: ", error);
-                };
-                symbol.value = "";
-                // 当窗口关闭或刷新时，关闭WebSocket连接
-                window.addEventListener('beforeunload', () => {
-                    console.log("触发beforeunload")
-                    // 发送一个关闭帧，告诉服务器我们打算关闭连接
-                    ws.close();
-                });
+                // const ws = new WebSocket(`ws://google.cccx.top:8000/binance/api/ws/price`);
+                // ws.onmessage = (event) => {
+                //     const data = JSON.parse(event.data);
+                //     const index = priceList.findIndex((item) => item.symbol === data.symbol);
+                //     if (index === -1) {
+                //         priceList.push({ symbol: data.symbol, price: data.price });
+                //     } else {
+                //         priceList[index].price = data.price;
+                //     }
+                // };
+                // ws.onerror = (error) => {
+                //     console.error("WebSocket error: ", error);
+                // };
+                // symbol.value = "";
+                // // 当窗口关闭或刷新时，关闭WebSocket连接
+                // window.addEventListener('beforeunload', () => {
+                //     console.log("触发beforeunload")
+                //     // 发送一个关闭帧，告诉服务器我们打算关闭连接
+                //     ws.close();
+                // });
             }
         };
 

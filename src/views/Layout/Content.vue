@@ -75,9 +75,10 @@ export default {
         const btc_ticker = ref({ price: 0, percentage: 0, percentageColor: 'rgb(0,165,154)' });// 绿色
         const connectWebSocket = () => {
             // 创建一个新的WebSocket连接
-            const ws = new WebSocket("ws://google.cccx.top:8000/binance/api/ws");
+            const ws = new WebSocket("ws://45.159.51.6:7878/binance/api/ws");
             // 当WebSocket连接建立成功
             ws.onopen = () => {
+                // console.log("触发onopen-layout")
                 const token = localStorage.getItem('token');
                 if (token) {
                     ws.send(JSON.stringify({
@@ -90,7 +91,7 @@ export default {
             ws.onmessage = (event) => {
                 // 解析从服务器接收到的JSON数据
                 const data = JSON.parse(event.data);
-
+                // console.log("收到消息", data)
                 // 格式化并更新价格和百分比
                 btc_ticker.value.price = parseFloat(data.price).toFixed(2);
                 btc_ticker.value.percentage = parseFloat(data.percentage).toFixed(2);

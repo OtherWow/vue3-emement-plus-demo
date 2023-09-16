@@ -47,9 +47,11 @@
                         </el-row>
 
                     </template>
-                    <div id="main" style="width: 100%;" :style="{ height: (cardHeight - 100) / 2 + 'px' }"></div>
+                    <div id="main" style="width: 100%;" :style="{ height: ((cardHeight - 100) / 2 - 100) + 'px' }"></div>
 
-                    <div id="main_kline" style="width: 100%;" :style="{ height: (cardHeight - 100) / 2 + 'px' }"></div>
+                    <div id="main_kline" style="width: 100%;margin-top: 5px;"
+                        :style="{ height: ((cardHeight - 100) / 2 + 100) + 'px' }">
+                    </div>
                 </el-card>
             </el-main>
             <el-aside width="450px" style="margin-top: 0px;padding: 20px;padding-left: 15px;">
@@ -57,8 +59,8 @@
                     <el-tabs v-model="activeTab" class="demo-tabs" style="margin-top: 10px;">
                         <el-tab-pane label="每分钟振幅排行" name="first">
                             <el-table :data="amplitude_1m_20_table_data" style="width: 100%" :height="cardHeight - 110">
-                                <el-table-column prop="index" label="排名" align="center" width="80"></el-table-column>
-                                <el-table-column label="交易对" align="center">
+                                <el-table-column prop="index" label="排名" align="center" width="55"></el-table-column>
+                                <el-table-column label="交易对" align="center" width="145">
                                     <template #default="scope">
                                         <el-button @click="刷新指定币种的振幅数据(scope.row.symbol)">{{
                                             scope.row.symbol }}</el-button>
@@ -69,6 +71,12 @@
                                     <template #default="scope">
                                         <el-tag type="success" effect="dark" size="large">{{ scope.row.amplitude
                                         }}%</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="上榜次数" align="center">
+                                    <template #default="scope">
+                                        <el-tag type="success" effect="dark" size="large">{{ scope.row.count
+                                        }}</el-tag>
                                     </template>
                                 </el-table-column>
 
@@ -164,7 +172,8 @@ const 获取双马丁策略列表 = async () => {
         双马丁策略列表.value.push({
             value: item.id,
             label: item.exchange_name + "-" + item.strategy_note + "-" + item.position_side,
-            is_run: item.is_run
+            is_run: item.is_run,
+            exchange_id: item.exchange_id,
         });
     });
     return res.data;
@@ -172,7 +181,15 @@ const 获取双马丁策略列表 = async () => {
 
 const 首页直接启动 = async () => {
     try {
-        const res = await api_首页直接启动(选中的币种.value, 双马丁策略id.value);
+        if (双马丁策略id.value === null) {
+            ElMessage({
+                message: "请选择双马丁策略",
+                type: "error"
+            });
+            return;
+        }
+        const exchange_id = 双马丁策略列表.value.find(item => item.value === 双马丁策略id.value).exchange_id;
+        const res = await api_首页直接启动(选中的币种.value, 双马丁策略id.value, exchange_id);
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             ElMessage({
@@ -224,17 +241,15 @@ const 刷新4小时内币种上榜次数排行 = async () => {
     return res.data;
 };
 
+// ------------------------------------------------------------------------------------------------------------刷新排行榜结束----------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------图表相关开始----------------------------------------------------------------------------------------------------
 
 const 刷新指定币种的振幅数据 = async (symbol) => {
-    const res = await fapi_获取指定币种的所有振幅数据(symbol);
-    const res_24 = await fapi_获取指定币种的24小时数据(symbol);
-    const res_k = await fapi_获取指定币种的k线数据(symbol);
+    const promise_res = fapi_获取指定币种的所有振幅数据(symbol);
+    const promise_res_24 = fapi_获取指定币种的24小时数据(symbol);
+    const promise_res_k = fapi_获取指定币种的k线数据(symbol);
     // console.log(res.data, res_24.data, res_k.data);
-    amplitude_1m_all_data.value = res.data;
-    // 基于准备好的dom，初始化echarts实例
-    var myChart = $echarts.init(document.getElementById('main'));
-    var myChart_kline = $echarts.init(document.getElementById('main_kline'));
-
+    const [res_24, res_k] = await Promise.all([promise_res_24, promise_res_k]);
     let 成交量_24小时 = res_24.data.volume;
     let 成交额_24小时 = res_24.data.quoteVolume;
 
@@ -249,7 +264,7 @@ const 刷新指定币种的振幅数据 = async (symbol) => {
             return $1 + ",";
         });
     }).split(".")[0];
-    选中的币种.value = amplitude_1m_all_data.value.symbol;
+    选中的币种.value = symbol;
     选中的币种24小时成交量.value = 成交量_24小时;
     选中的币种24小时交易额.value = 成交额_24小时;
     await 获取双马丁策略列表();
@@ -262,15 +277,21 @@ const 刷新指定币种的振幅数据 = async (symbol) => {
         const timeStr = `${hours}:${minutes}`;
         return [
             +item[1], +item[4], +item[3], +item[2], // 开、收、低、高
-            ((+item[1] - +item[4]) / +item[4] * 100).toFixed(2), // 涨幅
+            (-(+item[1] - +item[4]) / +item[4] * 100).toFixed(2), // 涨幅
             ((+item[2] - +item[3]) / +item[3] * 100).toFixed(2), // 振幅
+            (+item[7]).toString().replace(/\d+/, function (n) { // 先提取整数部分
+                return n.replace(/(\d)(?=(\d{3})+$)/g, function ($1) {
+                    return $1 + ",";
+                });
+            }).split(".")[0],//交易量
             timeStr,
         ]
     });
 
-    // ------------------------------------------------------------------------------------------------------------刷新排行榜结束----------------------------------------------------------------------------------------------------
+    //根据res_k生成成交量柱状图需要的数据
+    const volumes = res_k.data.map(item => { return item[7] })
+    console.log("volumes", volumes);
 
-    // ------------------------------------------------------------------------------------------------------------图表相关开始----------------------------------------------------------------------------------------------------
     // formattedTimeData 为时分格式
     const formattedTimeData = res_k.data.map(item => {
         // 先把item[0]字符串转成时间戳
@@ -283,39 +304,67 @@ const 刷新指定币种的振幅数据 = async (symbol) => {
         return timeStr;  // 用格式化的时间替换原始的时间戳，并保留其他数据
     });
 
+    var myChart_kline = $echarts.init(document.getElementById('main_kline'));
     // console.log(formattedData);
     myChart_kline.setOption({
         title: {
-            text: '1m K线数据',
+            text: 选中的币种.value + ' 1m K线数据-4h',
             left: 10
         },
-        xAxis: {
-            data: formattedTimeData,
-        },
-        yAxis: {
+        grid: [{
+            // 这是第一个grid，用于K线图
+            left: '10%',
+            right: '10%',
+            bottom: '30%',
+            height: '60%', // 设置为80%的高度
+        }, {
+            // 这是第二个grid，用于柱状图
+            left: '10%',
+            right: '10%',
+            top: '68%',  // 开始于整体高度的85%，与K线图底部有5%的间隔
+            height: '22%', // 设置为15%的高度，与K线图底部有5%的间隔，共计100%
+        }],
+        xAxis: [
+            {
+                type: 'category',
+                data: formattedTimeData,
+                boundaryGap: false,
+                axisLine: { onZero: false },
+                splitLine: { show: false },
+                min: 'dataMin',
+                max: 'dataMax',
+                axisPointer: {
+                    z: 100
+                }
+            },
+            {
+                type: 'category',
+                gridIndex: 1,
+                data: formattedTimeData,
+                boundaryGap: false,
+                axisLine: { onZero: false },
+                axisTick: { show: false },
+                splitLine: { show: false },
+                axisLabel: { show: false },
+                min: 'dataMin',
+                max: 'dataMax'
+            }
+        ],
+        yAxis: [{
             scale: true,
             splitArea: {
-                show: false
+                show: true
             }
-        },
+        }, {
+            scale: true,
+            gridIndex: 1,
+            splitNumber: 2,
+            axisLabel: { show: false },
+            axisLine: { show: false },
+            axisTick: { show: false },
+            splitLine: { show: false }
+        }],
 
-        // tooltip: {
-        //     trigger: 'axis',
-        //     formatter: function (params) {
-        //         const [time, open, close, low, high] = params[0].data;
-        //         const date = new Date(time);
-        //         const hours = date.getHours().toString().padStart(2, '0');
-        //         const minutes = date.getMinutes().toString().padStart(2, '0');
-        //         const timeStr = `${hours}:${minutes}`;
-        //         return `
-        //                 开: ${timeStr}<br>
-        //                 Open: ${open}<br>
-        //                 Close: ${close}<br>
-        //                 Low: ${low}<br>
-        //                 High: ${high}
-        //             `;
-        //     }
-        // },
         tooltip: {
             trigger: 'axis',
             transitionDuration: 0,
@@ -330,21 +379,50 @@ const 刷新指定币种的振幅数据 = async (symbol) => {
             },
             formatter: function (params) {
                 // console.log(params[0].data);
-                const [index, open, close, low, high, 涨幅, 振幅, 开盘时间] = params[0].data;
+                const kData = params.find(p => p.seriesType === 'candlestick').data;
+                const [index, open, close, low, high, 涨幅, 振幅, 交易额, 开盘时间] = kData;
                 const isRise = close > open;  // 判断是否涨了
                 const point = isRise ? '🟢' : '🔴';  // 选择相应的小圆点
                 return `
                         ${point}<br>
                         开盘时间: ${开盘时间}<br>
-                        开盘: ${open}<br>
-                        收盘: ${close}<br>
-                        最低: ${low}<br>
-                        最高: ${high}<br>
+                        开盘: ${open} USDT<br>
+                        收盘: ${close} USDT<br>
+                        最低: ${low} USDT<br>
+                        最高: ${high} USDT<br>
                         涨幅：${涨幅}%<br>
                         振幅：${振幅}%<br>
+                        交易额: ${交易额} USDT<br>
                     `;
             }
 
+        },
+        toolbox: {
+            feature: {
+                dataZoom: {
+                    yAxisIndex: false
+                },
+                brush: {
+                    type: ['lineX', 'clear']
+                }
+            }
+        },
+        brush: {
+            xAxisIndex: 'all',
+            brushLink: 'all',
+            outOfBrush: {
+                colorAlpha: 0.1
+            }
+        },
+        axisPointer: {
+            link: [
+                {
+                    xAxisIndex: 'all'
+                }
+            ],
+            label: {
+                backgroundColor: '#777'
+            }
         },
         series: [{
             type: 'candlestick',
@@ -354,26 +432,41 @@ const 刷新指定币种的振幅数据 = async (symbol) => {
                 color0: 'red',  // 跌的颜色
                 borderColor: 'green',  // 涨的边框颜色
                 borderColor0: 'red'  // 跌的边框颜色
-            },
+            }
 
+        },
+        {
+            name: 'Volume',
+            type: 'bar',
+            xAxisIndex: 1,
+            yAxisIndex: 1,
+            data: volumes,
+            itemStyle: {
+                color: function (params) {
+                    // 如果收盘价（索引为1）大于开盘价（索引为0），则为绿色，否则为红色
+                    return formattedData[params.dataIndex][1] > formattedData[params.dataIndex][0] ? 'green' : 'red';
+                }
+            }
         }],
         dataZoom: [
             {
-                type: 'inside'
-
+                type: 'inside',
+                xAxisIndex: [0, 1] // 使两个x轴都与此数据缩放相关联
             },
             {
-                type: 'slider'
-
+                type: 'slider',
+                xAxisIndex: [0, 1] // 使两个x轴都与此数据缩放相关联
             }
         ]
 
     });
-
-
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = $echarts.init(document.getElementById('main'));
+    const res = await promise_res;
+    amplitude_1m_all_data.value = res.data;
     myChart.setOption({
         title: {
-            text: '一天内振幅数据统计',
+            text: 选中的币种.value + ' 一天内振幅数据统计',
             left: 10
         },
         toolbox: {
@@ -423,10 +516,14 @@ const 刷新指定币种的振幅数据 = async (symbol) => {
         ],
         dataZoom: [
             {
-                type: 'inside'
+                type: 'inside',
+                start: 83.6,
+                end: 100
             },
             {
-                type: 'slider'
+                type: 'slider',
+                start: 83.6,
+                end: 100
             }
         ]
 
@@ -444,14 +541,15 @@ onMounted(async () => {
         const symbol = data[0].symbol;
         await 刷新指定币种的振幅数据(symbol);
     }
+    刷新最新的资金费率排行前20();
     window.addEventListener('resize', updateHeight);
     intervalId.value = setInterval(() => {
         const currentSeconds = new Date().getSeconds();
         if (currentSeconds === 22) {
             刷新每分钟振幅排行();
             刷新4小时内币种上榜次数排行();
+            刷新最新的资金费率排行前20();
         }
-        刷新最新的资金费率排行前20();
     }, 1000); // Run this every second
 });
 

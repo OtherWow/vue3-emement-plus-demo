@@ -17,6 +17,9 @@
                 highlight-current-row :summary-method="getSummaries" show-summary :height="monitor_table_height"
                 :row-class-name="tableRowClassName" :cell-class-name="cellClassName" @filter-change="handleFilterChange"
                 scrollbar-always-on show-overflow-tooltip ref="monitorTable">
+                <el-table-column fixed="left" prop="name" label="账号名" width="80" show-overflow-tooltip
+                    align="center"></el-table-column>
+
                 <el-table-column fixed="left" prop="symbol" label="交易对" width="120" show-overflow-tooltip align="center"
                     :filters="symbolFilters" filter-placement="bottom-end" column-key="symbol">
                     <template #default="scope">
@@ -24,8 +27,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column type="index" width="55" label="序号" align="center" />
-                <el-table-column prop="name" label="交易所账号名称" width="140" show-overflow-tooltip align="center"
-                    :filters="nameFilters" filter-placement="bottom-end" column-key="name"></el-table-column>
 
                 <el-table-column prop="启动资金" label="启动资金" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
@@ -57,16 +58,13 @@
                     align="center"></el-table-column>
                 <el-table-column prop="做空仓位价格" label="做空仓位价格" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="做空仓位价值" label="做空仓位价值" width="110" show-overflow-tooltip
-                    align="center"></el-table-column>
                 <el-table-column prop="做空总盈利" label="做空总盈利" width="100" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="做多仓位数量" label="做多仓位数量" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="做多仓位价格" label="做多仓位价格" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="做多仓位价值" label="做多仓位价值" width="110" show-overflow-tooltip
-                    align="center"></el-table-column>
+
 
                 <el-table-column prop="做多总盈利" label="做多总盈利" width="100" show-overflow-tooltip
                     align="center"></el-table-column>
@@ -76,8 +74,7 @@
 
                 <el-table-column prop="总浮盈(已扣手续费)" label="总浮盈(已扣手续费)" width="150" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="是否暂停" label="是否暂停" width="110" show-overflow-tooltip
-                    align="center"></el-table-column>
+
                 <el-table-column prop="做多本轮时间" label="做多本轮时间" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="做多第几次补单" label="做多第几次补单" width="130" show-overflow-tooltip align="center">
@@ -85,6 +82,8 @@
                         <div class="highlight-title">{{ column.label }}</div>
                     </template>
                 </el-table-column>
+                <el-table-column prop="做多仓位价值" label="做多仓位价值" width="110" show-overflow-tooltip
+                    align="center"></el-table-column>
                 <el-table-column prop="做多仓位浮动盈亏" label="做多仓位浮动盈亏" width="140" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column label="多仓操作" width="295" align="center">
@@ -108,6 +107,9 @@
                         <div class="highlight-title">{{ column.label }}</div>
                     </template>
                 </el-table-column>
+
+                <el-table-column prop="做空仓位价值" label="做空仓位价值" width="110" show-overflow-tooltip
+                    align="center"></el-table-column>
                 <el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="140" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column label="空仓操作" width="295" align="center">
@@ -131,11 +133,14 @@
                         <el-button type="danger" size="small" @click="仓位重启(row, 'SHORT')">空仓重启</el-button>
                         <el-button type="danger" size="small" @click="暂停(row)" v-if="row.是否暂停 === '否'">暂停</el-button>
                         <el-button type="success" size="small" @click="恢复(row)" v-if="row.是否暂停 === '是'">恢复</el-button>
-                        <el-button type="danger" size="small" @click="停止(row)">停止</el-button>
+                        <el-button type="danger" size="small" @click="停止(row)" v-if="row.是否停止 === '否'">停止</el-button>
+                        <el-button type="success" size="small" @click="启动(row)" v-if="row.是否停止 === '是'">启动</el-button>
                         <el-button type="danger" size="small" @click="重新启动(row)">重新启动</el-button>
                         <el-button type="danger" size="small" @click="切换成对冲双马丁(row)">切换成对冲双马丁</el-button>
                     </template>
                 </el-table-column>
+                <el-table-column prop="是否暂停" label="是否暂停" width="90" show-overflow-tooltip align="center"></el-table-column>
+                <el-table-column prop="是否停止" label="是否停止" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column fixed="right" prop="仓位浮动盈亏" label="仓位浮动盈亏" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column fixed="right" prop="总手续费" label="总手续费" width="85" show-overflow-tooltip
@@ -160,7 +165,9 @@ import {
     api_恢复,
     api_仓位重启,
     api_停止,
+    api_启动,
 } from "@/api/smading_strategy_api";
+import router from '@/router'; // 确保你的路由实例已经导入
 // ------------------------------------------------------------------------------------------------------------筛选相关功能开始----------------------------------------------------------------------------------------------------
 const currentNameFilters = ref([]);  // 默认为空数组，表示没有筛选
 const currentSymbolFilters = ref([]);  // 默认为空数组，表示没有筛选
@@ -197,77 +204,103 @@ onMounted(async () => {
     window.addEventListener('resize', updateHeight);
     setTimeout(() => {
         const scrollArea = monitorTable.value?.$el.querySelector('.el-table__body-wrapper')
-        monitorTable.value.setScrollLeft(scrollArea.clientWidth + 1000);
+        monitorTable.value.setScrollLeft(scrollArea.clientWidth + 400);
     }, 300);
 });
 
 onBeforeUnmount(() => {
     if (ws) {
+        reconnectScheduled = true;
         ws.close();
     }
     window.removeEventListener('resize', updateHeight);
 });
 
 // ------------------------------------------------------------------------------------------------------------websocket相关功能开始----------------------------------------------------------------------------------------------------
-// 定义初始等待时间和最大等待时间
-const INITIAL_RECONNECT_DELAY = 1000; // 1 second
-const MAX_RECONNECT_DELAY = 60000;    // 1 minute
-let currentReconnectDelay = ref(INITIAL_RECONNECT_DELAY);
-let reconnectTimeout = null;
+const INITIAL_RECONNECT_DELAY = 300; // 初始重连延迟：1秒
+const MAX_RECONNECT_DELAY = 60000;    // 最大重连延迟：1分钟
+let currentReconnectDelay = INITIAL_RECONNECT_DELAY; // 当前的重连延迟
+let reconnectScheduled = false;       // 用于跟踪是否已经安排了重连
 let name_color_map = {}
 const color_list = ['color-yyn1', 'color-yyn2', 'color-yyn3', 'color-yyn5']
+
+function scheduleReconnect() {
+    if (reconnectScheduled) return;    // 如果已经安排了重连，则直接返回
+    console.log(`计划在 ${currentReconnectDelay}ms 后重连`);
+    setTimeout(() => {
+        currentReconnectDelay = Math.min(currentReconnectDelay * 2, MAX_RECONNECT_DELAY);
+        reconnectScheduled = false;  // 重置重连标志
+        connectToWebSocket();
+    }, currentReconnectDelay);
+    reconnectScheduled = true;       // 设置重连标志
+}
+
+
 function connectToWebSocket() {
     if (ws) {
         ws.close();
+        ws = null;
     }
-    ws = new WebSocket("ws://45.159.51.99:8000/ws/smading");
+    const token = localStorage.getItem('token');
+    ws = new WebSocket(`ws://45.159.51.6:7878/ws/smading/${token}`);
 
     ws.onopen = (event) => {
-        console.log("WebSocket opened:", event);
-        currentReconnectDelay.value = INITIAL_RECONNECT_DELAY; // 重置当前等待时间
+        console.log("WebSocket 已连接:", event);
+        currentReconnectDelay = INITIAL_RECONNECT_DELAY; // 重置当前的重连延迟
     };
-
 
     ws.onmessage = (event) => {
         const rawData = JSON.parse(event.data);
-        // console.log(rawData.length)
+        // console.log("WebSocket 收到消息:", rawData, rawData.error, rawData.error == true);
+        // 检查消息中是否有'error'字段
+        if (rawData.error) {
+            console.error('WebSocket error received:', rawData.error);
+            // 根据错误处理，例如：如果token无效或过期，可能需要重新登录
+            if (rawData.code === 401) {
+                reconnectScheduled = true;
+                localStorage.removeItem('token');
+                router.replace({
+                    path: '/login',
+                    query: { redirect: router.currentRoute.fullPath }
+                });
+            }
 
-        // 直接创建一个排序后的名称数组
-        const sortedNames = [...new Set(rawData.map(item => item.name))].sort();
+            // 关闭WebSocket连接
+            ws.close();
+        } else {
 
-        // 分配颜色到名字
-        assignColorToName(sortedNames);
+            // 直接创建一个排序后的名称数组
+            const sortedNames = [...new Set(rawData.map(item => item.name))].sort();
 
-        const symbols = new Set(rawData.map(item => item.symbol));
-        nameFilters.value = sortedNames.map(name => ({ text: name, value: name }));
-        if (选中的交易所账号.value.length == 0) {
-            选中的交易所账号.value = [...sortedNames];
+            // 分配颜色到名字
+            assignColorToName(sortedNames);
+
+            const symbols = new Set(rawData.map(item => item.symbol));
+            nameFilters.value = sortedNames.map(name => ({ text: name, value: name }));
+            if (选中的交易所账号.value.length == 0) {
+                选中的交易所账号.value = [...sortedNames];
+            }
+            symbolFilters.value = [...symbols].map(symbol => ({ text: symbol, value: symbol }));
+
+            smading_infos_list.value = rawData.filter(item =>
+                (!currentNameFilters.value.length || currentNameFilters.value.includes(item.name)) &&
+                (!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(item.symbol)) &&
+                选中的交易所账号.value.includes(item.name)
+            );
         }
-        symbolFilters.value = [...symbols].map(symbol => ({ text: symbol, value: symbol }));
-
-        smading_infos_list.value = rawData.filter(item =>
-            (!currentNameFilters.value.length || currentNameFilters.value.includes(item.name)) &&
-            (!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(item.symbol)) &&
-            选中的交易所账号.value.includes(item.name)
-        );
-        // console.log(smading_infos_list.value.length)
 
     };
 
     ws.onclose = (event) => {
-        console.log("WebSocket closed:", event);
-        if (!reconnectTimeout) {
-            reconnectTimeout = setTimeout(() => {
-                connectToWebSocket();
-                currentReconnectDelay.value = Math.min(currentReconnectDelay.value * 2, MAX_RECONNECT_DELAY);
-            }, currentReconnectDelay.value);
-        }
+        console.log("WebSocket 已关闭:", event);
+        scheduleReconnect();  // 调度一个重连
     };
 
     ws.onerror = (error) => {
-        console.log("WebSocket error:", error);
+        console.log("WebSocket 出错:", error);
     };
 }
+
 
 function assignColorToName(names) {
     let color_list_copy = [...color_list];
@@ -290,12 +323,7 @@ function manualReconnect() {
     const scrollArea = monitorTable.value?.$el.querySelector('.el-table__body-wrapper')
     console.log(scrollArea.clientWidth);
     monitorTable.value.setScrollLeft(scrollArea.clientWidth + 1000)
-    if (reconnectTimeout) {
-        clearTimeout(reconnectTimeout);
-        reconnectTimeout = null;
-    }
-    currentReconnectDelay.value = INITIAL_RECONNECT_DELAY;
-    connectToWebSocket();
+    ws.close();
 }
 // ------------------------------------------------------------------------------------------------------------websocket相关功能结束----------------------------------------------------------------------------------------------------
 
@@ -320,9 +348,9 @@ const 重挂止盈 = async (row, position_side, index) => {
         return;
     }
 
-    // console.log(long_inputValues, short_inputValues, index, inputvalues)
+    // console.log(long_inputValues, short_inputValues, index, inputvalues, row.exchange_id, row)
     try {
-        const res = await api_重挂止盈(row.symbol, row.strategy_id, position_side, inputvalues);
+        const res = await api_重挂止盈(row.symbol, row.strategy_id, position_side, inputvalues, row.exchange_id);
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             ElMessage({
@@ -346,7 +374,7 @@ const 重挂止盈 = async (row, position_side, index) => {
 const 市价平仓 = async (row, position_side) => {
     // console.log(row, position_side);
     try {
-        const res = await api_市价平仓(row.symbol, row.strategy_id, position_side);
+        const res = await api_市价平仓(row.symbol, row.strategy_id, position_side, row.exchange_id);
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             ElMessage({
@@ -384,9 +412,9 @@ const 仓位重启 = async (row, position_side) => {
     if (res !== 'confirm') {
         return;
     }
-    // console.log(row, position_side);
+    console.log(row, position_side);
     try {
-        const res = await api_仓位重启(row.symbol, row.strategy_id, position_side);
+        const res = await api_仓位重启(row.symbol, row.strategy_id, position_side, row.exchange_id);
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             ElMessage({
@@ -419,7 +447,7 @@ const 暂停 = async (row) => {
     }
     // console.log(row, position_side);
     try {
-        const res = await api_暂停(row.symbol, row.strategy_id);
+        const res = await api_暂停(row.symbol, row.strategy_id, row.exchange_id);
         if (res.status === 200 && res.data.code === 200) {
             ElMessage({
                 message: "暂停成功",
@@ -443,7 +471,7 @@ const 暂停 = async (row) => {
 const 恢复 = async (row) => {
     // console.log(row, position_side);
     try {
-        const res = await api_恢复(row.symbol, row.strategy_id);
+        const res = await api_恢复(row.symbol, row.strategy_id, row.exchange_id);
         if (res.status === 200 && res.data.code === 200) {
             ElMessage({
                 message: "恢复成功",
@@ -476,7 +504,7 @@ const 停止 = async (row) => {
     }
     // console.log(row, position_side);
     try {
-        const res = await api_停止(row.symbol, row.strategy_id);
+        const res = await api_停止(row.symbol, row.strategy_id, row.exchange_id);
         if (res.status === 200 && res.data.code === 200) {
             ElMessage({
                 message: "停止成功",
@@ -496,6 +524,39 @@ const 停止 = async (row) => {
     }
 };
 
+
+const 启动 = async (row) => {
+    // 先弹一个提示框确定是否启动
+    const res = await ElMessageBox.confirm('确定要启动吗？启动会对当前币种进行平仓撤单操作 ！', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    });
+    if (res !== 'confirm') {
+        return;
+    }
+    // console.log(row, position_side);
+    try {
+        const res = await api_启动(row.symbol, row.strategy_id, row.exchange_id);
+        if (res.status === 200 && res.data.code === 200) {
+            ElMessage({
+                message: "启动成功",
+                type: "success"
+            });
+        } else {
+            ElMessage({
+                message: "启动失败：" + res.data.msg,
+                type: "error"
+            });
+        }
+    } catch (error) {
+        ElMessage({
+            message: "启动失败：" + error,
+            type: "error"
+        });
+    }
+};
+
 const 重新启动 = async (row) => {
     // 先弹一个提示框确定是否重新启动
     const res = await ElMessageBox.confirm('确定要重新启动吗？重新启动会平掉所有仓位！', '提示', {
@@ -508,7 +569,7 @@ const 重新启动 = async (row) => {
     }
     // console.log(row, position_side);
     try {
-        const res = await api_重新启动(row.symbol, row.strategy_id);
+        const res = await api_重新启动(row.symbol, row.strategy_id, row.exchange_id);
         if (res.status === 200 && res.data.code === 200) {
             ElMessage({
                 message: "重新启动成功",
@@ -541,7 +602,7 @@ const 切换成对冲双马丁 = async (row) => {
     }
     // console.log(row, position_side);
     try {
-        const res = await api_切换成对冲双马丁(row.symbol, row.strategy_id);
+        const res = await api_切换成对冲双马丁(row.symbol, row.strategy_id, row.exchange_id);
         if (res.status === 200 && res.data.code === 200) {
             ElMessage({
                 message: "切换成对冲双马丁成功",
@@ -599,10 +660,6 @@ const getSummaries = (param) => {
             sums[index] = '总计';
             return;
         }
-        if (index === 2) {
-            sums[index] = '已实现盈亏';
-            return;
-        }
         if (index === 5) {
             sums[5] = (Number(sums[4]) - Number(sums[3])).toFixed(1);
             // console.log(sums[4], sums[3], sums[2]);
@@ -652,6 +709,9 @@ const cellClassName = ({ row, rowIndex, column, columnIndex }) => {
         return 'bold-cell';
     }
     if (column.property === '是否暂停' && row['是否暂停'] == '是') {
+        return 'highlight-cell';
+    }
+    if (column.property === '是否停止' && row['是否停止'] == '是') {
         return 'highlight-cell';
     }
     if (column.property === '仓位浮动盈亏' && row['仓位浮动盈亏'] <= -10) {

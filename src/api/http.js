@@ -16,6 +16,12 @@ const requestInterceptorError = (error) => {
 
 // 定义通用响应拦截器
 const responseInterceptor = (response) => {
+    // 检查响应头是否包含新的token
+    const newToken = response.headers['x-new-token'];
+    if (newToken) {
+        // 更新本地存储的token
+        localStorage.setItem('token', newToken);
+    }
     return response;
 };
 
@@ -32,8 +38,8 @@ const responseInterceptorError = (error) => {
 
 // 创建用于连接到第一台服务器的axios实例
 const http = axios.create({
-    baseURL: 'http://google.cccx.top:8000',
-    // baseURL: 'http://localhost:8000',
+    baseURL: 'http://45.159.51.6:7878',
+    // baseURL: 'http://localhost:7878',
     timeout: 60000,
 });
 
@@ -42,8 +48,8 @@ http.interceptors.response.use(responseInterceptor, responseInterceptorError);
 
 // 创建用于连接到第二台服务器的axios实例
 const http_tokyo = axios.create({
-    baseURL: 'http://45.159.51.99:8000',
-    // baseURL: 'http://localhost:8000',
+    // baseURL: 'http://45.159.51.99:8000',
+    baseURL: 'http://localhost:8000',
     timeout: 60000,
 });
 

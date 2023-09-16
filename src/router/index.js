@@ -60,6 +60,17 @@ const routes = [
             meta: { title: '交易所账号列表', requiresAuth: true }, // 需要鉴权的路由
           }
         ]
+      }, {
+        path: '/user_info',
+        component: () => import('@/views/UserInfo'),
+        children: [
+          {
+            path: 'balance_list',
+            name: 'balance_list',
+            component: () => import('@/views/UserInfo/BalanceList.vue'),
+            meta: { title: '用户交易所余额查询', requiresAuth: true }, // 需要鉴权的路由
+          }
+        ]
       }
       , {
         path: '/md_bots',
