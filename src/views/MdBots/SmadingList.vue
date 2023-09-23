@@ -7,10 +7,30 @@
                     <el-button type="primary" @click="copyStrategy()">复制选中策略</el-button>
                     <el-button type="primary" @click="copySymbolsInfo()">复制币种信息</el-button>
                 </el-col>
-                <el-col :span="12"></el-col>
+                <el-col :span="13"></el-col>
                 <!-- 居右-->
-                <el-col :span="6" style="text-align: right;">
-                    <el-button type="primary" @click="getStartegyList()">刷新</el-button>
+                <el-col :span="5" style="text-align: right;">
+                    <el-form>
+                        <el-row :gutter="20" style="margin-top:10px">
+
+                            <el-col :span="12">
+                                <el-form-item label="是否禁用">
+                                    <el-select @change="change_is_deleted" v-model="strategy_is_deleted" clearable
+                                        placeholder="请选择" style="width:100%">
+                                        <el-option label="是" :value="true" />
+                                        <el-option label="否" :value="false" />
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+
+
+
+                            <el-col :span="2">
+                                <el-button type="primary" @click="getStartegyList(strategy_is_deleted)">查询</el-button>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+
                 </el-col>
             </el-row>
             <el-table ref='singleTableRef' :data="smading_strategy_list" style="width: 100%" :fit="false" border
@@ -19,25 +39,34 @@
 
                 <el-table-column type="expand">
                     <template #default="props">
-                        <el-row :gutter="20" style="margin-left: 60px; margin-top: 5px;">
-                            <el-button type="primary" size="small" @click="selectStartSymbolStrategy(props.row)"
-                                effect="dark">选中启动</el-button>
-                            <el-button type="primary" size="small" @click="selectPauseSymbolStrategy(props.row)"
-                                effect="dark">选中暂停</el-button>
-                            <el-button type="primary" size="small" @click="selectContinueSymbolStrategy(props.row)"
-                                effect="dark">选中恢复</el-button>
-                            <el-button type="primary" size="small" @click="selectStopSymbolStrategy(props.row)"
-                                effect="dark">选中停止</el-button>
-                            <el-button type="danger" size="small" @click="selectDeleteSymbolStrategy(props.row)"
-                                effect="dark">选中删除</el-button>
-                        </el-row>
+                        <el-form>
+                            <el-row :gutter="20" style="margin-left: 60px; margin-top: 5px;">
+                                <el-col :span="6">
+                                    <el-button type="primary" size="small" @click="selectStartSymbolStrategy(props.row)"
+                                        effect="dark">选中启动</el-button>
+                                    <el-button type="primary" size="small" @click="selectPauseSymbolStrategy(props.row)"
+                                        effect="dark">选中暂停</el-button>
+                                    <el-button type="primary" size="small" @click="selectContinueSymbolStrategy(props.row)"
+                                        effect="dark">选中恢复</el-button>
+                                    <el-button type="primary" size="small" @click="selectStopSymbolStrategy(props.row)"
+                                        effect="dark">选中停止</el-button>
+                                    <el-button type="danger" size="small" @click="selectDeleteSymbolStrategy(props.row)"
+                                        effect="dark">选中删除</el-button>
+                                </el-col>
+                                <el-col :span="3">
+                                </el-col>
+                            </el-row>
+                        </el-form>
                         <el-table :data="props.row.symbol_infos" style="margin-left: 50px;width:80%"
                             @selection-change="(selectedRows) => handleSelectionChangeInner(selectedRows, props.row.id)">
                             <el-table-column type="selection" width="55" />
                             <el-table-column type="index" width="55" label="序号" align="center" />
                             <el-table-column label="交易对" prop="symbol" width="150" align="center" />
                             <el-table-column label="交易对精度" prop="symbol_price_precision" width="120" align="center" />
-                            <el-table-column label="运行中" width="90" show-overflow-tooltip align="center">
+                            <el-table-column label="运行中" width="90" show-overflow-tooltip align="center" :filters="[
+                                { text: '是', value: true },
+                                { text: '否', value: false },
+                            ]" filter-placement="bottom-end" :filter-method="filter_run">
                                 <template #default="{ row }">
                                     <el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">{{ row
                                         .is_run ? '是' :
@@ -72,9 +101,9 @@
                     </template>
                 </el-table-column>
                 <el-table-column type="index" width="55" label="序号" align="center" />
-                <el-table-column prop="exchange_name" label="交易所账号名称" width="150" show-overflow-tooltip sortable
+                <el-table-column prop="exchange_name" label="交易所" width="100" show-overflow-tooltip sortable
                     align="center"></el-table-column>
-                <el-table-column prop="strategy_note" label="策略备注" width="150" show-overflow-tooltip
+                <el-table-column prop="strategy_note" label="策略备注" width="250" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column label="运行中" width="90" show-overflow-tooltip align="center">
                     <template #default="{ row }">
@@ -158,14 +187,18 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column fixed="right" prop="exchange_name" label="交易所账号名称" width="150" show-overflow-tooltip
-                    sortable align="center"></el-table-column>
-                <el-table-column fixed="right" label="操作" width="150" align="center">
+                <el-table-column fixed="right" prop="exchange_name" label="交易所" width="100" show-overflow-tooltip sortable
+                    align="center"></el-table-column>
+                <el-table-column fixed="right" label="操作" width="300" align="center">
                     <template #default="{ row }">
 
                         <el-button type="primary" size="small" @click="editStrategy(row)" plain>编辑</el-button>
                         <el-button type="danger" size="small" @click="deleteStrategy(row)"
                             :disabled="row.is_run">删除</el-button>
+                        <el-button type="danger" size="small" @click="禁用策略(row, true)"
+                            :disabled="row.is_deleted">禁用</el-button>
+                        <el-button type="success" size="small" @click="禁用策略(row, false)"
+                            :disabled="!row.is_deleted">启用</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -196,7 +229,22 @@
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12">
+
+
+                                    <el-form-item label="交易类型" required>
+                                        <el-radio-group :disabled="currentStrategy.is_run"
+                                            v-model="currentStrategy.trade_type" class="my-radio-group">
+                                            <el-radio-button :label="'futures'" class="my-radio-50">
+                                                <template #default>合约</template>
+                                            </el-radio-button>
+                                            <el-radio-button :label="'spot'" class="my-radio-50">
+                                                <template #default>现货</template>
+                                            </el-radio-button>
+                                        </el-radio-group>
+                                    </el-form-item>
+
                                 </el-col>
+
                             </el-row>
 
                             <el-row :gutter="20">
@@ -208,10 +256,12 @@
                                                 <el-radio-button :label="'LONG'" class="my-radio-33">
                                                     <template #default>做多</template>
                                                 </el-radio-button>
-                                                <el-radio-button :label="'SHORT'" class="my-radio-33">
+                                                <el-radio-button :label="'SHORT'" class="my-radio-33"
+                                                    :disabled="currentStrategy.trade_type === 'spot'">
                                                     <template #default>做空</template>
                                                 </el-radio-button>
-                                                <el-radio-button :label="'BOTH'" class="my-radio-33">
+                                                <el-radio-button :label="'BOTH'" class="my-radio-33"
+                                                    :disabled="currentStrategy.trade_type === 'spot'">
                                                     <template #default>双向</template>
                                                 </el-radio-button>
                                             </el-radio-group>
@@ -226,13 +276,13 @@
                             <el-form-item label="币种" required>
                                 <el-select v-model="currentStrategy.symbols" @change="updateSymbolPrecisionFields" clearable
                                     placeholder="请选择" style="width:100%" multiple filterable>
-                                    <el-option v-for="item in symbol_options" :key="item.symbol" :label="item.symbol"
+                                    <el-option v-for=" item  in  symbol_options " :key="item.symbol" :label="item.symbol"
                                         :value="item.symbol" />
                                 </el-select>
                             </el-form-item>
 
                             <!-- 动态的交易对精度编辑框 -->
-                            <el-row v-for="(precision, symbol) in symbol_precisions" :key="symbol" :gutter="20">
+                            <el-row v-for="( precision, symbol ) in  symbol_precisions " :key="symbol" :gutter="20">
                                 <el-col :span="13">
                                     <el-form-item :label="`${symbol} 价格精度`" required label-width="300px">
                                         <el-input v-model.number="symbol_precisions[symbol]"
@@ -286,9 +336,9 @@
                             <el-row :gutter="20">
                                 <el-col :span="12">
                                     <el-form-item label="补单倍数" required>
-                                        <el-input :disabled="currentStrategy.is_run" type="number"
+                                        <el-input-number :disabled="currentStrategy.is_run" type="number"
                                             v-model.number="currentStrategy.cover_value_mult"><template
-                                                #append>倍</template></el-input>
+                                                #append>倍</template></el-input-number>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12">
@@ -349,9 +399,10 @@
                             <el-row :gutter="20" v-if="currentStrategy.open_hedge_mading">
                                 <el-col :span="12">
 
-                                    <el-form-item label="对冲马丁第几单触发" required>
+                                    <el-form-item label="对冲马丁首单" required>
                                         <el-input :disabled="currentStrategy.is_run"
-                                            v-model.number="currentStrategy.tigger_hedge_mading_num"></el-input>
+                                            v-model.number="currentStrategy.tigger_hedge_mading_num"
+                                            placeholder="如果想补单第n单补进后就挂对冲首单就填 n+1"></el-input>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12">
@@ -391,7 +442,8 @@
                                 <el-col :span="12">
                                     <el-form-item label="对冲马丁第几单补单" required>
                                         <el-input :disabled="currentStrategy.is_run"
-                                            v-model.number="currentStrategy.tigger_hedge_mading_cover_num"></el-input>
+                                            v-model.number="currentStrategy.tigger_hedge_mading_cover_num"
+                                            placeholder="补单第n单补进后对冲开始补单就填 n+1(注意补单必须大于首单 不然不会补)"></el-input>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12">
@@ -450,18 +502,21 @@
                                         <el-form-item label="止盈方式" required>
                                             <el-radio-group :disabled="currentStrategy.is_run"
                                                 v-model="currentStrategy.take_profit_type" class="my-radio-group">
-                                                <el-radio-button :label="'price'" class="my-radio-50">
+                                                <el-radio-button :label="'price'" class="my-radio-33">
                                                     <template #default>固定止盈</template>
                                                 </el-radio-button>
-                                                <el-radio-button :label="'percent'" class="my-radio-50">
+                                                <el-radio-button :label="'percent'" class="my-radio-33">
                                                     <template #default>百分比止盈</template>
+                                                </el-radio-button>
+                                                <el-radio-button :label="'mixed'" class="my-radio-33">
+                                                    <template #default>混合止盈(取最小值)</template>
                                                 </el-radio-button>
                                             </el-radio-group>
                                         </el-form-item>
                                     </div>
                                 </el-col>
                                 <el-col :span="12"
-                                    v-if="currentStrategy.open_take_profit && currentStrategy.take_profit_type === 'price'">
+                                    v-if="currentStrategy.open_take_profit && (currentStrategy.take_profit_type === 'price' || currentStrategy.take_profit_type === 'mixed')">
                                     <el-form-item label="止盈价格" required>
                                         <el-input :disabled="currentStrategy.is_run" type="number"
                                             v-model.number="currentStrategy.take_profit_price"><template
@@ -469,13 +524,39 @@
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12"
-                                    v-if="currentStrategy.open_take_profit && currentStrategy.take_profit_type === 'percent'">
+                                    v-if="currentStrategy.open_take_profit && (currentStrategy.take_profit_type === 'percent' || currentStrategy.take_profit_type === 'mixed')">
                                     <el-form-item label="止盈百分比" required>
                                         <el-input :disabled="currentStrategy.is_run" type="number"
                                             v-model.number="currentStrategy.take_profit_percent"><template
                                                 #append>%</template></el-input>
                                     </el-form-item>
                                 </el-col>
+                            </el-row>
+
+                            <el-row :gutter="20">
+                                <el-col :span="12" v-if="currentStrategy.open_take_profit">
+                                    <div>
+                                        <el-form-item label="同时止盈" required>
+                                            <el-radio-group :disabled="currentStrategy.is_run"
+                                                v-model="currentStrategy.take_profit_together" class="my-radio-group">
+                                                <el-radio-button :label="true" class="my-radio-50">
+                                                    <template #default>开启</template>
+                                                </el-radio-button>
+                                                <el-radio-button :label="false" class="my-radio-50">
+                                                    <template #default>关闭</template>
+                                                </el-radio-button>
+                                            </el-radio-group>
+                                        </el-form-item>
+                                    </div>
+                                </el-col>
+                                <el-col :span="12" v-if="currentStrategy.open_take_profit">
+                                    <el-form-item label="第几单开始止盈" required>
+                                        <el-input :disabled="currentStrategy.is_run" type="number"
+                                            v-model.number="currentStrategy.when_take_profit"
+                                            placeholder="挂第几个补单的时候开始下限价止盈单"><template #append>USDT</template></el-input>
+                                    </el-form-item>
+                                </el-col>
+
                             </el-row>
                             <el-row :gutter="20">
                                 <el-col :span="12">
@@ -578,7 +659,7 @@
                                     <el-form-item label="对冲马丁策略" required>
                                         <el-select v-model="对冲马丁策略id" @change="当前策略对应的对冲马丁的策略改变" clearable
                                             placeholder="请选择对应策略的序号" style="width:100%" filterable>
-                                            <el-option v-for="item in 当前策略对应的对冲马丁的策略列表" :key="item.value"
+                                            <el-option v-for=" item  in  当前策略对应的对冲马丁的策略列表 " :key="item.value"
                                                 :label="item.label" :value="item.value" />
                                         </el-select>
                                     </el-form-item>
@@ -627,8 +708,26 @@
                     </div>
                 </el-form>
                 <div slot="footer" class="dialog-footer" style="margin-top: 20px;">
-                    <el-button @click="dialogVisible = false">取消</el-button>
-                    <el-button type="primary" @click="submitStrategy">确定</el-button>
+                    <el-row :gutter="20">
+                        <el-col :span="3">
+                            <el-button @click="dialogVisible = false">取消</el-button>
+                            <el-button type="primary" @click="submitStrategy">确定</el-button>
+                        </el-col>
+                        <el-col :span="3">
+                            <el-select v-model="mock_symbol" clearable placeholder="请选择" style="width:100%" filterable>
+                                <el-option v-for=" item  in  symbol_options " :key="item.symbol" :label="item.symbol"
+                                    :value="item.symbol" />
+                            </el-select>
+                        </el-col>
+                        <el-col :span="3">
+
+                            <el-button type="primary" @click="模拟数据">模拟数据</el-button>
+                        </el-col>
+                    </el-row>
+
+
+
+
                 </div>
             </el-dialog>
 
@@ -637,12 +736,96 @@
 
                 <el-select v-model="target_copy_id" @change="updateSymbolPrecisionFields" clearable placeholder="请选择对应策略的序号"
                     style="width:100%" multiple filterable>
-                    <el-option v-for="item in strategy_index_options" :key="item.value" :label="item.label"
+                    <el-option v-for=" item  in  strategy_index_options " :key="item.value" :label="item.label"
                         :value="item.value" />
                 </el-select>
                 <div slot="footer" class="dialog-footer" style="margin-top: 20px;">
                     <el-button @click="copyDialogVisible = false">取消</el-button>
                     <el-button type="primary" @click="submitCopySymbolStrategy">确定</el-button>
+                </div>
+            </el-dialog>
+
+
+            <el-dialog v-model="mockDialogVisible" title="模拟数据" width="65%" :before-close="mockHandleClose"
+                :close-on-click-modal="false">
+                <el-card class="box-card">
+                    <template #header>
+                        <el-text class="mx-1" type="success" size="large" tag="b"
+                            v-if="mock_positon_side === 'both' || mock_positon_side === 'long'">做多模拟表格</el-text>
+                    </template>
+                    <el-table :data="mock_long_table_list" style="width: 100%" border highlight-current-row height="800px"
+                        v-if="mock_positon_side === 'both' || mock_positon_side === 'long'" stripe>
+                        <el-table-column prop="当前补单次数" label="当前补单次数" width="120" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="补单数量" label="补单数量" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="补单价格" label="补单价格" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="补单价值" label="补单价值" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="价格波动" label="价格波动" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="预估仓位数量" label="预估仓位数量" width="120" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="预估仓位价格" label="预估仓位价格" width="120" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="预估仓位价值" label="预估仓位价值" width="120" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="预估盈利" label="预估盈利" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+
+                        <el-table-column prop="止盈价格" label="止盈价格" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="价格回调多少解套" label="价格回调多少解套" width="180" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="止损价格" label="止损价格" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="预估止损亏损" label="预估止损亏损" width="120" show-overflow-tooltip
+                            align="center"></el-table-column>
+                    </el-table>
+                </el-card>
+
+
+
+                <el-card class="box-card" style="margin-top:20px;">
+                    <template #header>
+                        <el-text class="mx-1" type="danger" size="large" tag="b"
+                            v-if="mock_positon_side === 'both' || mock_positon_side === 'short'">做空模拟表格</el-text>
+                    </template>
+                    <el-table :data="mock_short_table_list" style="width: 100%" border highlight-current-row height="800px"
+                        v-if="mock_positon_side === 'both' || mock_positon_side === 'short'" stripe>
+                        <el-table-column prop="当前补单次数" label="当前补单次数" width="120" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="补单数量" label="补单数量" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="补单价格" label="补单价格" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="补单价值" label="补单价值" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="价格波动" label="价格波动" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="预估仓位数量" label="预估仓位数量" width="120" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="预估仓位价格" label="预估仓位价格" width="120" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="预估仓位价值" label="预估仓位价值" width="120" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="预估盈利" label="预估盈利" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="止盈价格" label="止盈价格" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="价格回调多少解套" label="价格回调多少解套" width="180" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="止损价格" label="止损价格" width="100" show-overflow-tooltip
+                            align="center"></el-table-column>
+                        <el-table-column prop="预估止损亏损" label="预估止损亏损" width="120" show-overflow-tooltip
+                            align="center"></el-table-column>
+                    </el-table>
+                </el-card>
+
+
+                <div slot="footer" class="dialog-footer" style="margin-top: 20px;">
+                    <el-button type="primary" @click="mockDialogVisible = false">关闭</el-button>
                 </div>
             </el-dialog>
         </el-main>
@@ -667,16 +850,24 @@ import {
     api_删除指定ids的交易对双马丁策略,
     api_复制交易对信息,
     api_暂停指定id的双马丁策略,
-    api_恢复指定id的双马丁策略
+    api_恢复指定id的双马丁策略,
+    api_模拟数据,
 } from "@/api/smading_strategy_api";
 import { ElMessage } from 'element-plus';
 
+const strategy_is_deleted = ref(false);
+const change_is_deleted = async () => {
+    await getStartegyList(strategy_is_deleted.value);
 
-
+}
+const filter_run = (value, row) => {
+    return row.is_run === value
+}
+const mock_symbol = ref('');
 onMounted(() => {
     getExchangeInfoList();
     getSymbolList();
-    getStartegyList();
+    getStartegyList(strategy_is_deleted.value);
     // intervalId.value = setInterval(() => {
     //     if (dialogVisible.value) {
     //         return;
@@ -737,7 +928,13 @@ const copyHandleClose = (done) => {
     // logDialogVisible.value = false;
     done();
 };
+const mockHandleClose = (done) => {
+    mockDialogVisible.value = false;
+    // logDialogVisible.value = false;
+    done();
+};
 const copyDialogVisible = ref(false);
+const mockDialogVisible = ref(false);
 const singleTableRef = ref(null);
 const setCurrent = (row) => {
     singleTableRef.value.setCurrentRow(row)
@@ -746,6 +943,8 @@ const 对冲马丁策略id = ref(null);
 const target_copy_id = ref(null);
 const strategy_index_options = ref([]) //复制策略信息的列表
 const 当前策略对应的对冲马丁的策略列表 = ref([])
+
+
 //复制币种信息
 const copySymbolsInfo = () => {
     if (!selectedStrategy.value) {
@@ -764,7 +963,7 @@ const submitCopySymbolStrategy = async () => {
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
-            await getStartegyList();
+            await getStartegyList(strategy_is_deleted.value);
             ElMessage({
                 message: "复制交易对信息成功",
                 type: "success"
@@ -846,12 +1045,13 @@ const 当前策略对应的对冲马丁的策略改变 = () => {
 function currentStrategy_init() {
     currentStrategy.value = {
         id: null,  // 唯一标识
+        trade_type: null, //交易类型
         strategy_note: null,  // 策略备注
         exchange_id: null, // 交易所ID
         exchange_name: null,  // 交易所名称
         symbols: [],  // 交易对
         symbol_precisions: {}, // 交易对精度字典
-        position_side: "SHORT",  // 持仓方向
+        position_side: "LONG",  // 持仓方向
         pos_value_1st: null,  // 首单价值
         cover_order_pos_value_1st: null,  // 补单首单价值
         all_cover_order_count: null,  // 补单次数
@@ -993,10 +1193,10 @@ async function getExchangeInfoList() {
 // 储存双马丁策略列表的数组
 const smading_strategy_list = ref([]);
 // 获取策略信息
-async function getStartegyList() {
+async function getStartegyList(is_deleted) {
 
     try {
-        const res = await api_获取双马丁策略列表();
+        const res = await api_获取双马丁策略列表(is_deleted);
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
@@ -1029,6 +1229,89 @@ async function getStartegyList() {
 
 }
 
+const 禁用策略 = async (row, tag) => {
+    currentStrategy.value = row;
+    currentStrategy.value.is_deleted = tag;
+    try {
+        const res = await api_更新指定id的双马丁策略(currentStrategy.value.id, currentStrategy.value);
+        // console.log("res", res);
+        if (res.status === 200 && res.data.code === 200) {
+            // console.log(res.data.data);
+
+            await getStartegyList(strategy_is_deleted.value);
+            ElMessage({
+                message: "更新双马丁策略成功",
+                type: "success"
+            });
+            dialogVisible.value = false;
+        } else {
+            ElMessage({
+                message: "更新双马丁策略失败：" + res.data.msg,
+                type: "error"
+            });
+        }
+    } catch (error) {
+        ElMessage({
+            message: "更新双马丁策略失败：" + error,
+            type: "error"
+        });
+    }
+
+}
+
+
+const mock_positon_side = ref('');
+const mock_long_table_list = ref([]);
+const mock_short_table_list = ref([]);
+const 模拟数据 = async () => {
+    currentStrategy.value.exchange_id = exchange_info.value.id;
+    currentStrategy.value.exchange_name = exchange_info.value.exchange_name;
+    // 遍历symbol_precisions 如果精度是空字符串的就转成0
+    for (const key in symbol_precisions) {
+        if (!symbol_precisions[key]) {
+            symbol_precisions[key] = 0;
+        }
+    }
+    currentStrategy.value.symbol = mock_symbol.value;
+    currentStrategy.value.symbol_precisions = symbol_precisions;
+    try {
+        const res = await api_模拟数据(currentStrategy.value);
+        // console.log("res", res);
+        if (res.status === 200 && res.data.code === 200) {
+            console.log(res.data.data);
+            mock_long_table_list.value = res.data.data.long;
+            mock_short_table_list.value = res.data.data.short;
+            if (res.data.data.long.length > 0 && res.data.data.short.length == 0) {
+                mock_positon_side.value = 'long';
+            } else if (res.data.data.short.length > 0 && res.data.data.long.length == 0) {
+                mock_positon_side.value = 'short';
+            } else if (res.data.data.short.length > 0 && res.data.data.long.length > 0) {
+                mock_positon_side.value = 'both';
+            } else {
+                mock_positon_side.value = '';
+            }
+            ElMessage({
+                message: "模拟数据成功",
+                type: "success"
+            });
+            mockDialogVisible.value = true;
+        } else {
+            ElMessage({
+                message: "模拟数据失败：" + res.data.msg,
+                type: "error"
+            });
+        }
+    } catch (error) {
+        ElMessage({
+            message: "模拟数据失败：" + error,
+            type: "error"
+        });
+    }
+
+}
+
+
+
 async function submitStrategy() {
     currentStrategy.value.exchange_id = exchange_info.value.id;
     currentStrategy.value.exchange_name = exchange_info.value.exchange_name;
@@ -1039,7 +1322,6 @@ async function submitStrategy() {
         }
     }
     currentStrategy.value.symbol_precisions = symbol_precisions;
-
     console.log(currentStrategy.value);
     if (currentStrategy.value.id) {
         try {
@@ -1048,7 +1330,7 @@ async function submitStrategy() {
             if (res.status === 200 && res.data.code === 200) {
                 // console.log(res.data.data);
 
-                await getStartegyList();
+                await getStartegyList(strategy_is_deleted.value);
                 ElMessage({
                     message: "更新双马丁策略成功",
                     type: "success"
@@ -1072,7 +1354,7 @@ async function submitStrategy() {
             // console.log("res", res);
             if (res.status === 200 && res.data.code === 200) {
                 // console.log(res.data.data);
-                await getStartegyList();
+                await getStartegyList(strategy_is_deleted.value);
                 ElMessage({
                     message: "新增双马丁策略成功",
                     type: "success"
@@ -1101,7 +1383,7 @@ const deleteStrategy = async (row) => {
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
-            await getStartegyList();
+            await getStartegyList(strategy_is_deleted.value);
             ElMessage({
                 message: "删除双马丁策略成功",
                 type: "success"
@@ -1127,7 +1409,7 @@ const deleteSymbolStrategy = async (row) => {
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
-            await getStartegyList();
+            await getStartegyList(strategy_is_deleted.value);
             ElMessage({
                 message: "删除交易对双马丁策略成功",
                 type: "success"
@@ -1155,7 +1437,7 @@ const stopSymbolStrategy = async (row) => {
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
-            await getStartegyList();
+            await getStartegyList(strategy_is_deleted.value);
             ElMessage({
                 message: "停止交易对双马丁策略成功",
                 type: "success"
@@ -1183,7 +1465,7 @@ const startSymbolStrategy = async (row) => {
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
-            await getStartegyList();
+            await getStartegyList(strategy_is_deleted.value);
             ElMessage({
                 message: "启动交易对双马丁策略成功",
                 type: "success"
@@ -1211,7 +1493,7 @@ const pauseSymbolStrategy = async (row) => {
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
-            await getStartegyList();
+            await getStartegyList(strategy_is_deleted.value);
             ElMessage({
                 message: "暂停交易对双马丁策略成功",
                 type: "success"
@@ -1239,7 +1521,7 @@ const continueSymbolStrategy = async (row) => {
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             // console.log(res.data.data);
-            await getStartegyList();
+            await getStartegyList(strategy_is_deleted.value);
             ElMessage({
                 message: "恢复交易对双马丁策略成功",
                 type: "success"
@@ -1270,7 +1552,7 @@ const selectStartSymbolStrategy = async (parent_row) => {
             // console.log("res", res);
             if (res.status === 200 && res.data.code === 200) {
                 // console.log(res.data.data);
-                await getStartegyList();
+                await getStartegyList(strategy_is_deleted.value);
                 ElMessage({
                     message: "启动交易对双马丁策略成功",
                     type: "success"
@@ -1303,7 +1585,7 @@ const selectStopSymbolStrategy = async (parent_row) => {
             // console.log("res", res);
             if (res.status === 200 && res.data.code === 200) {
                 // console.log(res.data.data);
-                await getStartegyList();
+                await getStartegyList(strategy_is_deleted.value);
                 ElMessage({
                     message: "停止交易对双马丁策略成功",
                     type: "success"
@@ -1342,7 +1624,7 @@ const selectDeleteSymbolStrategy = async (parent_row) => {
             // console.log("res", res);
             if (res.status === 200 && res.data.code === 200) {
                 // console.log(res.data.data);
-                await getStartegyList();
+                await getStartegyList(strategy_is_deleted.value);
                 ElMessage({
                     message: "删除交易对双马丁策略成功",
                     type: "success"
@@ -1377,7 +1659,7 @@ const selectPauseSymbolStrategy = async (parent_row) => {
             // console.log("res", res);
             if (res.status === 200 && res.data.code === 200) {
                 // console.log(res.data.data);
-                await getStartegyList();
+                await getStartegyList(strategy_is_deleted.value);
                 ElMessage({
                     message: "暂停交易对双马丁策略成功",
                     type: "success"
@@ -1413,7 +1695,7 @@ const selectContinueSymbolStrategy = async (parent_row) => {
             // console.log("res", res);
             if (res.status === 200 && res.data.code === 200) {
                 // console.log(res.data.data);
-                await getStartegyList();
+                await getStartegyList(strategy_is_deleted.value);
                 ElMessage({
                     message: "恢复交易对双马丁策略成功",
                     type: "success"
@@ -1450,6 +1732,14 @@ const selectContinueSymbolStrategy = async (parent_row) => {
 
 .my-radio-50 {
     width: 50%;
+
+    :deep(.el-radio-button__inner) {
+        width: 100%;
+    }
+}
+
+.my-radio-33 {
+    width: 33.33%;
 
     :deep(.el-radio-button__inner) {
         width: 100%;

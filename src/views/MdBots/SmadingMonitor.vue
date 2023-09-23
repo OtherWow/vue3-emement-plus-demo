@@ -2,26 +2,35 @@
     <el-container>
         <el-main>
             <el-row :gutter="20" style="margin-bottom: 20px;">
-                <el-col :span="3">
+                <!-- <el-col :span="4">
                     <el-button type="primary" @click="manualReconnect()">重新连接websocket服务器</el-button>
 
-                </el-col>
-                <el-col :span="10" style="margin-left: 20px;">
+                </el-col> -->
+                <el-col :span="4" style="margin-left: 20px;">
                     <el-select v-model="选中的交易所账号" @change="更新监控的交易所账号" clearable placeholder="选择要监控的交易所账号"
                         style="width:100%" multiple filterable>
                         <el-option v-for="item in nameFilters" :key="item.value" :label="item.text" :value="item.value" />
                     </el-select>
+                </el-col>
+                <el-col :span="12" style="margin-left: 20px;">
+                    <el-checkbox v-model="选择框_账号名" label="账号名" border style="margin-right: 5px;" />
+                    <el-checkbox v-model="选择框_交易对" label="交易对" border style="margin-right: 5px;" />
+                    <el-checkbox v-model="选择框_运行时间" label="运行时间" border style="margin-right: 5px;" />
+                    <el-checkbox v-model="选择框_仓位浮动盈亏" label="仓位浮动盈亏" border style="margin-right: 5px;" />
+                    <el-checkbox v-if="show_profit" v-model="选择框_总手续费" label="总手续费" border style="margin-right: 5px;" />
+                    <el-checkbox v-model="选择框_总盈利" label="总盈利" border style="margin-right: 5px;" />
                 </el-col>
             </el-row>
             <el-table id="monitor_table" :data="smading_infos_list" style="width: 100%" :fit="false" border
                 highlight-current-row :summary-method="getSummaries" show-summary :height="monitor_table_height"
                 :row-class-name="tableRowClassName" :cell-class-name="cellClassName" @filter-change="handleFilterChange"
                 scrollbar-always-on show-overflow-tooltip ref="monitorTable">
-                <el-table-column fixed="left" prop="name" label="账号名" width="80" show-overflow-tooltip
+                <el-table-column :fixed="选择框_账号名 ? 'left' : false" prop="name" label="账号名" width="80" show-overflow-tooltip
                     align="center"></el-table-column>
 
-                <el-table-column fixed="left" prop="symbol" label="交易对" width="120" show-overflow-tooltip align="center"
-                    :filters="symbolFilters" filter-placement="bottom-end" column-key="symbol">
+                <el-table-column :fixed="选择框_交易对 ? 'left' : false" prop="symbol" label="交易对" width="120"
+                    show-overflow-tooltip align="center" :filters="symbolFilters" filter-placement="bottom-end"
+                    column-key="symbol">
                     <template #default="scope">
                         <el-tag type="info" effect="dark">{{ scope.row.symbol }}</el-tag>
                     </template>
@@ -32,22 +41,23 @@
                     align="center"></el-table-column>
                 <el-table-column prop="账户余额" label="账户余额" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="运行时间" label="运行时间" width="90" show-overflow-tooltip align="center"></el-table-column>
+                <el-table-column :fixed="选择框_运行时间 ? 'left' : false" prop="运行时间" label="运行时间" width="90"
+                    show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="每小时盈利" label="每小时盈利" width="100" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="当前权重" label="当前权重" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="最新价格" label="最新价格" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center"></el-table-column>
-                <el-table-column prop="止盈总利润" label="止盈总利润" width="100" show-overflow-tooltip
-                    align="center"></el-table-column>
+                <el-table-column prop="止盈总利润" label="止盈总利润" width="100" show-overflow-tooltip align="center"
+                    v-if="show_profit"></el-table-column>
                 <el-table-column prop="做空止盈次数" label="做空止盈次数" width="120" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="做空止盈总利润" label="做空止盈总利润" width="130" show-overflow-tooltip
-                    align="center"></el-table-column>
+                <el-table-column prop="做空止盈总利润" label="做空止盈总利润" width="130" show-overflow-tooltip align="center"
+                    v-if="show_profit"></el-table-column>
                 <el-table-column prop="做多止盈次数" label="做多止盈次数" width="120" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="做多止盈总利润" label="做多止盈总利润" width="130" show-overflow-tooltip
-                    align="center"></el-table-column>
+                <el-table-column prop="做多止盈总利润" label="做多止盈总利润" width="130" show-overflow-tooltip align="center"
+                    v-if="show_profit"></el-table-column>
                 <el-table-column prop="触发对冲单次数" label="触发对冲单次数" width="130" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="第几次对冲单" label="第几次对冲单" width="110" show-overflow-tooltip
@@ -58,22 +68,22 @@
                     align="center"></el-table-column>
                 <el-table-column prop="做空仓位价格" label="做空仓位价格" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="做空总盈利" label="做空总盈利" width="100" show-overflow-tooltip
-                    align="center"></el-table-column>
+                <el-table-column prop="做空总盈利" label="做空总盈利" width="100" show-overflow-tooltip align="center"
+                    v-if="show_profit"></el-table-column>
                 <el-table-column prop="做多仓位数量" label="做多仓位数量" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="做多仓位价格" label="做多仓位价格" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
 
 
-                <el-table-column prop="做多总盈利" label="做多总盈利" width="100" show-overflow-tooltip
-                    align="center"></el-table-column>
+                <el-table-column prop="做多总盈利" label="做多总盈利" width="100" show-overflow-tooltip align="center"
+                    v-if="show_profit"></el-table-column>
 
-                <el-table-column prop="仓位手续费" label="仓位手续费" width="100" show-overflow-tooltip
-                    align="center"></el-table-column>
+                <el-table-column prop="仓位手续费" label="仓位手续费" width="100" show-overflow-tooltip align="center"
+                    v-if="show_profit"></el-table-column>
 
-                <el-table-column prop="总浮盈(已扣手续费)" label="总浮盈(已扣手续费)" width="150" show-overflow-tooltip
-                    align="center"></el-table-column>
+                <el-table-column prop="总浮盈(已扣手续费)" label="总浮盈(已扣手续费)" width="150" show-overflow-tooltip align="center"
+                    v-if="show_profit"></el-table-column>
 
                 <el-table-column prop="做多本轮时间" label="做多本轮时间" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
@@ -141,11 +151,11 @@
                 </el-table-column>
                 <el-table-column prop="是否暂停" label="是否暂停" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="是否停止" label="是否停止" width="90" show-overflow-tooltip align="center"></el-table-column>
-                <el-table-column fixed="right" prop="仓位浮动盈亏" label="仓位浮动盈亏" width="110" show-overflow-tooltip
-                    align="center"></el-table-column>
-                <el-table-column fixed="right" prop="总手续费" label="总手续费" width="85" show-overflow-tooltip
-                    align="center"></el-table-column>
-                <el-table-column fixed="right" prop="总盈利" label="总盈利" width="100" show-overflow-tooltip
+                <el-table-column :fixed="选择框_仓位浮动盈亏 ? 'right' : false" prop="仓位浮动盈亏" label="仓位浮动盈亏" width="110"
+                    show-overflow-tooltip align="center"></el-table-column>
+                <el-table-column :fixed="选择框_总手续费 ? 'right' : false" prop="总手续费" label="总手续费" width="85"
+                    show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+                <el-table-column :fixed="选择框_总盈利 ? 'right' : false" prop="总盈利" label="总盈利" width="100" show-overflow-tooltip
                     align="center"></el-table-column>
 
 
@@ -168,6 +178,14 @@ import {
     api_启动,
 } from "@/api/smading_strategy_api";
 import router from '@/router'; // 确保你的路由实例已经导入
+
+const show_profit = ref(false)
+const 选择框_账号名 = ref(true)
+const 选择框_交易对 = ref(true)
+const 选择框_运行时间 = ref(true)
+const 选择框_仓位浮动盈亏 = ref(true)
+const 选择框_总手续费 = ref(true)
+const 选择框_总盈利 = ref(true)
 // ------------------------------------------------------------------------------------------------------------筛选相关功能开始----------------------------------------------------------------------------------------------------
 const currentNameFilters = ref([]);  // 默认为空数组，表示没有筛选
 const currentSymbolFilters = ref([]);  // 默认为空数组，表示没有筛选
@@ -199,6 +217,11 @@ const updateHeight = () => {
 };
 const monitorTable = ref(null)
 onMounted(async () => {
+    if (localStorage.getItem('username') === 'syb' || localStorage.getItem('username') === 'yyn') {
+        show_profit.value = true
+    } else {
+        show_profit.value = false
+    }
     updateHeight()
     connectToWebSocket();
     window.addEventListener('resize', updateHeight);
@@ -268,7 +291,11 @@ function connectToWebSocket() {
             // 关闭WebSocket连接
             ws.close();
         } else {
-
+            rawData.forEach(item => {
+                if (item.hasOwnProperty('总盈利') && item.hasOwnProperty('总手续费')) {
+                    item['总盈利'] = (item['总盈利'] - item['总手续费']).toFixed(4);
+                }
+            });
             // 直接创建一个排序后的名称数组
             const sortedNames = [...new Set(rawData.map(item => item.name))].sort();
 

@@ -313,7 +313,7 @@ const query = async () => {
                         min: minY,
                         max: maxY,
                         axisLabel: {
-                            formatter: '钱包总余额 {value} USDT'
+                            formatter: '记录钱包总余额 {value} USDT'
                         }
                     },
                     {
@@ -328,7 +328,7 @@ const query = async () => {
                 ],
                 series: [
                     {
-                        name: '钱包总余额',
+                        name: '记录钱包总余额',
                         type: 'line',
                         yAxisIndex: 0,  // 指定使用左边的Y轴
                         symbol: 'none',
@@ -351,40 +351,40 @@ const query = async () => {
                         smooth: true,
                         data: y_data,
                     }, {
-                        name: '钱包实际余额',
+                        name: '合约钱包余额',
                         type: 'line',
                         // yAxisIndex: 1,  // 指定使用右边的Y轴
                         data: y3_data,
                         smooth: true
                     },
                     {
-                        name: '实际盈利',
+                        name: '总盈利',
                         type: 'line',
                         // yAxisIndex: 1,  // 指定使用右边的Y轴
                         data: y2_data,
                         smooth: true
                     },
-                    {
-                        name: '订单盈利',
-                        type: 'line',
-                        // yAxisIndex: 1,  // 指定使用右边的Y轴
-                        data: y4_data,
-                        smooth: true
-                    },
-                    {
-                        name: '总手续费',
-                        type: 'line',
-                        // yAxisIndex: 1,  // 指定使用右边的Y轴
-                        data: y5_data,
-                        smooth: true
-                    },
-                    {
-                        name: '总资金费率金额',
-                        type: 'line',
-                        // yAxisIndex: 1,  // 指定使用右边的Y轴
-                        data: y6_data,
-                        smooth: true
-                    },
+                    // {
+                    //     name: '订单盈利',
+                    //     type: 'line',
+                    //     // yAxisIndex: 1,  // 指定使用右边的Y轴
+                    //     data: y4_data,
+                    //     smooth: true
+                    // },
+                    // {
+                    //     name: '总手续费',
+                    //     type: 'line',
+                    //     // yAxisIndex: 1,  // 指定使用右边的Y轴
+                    //     data: y5_data,
+                    //     smooth: true
+                    // },
+                    // {
+                    //     name: '总资金费率金额',
+                    //     type: 'line',
+                    //     // yAxisIndex: 1,  // 指定使用右边的Y轴
+                    //     data: y6_data,
+                    //     smooth: true
+                    // },
                     {
                         name: '总转出金额',
                         type: 'line',
@@ -399,13 +399,13 @@ const query = async () => {
                         data: y8_data,
                         smooth: true
                     },
-                    {
-                        name: '返佣金额',
-                        type: 'line',
-                        // yAxisIndex: 1,  // 指定使用右边的Y轴
-                        data: y9_data,
-                        smooth: true
-                    }
+                    // {
+                    //     name: '返佣金额',
+                    //     type: 'line',
+                    //     // yAxisIndex: 1,  // 指定使用右边的Y轴
+                    //     data: y9_data,
+                    //     smooth: true
+                    // }
                 ],
                 dataZoom: [
                     {

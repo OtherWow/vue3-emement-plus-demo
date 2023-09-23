@@ -21,9 +21,10 @@
 
         </div>
         <div class="right">
-
+            <div class="time"> <el-text class="mx-1" tags="b">欢迎您，</el-text> <el-text class="mx-1" type="primary"
+                    tags="b">{{ username }}</el-text></div>
             <div class="line">|</div>
-            <div class="time">{{ time }}</div>
+            <div class="time"><el-text class="mx-1" type="warning">{{ time }}</el-text></div>
             <div class="line">|</div>
             <div class="loginout" @click="loginout">
                 <el-icon>
@@ -113,12 +114,13 @@ export default {
         };
 
 
-
+        const username = ref('')
         onMounted(() => {
             // console.log("触发onMounted")
             connectWebSocket();
             const route = useRoute();
             addTab(route);
+            username.value = localStorage.getItem('username')
         });
 
         const addTab = (route) => {
@@ -189,7 +191,7 @@ export default {
             global,
             removeTab,
             activeTab,
-            clickTab, addTab, btc_ticker
+            clickTab, addTab, btc_ticker, username
         }
     }
 }

@@ -106,6 +106,31 @@
 
                             </el-table>
                         </el-tab-pane>
+                        <el-tab-pane label="4小时内交易量排行" name="fure">
+                            <el-table :data="volume_1m_top20_4h_count_table_data" style="width: 100%"
+                                :height="cardHeight - 110">
+                                <el-table-column label="交易对" align="center" width="135">
+                                    <template #default="scope">
+                                        <el-button @click="刷新指定币种的振幅数据(scope.row.name)">{{
+                                            scope.row.name }}</el-button>
+                                    </template>
+
+                                </el-table-column>
+                                <el-table-column label="交易量/亿USDT" align="center" width="135">
+                                    <template #default="scope">
+                                        <el-tag type="success" effect="dark" size="large">{{ scope.row.value
+                                        }}</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="占比(%)" align="center" width="105">
+                                    <template #default="scope">
+                                        <el-tag type="success" effect="dark" size="large">{{ scope.row.percentage
+                                        }}%</el-tag>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-tab-pane>
+
                         <el-tab-pane label="资金费率排行" name="three">
                             <el-table :data="funding_rate_top20_now_table_data" style="width: 100%"
                                 :height="cardHeight - 110">
@@ -137,6 +162,7 @@ import {
     fapi_获取最新的资金费率排行前20,
     fapi_获取指定币种的24小时数据,
     fapi_获取指定币种的k线数据,
+    fapi_获取4小时内交易量排行前20,
 } from '@/api/binance_fapi'
 import {
     api_首页查询策略列表,
@@ -238,6 +264,15 @@ const 刷新4小时内币种上榜次数排行 = async () => {
     // console.log("刷新4小时内币种上榜次数排行");
     // console.log(res.data);
     amplitude_1m_top20_4h_count_table_data.value = res.data;
+    return res.data;
+};
+
+const volume_1m_top20_4h_count_table_data = ref([]);  // initial empty data
+const 刷新4小时内交易量排行前20 = async () => {
+    const res = await fapi_获取4小时内交易量排行前20();
+    // console.log("刷新4小时内币种上榜次数排行");
+    // console.log(res.data);
+    volume_1m_top20_4h_count_table_data.value = res.data;
     return res.data;
 };
 
@@ -536,6 +571,7 @@ onMounted(async () => {
     updateHeight();
     const data = await 刷新每分钟振幅排行();
     刷新4小时内币种上榜次数排行();
+    刷新4小时内交易量排行前20();
     if (data && data.length > 0) {
         // console.log(data[0].symbol);
         const symbol = data[0].symbol;
@@ -548,6 +584,7 @@ onMounted(async () => {
         if (currentSeconds === 22) {
             刷新每分钟振幅排行();
             刷新4小时内币种上榜次数排行();
+            刷新4小时内交易量排行前20();
             刷新最新的资金费率排行前20();
         }
     }, 1000); // Run this every second

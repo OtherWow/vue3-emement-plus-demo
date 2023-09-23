@@ -39,6 +39,7 @@ const submitLoginForm = async () => {
         const token = response.data.access_token;
         console.log(response.data);
         localStorage.setItem('token', token);
+        localStorage.setItem('username', loginForm.value.username);
         // localStorage.setItem('token', "111");
         // 使用 Element Plus 的 message 组件显示成功提示
         ElMessage({

@@ -26,7 +26,10 @@ export const fapi_获取最新的资金费率排行前20 = () => {
     return http.get(`/binance/fapi/funding_rate_top20_now`);
 };
 
-
+//fapi_获取4小时内交易量排行前20
+export const fapi_获取4小时内交易量排行前20 = () => {
+    return http.get(`/binance/fapi/volume_1m_top20_4h_count`);
+};
 
 //fapi_获取指定币种的24小时数据
 export const fapi_获取指定币种的24小时数据 = (symbol) => {

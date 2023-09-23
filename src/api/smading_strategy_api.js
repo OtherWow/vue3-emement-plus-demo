@@ -4,8 +4,16 @@ const model_url = 'smading_strategy'
 //-----------------------------------------------------------------------------base-------------------------------------------------
 
 //获取双马丁策略列表
-export const api_获取双马丁策略列表 = async () => {
-    return await http.get(`/${model_url}/list`);
+export const api_获取双马丁策略列表 = async (is_deleted) => {
+    // 如果is_deleted不是true也不是false，那么就是undefined，此时不传is_deleted参数
+    let data = {
+    }
+    if (is_deleted === true || is_deleted === false) {
+        data = {
+            'is_deleted': is_deleted
+        }
+    }
+    return await http.post(`/${model_url}/list`, data);
 };
 
 
@@ -59,6 +67,14 @@ export const api_删除指定ids的交易对双马丁策略 = async (ids) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     return response;
 };
+
+
+//api_模拟数据
+export const api_模拟数据 = async (data) => {
+    const response = await http.post(`/${model_url}/mock`, data);
+    return response;
+};
+
 
 //新增双马丁策略
 export const api_新增双马丁策略 = async (data) => {
@@ -232,5 +248,10 @@ export const api_首页直接启动 = async (symbol, strategy_id, exchange_id) =
 
 //api_首页查询策略列表
 export const api_首页查询策略列表 = async (symbol) => {
-    return await http.get(`/${model_url}/home/list/${symbol}`);
+    const data = {
+        'symbol': symbol,
+        'is_deleted': false
+
+    }
+    return await http.post(`/${model_url}/home/list`, data);
 };
