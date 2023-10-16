@@ -20,18 +20,6 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
-                    <!-- <el-col :span="4">
-                        <el-form-item label="时间粒度">
-                            <el-select v-model="query_form.type" placeholder="请选择时间粒度" style="width:100%">
-                                <el-option label="1分钟" value="1" />
-                                <el-option label="5分钟" value="2" />
-                                <el-option label="30分钟" value="3" />
-                                <el-option label="1小时" value="4" />
-                                <el-option label="6小时" value="5" />
-                                <el-option label="1天" value="6" />
-                            </el-select>
-                        </el-form-item>
-                    </el-col> -->
                     <el-col :span="6">
                         <el-form-item label="日期范围">
                             <el-date-picker v-model="data_r" type="datetimerange" range-separator="到"
@@ -106,18 +94,6 @@ const shortcuts = [
             const end = new Date()
             const start = new Date()
             start.setHours(0, 0, 0, 0);
-            end.setHours(23, 59, 59, 999);
-            return [start, end]
-        },
-    },
-    {
-        text: '昨天',
-        value: () => {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24)
-            start.setHours(0, 0, 0, 0);
-            end.setTime(end.getTime() - 3600 * 1000 * 24)
             end.setHours(23, 59, 59, 999);
             return [start, end]
         },
@@ -265,6 +241,7 @@ const query = async () => {
             const y7_data = [];
             const y8_data = [];
             const y9_data = [];
+            const y10_data = [];
             balance_list.value.forEach(item => {
                 x_data.push(item[10].replace('T', ' '));
                 y_data.push(item[0]);
@@ -276,15 +253,16 @@ const query = async () => {
                 y7_data.push(item[7]);
                 y8_data.push(item[8]);
                 y9_data.push(item[9]);
+                y10_data.push((item[8] + item[7]).toFixed(2));
             });
-            let minY = Math.min(...y3_data);
-            let maxY = Math.max(...y3_data);
-            let y2_minY = Math.min(...y2_data);
-            let y2_maxY = Math.max(...y2_data);
+            let minY = Math.min(...y10_data);
+            let maxY = Math.max(...y10_data);
+            let y2_minY = Math.min(...y7_data);
+            let y2_maxY = Math.max(...y7_data);
             var myChart = $echarts.init(document.getElementById('main'));
             myChart.setOption({
                 title: {
-                    text: '余额变化统计',
+                    text: '划转记录统计',
                     left: 10
                 },
                 toolbox: {
@@ -325,7 +303,7 @@ const query = async () => {
                         min: minY,
                         max: maxY,
                         axisLabel: {
-                            formatter: '合约钱包余额 {value} USDT'
+                            formatter: '实际转入金额 {value} USDT'
                         }
                     },
                     {
@@ -334,13 +312,13 @@ const query = async () => {
                         min: y2_minY,
                         max: y2_maxY,
                         axisLabel: {
-                            formatter: '实际盈利 {value} USDT'
+                            formatter: '转出总金额 {value} USDT'
                         }
                     }
                 ],
                 series: [
                     {
-                        name: '合约钱包余额',
+                        name: '实际转入金额',
                         type: 'line',
                         yAxisIndex: 0,  // 指定使用左边的Y轴
                         symbol: 'none',
@@ -361,22 +339,22 @@ const query = async () => {
                             ])
                         },
                         smooth: true,
-                        data: y3_data,
+                        data: y10_data,
                     },
-                    // {
-                    //     name: '合约钱包余额',
-                    //     type: 'line',
-                    //     // yAxisIndex: 1,  // 指定使用右边的Y轴
-                    //     data: y3_data,
-                    //     smooth: true
-                    // },
                     {
-                        name: '总盈利',
+                        name: '实际转入金额',
                         type: 'line',
                         // yAxisIndex: 1,  // 指定使用右边的Y轴
-                        data: y2_data,
+                        data: y10_data,
                         smooth: true
                     },
+                    // {
+                    //     name: '总盈利',
+                    //     type: 'line',
+                    //     // yAxisIndex: 1,  // 指定使用右边的Y轴
+                    //     data: y2_data,
+                    //     smooth: true
+                    // },
                     // {
                     //     name: '订单盈利',
                     //     type: 'line',
@@ -398,20 +376,20 @@ const query = async () => {
                     //     data: y6_data,
                     //     smooth: true
                     // },
-                    // {
-                    //     name: '总转出金额',
-                    //     type: 'line',
-                    //     // yAxisIndex: 1,  // 指定使用右边的Y轴
-                    //     data: y7_data,
-                    //     smooth: true
-                    // },
-                    // {
-                    //     name: '总转入金额',
-                    //     type: 'line',
-                    //     // yAxisIndex: 1,  // 指定使用右边的Y轴
-                    //     data: y8_data,
-                    //     smooth: true
-                    // },
+                    {
+                        name: '总转出金额',
+                        type: 'line',
+                        // yAxisIndex: 1,  // 指定使用右边的Y轴
+                        data: y7_data,
+                        smooth: true
+                    },
+                    {
+                        name: '总转入金额',
+                        type: 'line',
+                        // yAxisIndex: 1,  // 指定使用右边的Y轴
+                        data: y8_data,
+                        smooth: true
+                    },
                     // {
                     //     name: '返佣金额',
                     //     type: 'line',

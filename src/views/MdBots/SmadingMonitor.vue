@@ -6,19 +6,26 @@
                     <el-button type="primary" @click="manualReconnect()">重新连接websocket服务器</el-button>
 
                 </el-col> -->
-                <el-col :span="4" style="margin-left: 20px;">
+                <el-col :span="3" style="margin-left: 20px;">
                     <el-select v-model="选中的交易所账号" @change="更新监控的交易所账号" clearable placeholder="选择要监控的交易所账号"
-                        style="width:100%" multiple filterable>
+                        style="width:100%" multiple filterable collapse-tags collapse-tags-tooltip>
                         <el-option v-for="item in nameFilters" :key="item.value" :label="item.text" :value="item.value" />
                     </el-select>
                 </el-col>
-                <el-col :span="12" style="margin-left: 20px;">
-                    <el-checkbox v-model="选择框_账号名" label="账号名" border style="margin-right: 5px;" />
-                    <el-checkbox v-model="选择框_交易对" label="交易对" border style="margin-right: 5px;" />
-                    <el-checkbox v-model="选择框_运行时间" label="运行时间" border style="margin-right: 5px;" />
-                    <el-checkbox v-model="选择框_仓位浮动盈亏" label="仓位浮动盈亏" border style="margin-right: 5px;" />
-                    <el-checkbox v-if="show_profit" v-model="选择框_总手续费" label="总手续费" border style="margin-right: 5px;" />
-                    <el-checkbox v-model="选择框_总盈利" label="总盈利" border style="margin-right: 5px;" />
+                <el-col :span="3" style="margin-left: 20px;">
+                    <el-select v-model="突出显示的列" @change="更新突出显示的列" clearable placeholder="选择要突出显示的列" style="width:100%"
+                        multiple filterable collapse-tags collapse-tags-tooltip>
+                        <el-option v-for="item in 列名列表" :key="item" :label="item" :value="item" />
+                    </el-select>
+                </el-col>
+                <el-col :span="5" style="margin-left: 20px;">
+                    <el-button @click="onSelectFile">选择音频文件</el-button>
+                    <audio ref="audioRef" :src="audioSource"></audio>
+
+                 
+                    <el-checkbox v-model="autoPlayEnabled">自动播放</el-checkbox>
+                    <el-input-number v-model="thresholdTime" :min="0"></el-input-number>
+                   
                 </el-col>
             </el-row>
             <el-table id="monitor_table" :data="smading_infos_list" style="width: 100%" :fit="false" border
@@ -36,15 +43,16 @@
                     </template>
                 </el-table-column>
                 <el-table-column type="index" width="55" label="序号" align="center" />
-
+                <el-table-column prop="交易类型" label="交易类型" width="110" show-overflow-tooltip
+                    align="center"></el-table-column>
                 <el-table-column prop="启动资金" label="启动资金" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="账户余额" label="账户余额" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column :fixed="选择框_运行时间 ? 'left' : false" prop="运行时间" label="运行时间" width="90"
                     show-overflow-tooltip align="center"></el-table-column>
-                <el-table-column prop="每小时盈利" label="每小时盈利" width="100" show-overflow-tooltip
-                    align="center"></el-table-column>
+                <el-table-column :fixed="选择框_每小时盈利 ? 'left' : false" prop="每小时盈利" label="每小时盈利" width="100"
+                    show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="当前权重" label="当前权重" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="最新价格" label="最新价格" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center"></el-table-column>
@@ -85,6 +93,8 @@
                 <el-table-column prop="总浮盈(已扣手续费)" label="总浮盈(已扣手续费)" width="150" show-overflow-tooltip align="center"
                     v-if="show_profit"></el-table-column>
 
+                <el-table-column prop="当前版本" label="当前版本" width="110" show-overflow-tooltip
+                    align="center"></el-table-column>
                 <el-table-column prop="做多本轮时间" label="做多本轮时间" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="做多第几次补单" label="做多第几次补单" width="130" show-overflow-tooltip align="center">
@@ -96,7 +106,7 @@
                     align="center"></el-table-column>
                 <el-table-column prop="做多仓位浮动盈亏" label="做多仓位浮动盈亏" width="140" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column label="多仓操作" width="295" align="center">
+                <el-table-column :fixed="选择框_多仓操作 ? 'right' : false" label="多仓操作" width="295" align="center">
                     <template #default="{ row, $index }">
                         <el-row :gutter="0">
                             <el-col :span="13">
@@ -122,7 +132,7 @@
                     align="center"></el-table-column>
                 <el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="140" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column label="空仓操作" width="295" align="center">
+                <el-table-column :fixed="选择框_空仓操作 ? 'right' : false" label="空仓操作" width="295" align="center">
                     <template #default="{ row, $index }">
                         <el-row :gutter="0">
                             <el-col :span="13">
@@ -137,7 +147,7 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column label="需要确认的操作" width="550" align="center">
+                <el-table-column :fixed="选择框_需要确认的操作 ? 'right' : false" label="需要确认的操作" width="550" align="center">
                     <template #default="{ row }">
                         <el-button type="success" size="small" @click="仓位重启(row, 'LONG')">多仓重启</el-button>
                         <el-button type="danger" size="small" @click="仓位重启(row, 'SHORT')">空仓重启</el-button>
@@ -165,19 +175,19 @@
 </template>
   
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import {
-    api_市价平仓,
-    api_重新启动,
-    api_切换成对冲双马丁,
-    api_重挂止盈,
-    api_暂停,
-    api_恢复,
-    api_仓位重启,
-    api_停止,
-    api_启动,
+api_仓位重启,
+api_停止,
+api_切换成对冲双马丁,
+api_启动,
+api_市价平仓,
+api_恢复,
+api_暂停,
+api_重挂止盈,
+api_重新启动,
 } from "@/api/smading_strategy_api";
 import router from '@/router'; // 确保你的路由实例已经导入
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const show_profit = ref(false)
 const 选择框_账号名 = ref(true)
@@ -186,10 +196,16 @@ const 选择框_运行时间 = ref(true)
 const 选择框_仓位浮动盈亏 = ref(true)
 const 选择框_总手续费 = ref(true)
 const 选择框_总盈利 = ref(true)
+const 选择框_多仓操作 = ref(false)
+const 选择框_空仓操作 = ref(false)
+const 选择框_需要确认的操作 = ref(false)
+const 选择框_每小时盈利 = ref(false)
 // ------------------------------------------------------------------------------------------------------------筛选相关功能开始----------------------------------------------------------------------------------------------------
 const currentNameFilters = ref([]);  // 默认为空数组，表示没有筛选
 const currentSymbolFilters = ref([]);  // 默认为空数组，表示没有筛选
 const nameFilters = ref([]);
+const 列名列表 = ref(['账号名', '交易对', '运行时间', '每小时盈利', '仓位浮动盈亏', '总盈利', '多仓操作', '空仓操作', '需要确认的操作']);
+const 突出显示的列 = ref(['账号名', '交易对', '运行时间', '每小时盈利', '仓位浮动盈亏', '总盈利']);
 const symbolFilters = ref([]);
 const 选中的交易所账号 = ref([]);//选中的交易所账号
 const short_inputValues = ref({});//空仓重挂止盈的百分比
@@ -202,6 +218,42 @@ function handleFilterChange(filters) {
         currentSymbolFilters.value = filters.symbol || [];
     }
 }
+const 更新突出显示的列 = () => {
+    // 遍历突出显示的列,如果在突出显示的列中，则将其设置为true，否则设置为false
+    let highlightedColumns = {
+        '账号名': false,
+        '交易对': false,
+        '运行时间': false,
+        '仓位浮动盈亏': false,
+        '总手续费': false,
+        '总盈利': false,
+        '多仓操作': false,
+        '空仓操作': false,
+        '需要确认的操作': false,
+        '每小时盈利': false,
+    };
+
+    // 标记需要被突出显示的列
+    突出显示的列.value.forEach(item => {
+        if (highlightedColumns.hasOwnProperty(item)) {
+            highlightedColumns[item] = true;
+        }
+    });
+
+    // 根据标记来更新选择框的值
+    选择框_账号名.value = highlightedColumns['账号名'];
+    选择框_交易对.value = highlightedColumns['交易对'];
+    选择框_运行时间.value = highlightedColumns['运行时间'];
+    选择框_仓位浮动盈亏.value = highlightedColumns['仓位浮动盈亏'];
+    选择框_总手续费.value = highlightedColumns['总手续费'];
+    选择框_总盈利.value = highlightedColumns['总盈利'];
+    选择框_多仓操作.value = highlightedColumns['多仓操作'];
+    选择框_空仓操作.value = highlightedColumns['空仓操作'];
+    选择框_需要确认的操作.value = highlightedColumns['需要确认的操作'];
+    选择框_每小时盈利.value = highlightedColumns['每小时盈利'];
+
+}
+
 // ------------------------------------------------------------------------------------------------------------筛选相关功能结束----------------------------------------------------------------------------------------------------
 
 
@@ -219,9 +271,12 @@ const monitorTable = ref(null)
 onMounted(async () => {
     if (localStorage.getItem('username') === 'syb' || localStorage.getItem('username') === 'yyn') {
         show_profit.value = true
+        突出显示的列.value.push('总手续费')
+        列名列表.value.push('总手续费')
     } else {
         show_profit.value = false
     }
+    更新突出显示的列()
     updateHeight()
     connectToWebSocket();
     window.addEventListener('resize', updateHeight);
@@ -265,7 +320,7 @@ function connectToWebSocket() {
         ws = null;
     }
     const token = localStorage.getItem('token');
-    ws = new WebSocket(`ws://45.159.51.6:7878/ws/smading/${token}`);
+    ws = new WebSocket(`ws://45.159.50.15:7878/ws/smading/${token}`);
 
     ws.onopen = (event) => {
         console.log("WebSocket 已连接:", event);
@@ -298,9 +353,9 @@ function connectToWebSocket() {
             });
             // 直接创建一个排序后的名称数组
             const sortedNames = [...new Set(rawData.map(item => item.name))].sort();
-
+            const sorted = [...new Set(rawData.map(item => item.name + '|' + item.交易类型))].sort();
             // 分配颜色到名字
-            assignColorToName(sortedNames);
+            assignColorToName(sorted);
 
             const symbols = new Set(rawData.map(item => item.symbol));
             nameFilters.value = sortedNames.map(name => ({ text: name, value: name }));
@@ -713,7 +768,7 @@ const getSummaries = (param) => {
 
 const tableRowClassName = ({ row }) => {
     // console.log(row.name, name_color_map[row.name], name_color_map);
-    return name_color_map[row.name];
+    return name_color_map[row.name + '|' + row.交易类型];
 }
 
 const cellClassName = ({ row, rowIndex, column, columnIndex }) => {

@@ -76,7 +76,7 @@ export default {
         const btc_ticker = ref({ price: 0, percentage: 0, percentageColor: 'rgb(0,165,154)' });// 绿色
         const connectWebSocket = () => {
             // 创建一个新的WebSocket连接
-            const ws = new WebSocket("ws://45.159.51.6:7878/binance/api/ws");
+            const ws = new WebSocket("ws://45.159.51.230:7878/binance/api/ws");
             // 当WebSocket连接建立成功
             ws.onopen = () => {
                 // console.log("触发onopen-layout")

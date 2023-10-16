@@ -2,7 +2,7 @@
     <el-menu :default-active="route.path" class="el-menu-vertical-demo" :collapse="isClose" active-text-color="#ffd04b"
         background-color="rgb(47, 64, 80)" text-color="#fff" router collapse-transition="false">
 
-        <el-menu-item><template #title><span>7</span></template></el-menu-item>
+        <el-menu-item><template #title><span>Buzz</span></template></el-menu-item>
         <el-menu-item index="/"><el-icon>
                 <House />
             </el-icon><span>系统首页</span></el-menu-item>
@@ -11,7 +11,8 @@
                     <location />
                 </el-icon><span>用户管理</span></template>
             <el-menu-item-group>
-                <el-menu-item index="/user_info/balance_list">用户交易所余额查询</el-menu-item>
+                <el-menu-item index="/user_info/balance_list">交易所余额查询</el-menu-item>
+                <el-menu-item index="/user_info/transfer_infos">交易所划转记录查询</el-menu-item>
                 <!-- <el-menu-item index="/goods/category">产品分类</el-menu-item> -->
             </el-menu-item-group>
         </el-sub-menu>
@@ -20,7 +21,7 @@
                     <Coin />
                 </el-icon><span>资金费率策略管理</span></template>
             <el-menu-item-group>
-                <el-menu-item index="/FundingRate/list">资金费率策略列表</el-menu-item>
+                <el-menu-item index="/FundingRate/list" :disabled="true">资金费率策略列表</el-menu-item>
             </el-menu-item-group>
         </el-sub-menu>
         <!-- <el-sub-menu index="/exchange_infos" :disabled="true">

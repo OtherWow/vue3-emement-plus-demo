@@ -1,4 +1,4 @@
-import { http } from './http';
+import { http, http_tokyo } from './http';
 const model_url = 'smading_strategy'
 
 //-----------------------------------------------------------------------------base-------------------------------------------------
@@ -135,7 +135,7 @@ export const api_市价平仓 = async (symbol, strategy_id, position_side, excha
         position_side: position_side,
         exchange_id: exchange_id
     };
-    const response = await http.post(`/${model_url}/monitor/one_key_close_market`, data);
+    const response = await http_tokyo.post(`/${model_url}/monitor/one_key_close_market`, data);
     return response;
 };
 
@@ -146,7 +146,7 @@ export const api_重新启动 = async (symbol, strategy_id, exchange_id) => {
         strategy_id: strategy_id,
         exchange_id: exchange_id
     };
-    const response = await http.post(`/${model_url}/monitor/start_again`, data);
+    const response = await http_tokyo.post(`/${model_url}/monitor/start_again`, data);
     return response;
 };
 
@@ -157,7 +157,7 @@ export const api_切换成对冲双马丁 = async (symbol, strategy_id, exchange
         strategy_id: strategy_id,
         exchange_id: exchange_id
     };
-    const response = await http.post(`/${model_url}/monitor/switch_hedge_mading2`, data);
+    const response = await http_tokyo.post(`/${model_url}/monitor/switch_hedge_mading2`, data);
     return response;
 };
 
@@ -171,7 +171,7 @@ export const api_重挂止盈 = async (symbol, strategy_id, position_side, take_
         take_profit_price: take_profit_price,
         exchange_id: exchange_id
     };
-    const response = await http.post(`/${model_url}/monitor/repull_take_profit`, data);
+    const response = await http_tokyo.post(`/${model_url}/monitor/repull_take_profit`, data);
     return response;
 };
 
@@ -183,7 +183,7 @@ export const api_暂停 = async (symbol, strategy_id, exchange_id) => {
         strategy_id: strategy_id,
         exchange_id: exchange_id
     };
-    const response = await http.post(`/${model_url}/monitor/pause`, data);
+    const response = await http_tokyo.post(`/${model_url}/monitor/pause`, data);
     return response;
 };
 
@@ -194,7 +194,7 @@ export const api_恢复 = async (symbol, strategy_id, exchange_id) => {
         strategy_id: strategy_id,
         exchange_id: exchange_id
     };
-    const response = await http.post(`/${model_url}/monitor/continue`, data);
+    const response = await http_tokyo.post(`/${model_url}/monitor/continue`, data);
     return response;
 };
 
@@ -206,7 +206,7 @@ export const api_仓位重启 = async (symbol, strategy_id, position_side, excha
         position_side: position_side,
         exchange_id: exchange_id
     };
-    const response = await http.post(`/${model_url}/monitor/position_start_again`, data);
+    const response = await http_tokyo.post(`/${model_url}/monitor/position_start_again`, data);
     return response;
 };
 
@@ -217,7 +217,7 @@ export const api_停止 = async (symbol, strategy_id, exchange_id) => {
         strategy_id: strategy_id,
         exchange_id: exchange_id
     };
-    const response = await http.post(`/${model_url}/monitor/stop`, data);
+    const response = await http_tokyo.post(`/${model_url}/monitor/stop`, data);
     return response;
 };
 
@@ -229,7 +229,7 @@ export const api_启动 = async (symbol, strategy_id, exchange_id) => {
         strategy_id: strategy_id,
         exchange_id: exchange_id
     };
-    const response = await http.post(`/${model_url}/monitor/start`, data);
+    const response = await http_tokyo.post(`/${model_url}/monitor/start`, data);
     return response;
 };
 //-----------------------------------------------------------------------------home-------------------------------------------------

@@ -68,7 +68,13 @@ const routes = [
             path: 'balance_list',
             name: 'balance_list',
             component: () => import('@/views/UserInfo/BalanceList.vue'),
-            meta: { title: '用户交易所余额查询', requiresAuth: true }, // 需要鉴权的路由
+            meta: { title: '交易所余额查询', requiresAuth: true }, // 需要鉴权的路由
+          },
+          {
+            path: 'transfer_infos',
+            name: 'transfer_infos',
+            component: () => import('@/views/UserInfo/TransferInfos.vue'),
+            meta: { title: '交易所划转记录查询', requiresAuth: true }, // 需要鉴权的路由
           }
         ]
       }
