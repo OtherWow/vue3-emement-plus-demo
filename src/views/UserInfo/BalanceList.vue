@@ -49,9 +49,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onBeforeUnmount, inject } from "vue";
 import { 查询当前用户的所有交易所信息 } from "@/api/exchange_infos_api";
 import { api_获取用户指定交易所的余额信息 } from "@/api/user_info_api";
+import { inject, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 
 
 // 通过 inject 方法获取 $echarts 对象
@@ -334,7 +334,7 @@ const query = async () => {
                         min: y2_minY,
                         max: y2_maxY,
                         axisLabel: {
-                            formatter: '实际盈利 {value} USDT'
+                            formatter: '总盈利 {value} USDT'
                         }
                     }
                 ],
@@ -373,7 +373,7 @@ const query = async () => {
                     {
                         name: '总盈利',
                         type: 'line',
-                        // yAxisIndex: 1,  // 指定使用右边的Y轴
+                        yAxisIndex: 1,  // 指定使用右边的Y轴
                         data: y2_data,
                         smooth: true
                     },
@@ -447,4 +447,4 @@ const query = async () => {
 // ------------------------------------------------------------------------------------------------------------按钮方法结束----------------------------------------------------------------------------------------------------
 </script>
 
-<style lang="scss" scoped></style>@/api/user_info_api
+<style lang="scss" scoped></style>

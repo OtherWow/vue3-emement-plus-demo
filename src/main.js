@@ -10,6 +10,8 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import * as echarts from 'echarts';
 import LoadingButton from '@/components/LoadingButton.vue';
 import locale from 'element-plus/dist/locale/zh-cn.mjs'
+
+
 const app = createApp(App)
 app.config.errorHandler = (err, vm, info) => {
     console.error("Captured an error:", err, "Component:", vm, "Info:", info);

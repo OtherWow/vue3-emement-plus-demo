@@ -198,6 +198,33 @@ export const api_恢复 = async (symbol, strategy_id, exchange_id) => {
     return response;
 };
 
+
+//    api_监控墙_暂停补单,
+export const api_监控墙_暂停补单 = async (symbol, strategy_id, position_side, exchange_id) => {
+    const data = {
+        symbol: symbol,
+        strategy_id: strategy_id,
+        position_side: position_side,
+        exchange_id: exchange_id
+    };
+    const response = await http_tokyo.post(`/${model_url}/monitor/pause_cover`, data);
+    return response;
+};
+
+//api_监控墙_恢复补单
+export const api_监控墙_恢复补单 = async (symbol, strategy_id, position_side, cover_num, exchange_id) => {
+    const data = {
+        symbol: symbol,
+        strategy_id: strategy_id,
+        position_side: position_side,
+        cover_num: cover_num,
+        exchange_id: exchange_id
+    };
+    const response = await http_tokyo.post(`/${model_url}/monitor/continue_cover`, data);
+    return response;
+};
+
+
 //api_仓位重启
 export const api_仓位重启 = async (symbol, strategy_id, position_side, exchange_id) => {
     const data = {

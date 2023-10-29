@@ -19,13 +19,27 @@
                     </el-select>
                 </el-col>
                 <el-col :span="5" style="margin-left: 20px;">
-                    <el-button @click="onSelectFile">选择音频文件</el-button>
-                    <audio ref="audioRef" :src="audioSource"></audio>
+                    <el-checkbox v-model="open_alarm" label="开启告警" @change="checkAudioSelected" />
+                    <el-input v-model="alarm_num" placeholder="第几单开启告警" clearable
+                        style="width: 120px;margin-bottom: 3px;margin-left: 5px;" />
+                    <!-- 播放音频文件按钮 -->
+                    <el-button @click="stop_alarm" :disabled="!audioSrc" v-if="show_alarm_stop"
+                        style="margin-bottom: 3px;margin-left: 3px;"> <el-icon size="24px">
+                            <template v-if="is_playing">
+                                <VideoPause />
+                            </template>
+                            <template v-else>
+                                <VideoPlay />
+                            </template>
+                        </el-icon></el-button>
+                    <!-- 选择音频文件按钮 -->
+                    <el-button @click="selectAudioFile" style="margin-bottom: 3px;margin-left: 3px;">选择音频文件</el-button>
+                    <input type="file" ref="audioInput" @change="handleAudioSelect" style="display: none" accept="audio/*">
+                    <!-- 显示所选音频文件的文件名 -->
+                    <el-text v-if="audioName" type="success" size="small" truncated>{{ audioName }}</el-text>
 
-                 
-                    <el-checkbox v-model="autoPlayEnabled">自动播放</el-checkbox>
-                    <el-input-number v-model="thresholdTime" :min="0"></el-input-number>
-                   
+                    <!-- 音频播放器 -->
+                    <audio ref="audioPlayer" :src="audioSrc"></audio>
                 </el-col>
             </el-row>
             <el-table id="monitor_table" :data="smading_infos_list" style="width: 100%" :fit="false" border
@@ -95,55 +109,72 @@
 
                 <el-table-column prop="当前版本" label="当前版本" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="做多本轮时间" label="做多本轮时间" width="110" show-overflow-tooltip
+                <el-table-column prop="做多本轮时间" label="做多本轮时间" width="70" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="做多第几次补单" label="做多第几次补单" width="130" show-overflow-tooltip align="center">
+                <el-table-column prop="做多第几次补单" label="做多补单次数" width="70" show-overflow-tooltip align="center">
                     <template #header="{ column }">
                         <div class="highlight-title">{{ column.label }}</div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="做多仓位价值" label="做多仓位价值" width="110" show-overflow-tooltip
+                <el-table-column prop="做多仓位价值" label="做多仓位价值" width="100" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="做多仓位浮动盈亏" label="做多仓位浮动盈亏" width="140" show-overflow-tooltip
+                <el-table-column prop="做多仓位浮动盈亏" label="做多仓位浮动盈亏" width="100" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column :fixed="选择框_多仓操作 ? 'right' : false" label="多仓操作" width="295" align="center">
+
+                <el-table-column prop="多仓暂停补单" label="多仓暂停补单" width="70" align="center"></el-table-column>
+                <el-table-column :fixed="选择框_多仓操作 ? 'right' : false" label="多仓操作" width="330" align="center">
                     <template #default="{ row, $index }">
-                        <el-row :gutter="0">
-                            <el-col :span="13">
-                                <el-input v-model="long_inputValues[$index]" class="w-50 m-2" size="small" placeholder=""
-                                    style="width:45px;margin-right: 5px;" />
-                                <el-button type="success" size="small" @click="重挂止盈(row, 'LONG', $index)">多仓重挂止盈</el-button>
-                            </el-col>
-                            <el-col :span="11">
-                                <el-button type="success" size="small" @click="市价平仓(row, 'LONG')">多仓市价平仓</el-button>
-                            </el-col>
-                        </el-row>
+
+
+                        <el-input v-model="long_inputValues[$index]" class="w-50 m-2" size="small" placeholder=""
+                            style="width:40px;margin-right: 3px;margin-left:0px" />
+                        <el-button type="success" size="small" @click="重挂止盈(row, 'LONG', $index)"
+                            style="margin-left:0;margin-right:3px">重挂止盈</el-button>
+
+                        <el-button type="success" size="small" @click="市价平仓(row, 'LONG')"
+                            style="margin-left:0;margin-right:3px">市价平仓</el-button>
+
+
+                        <el-button type="success" size="small" @click="暂停补单(row, 'LONG')"
+                            style="margin-left:0;margin-right:3px" v-if="row.多仓暂停补单 === '否'">暂停补单</el-button>
+                        <el-input v-model="long_cover_inputValues[$index]" class="w-50 m-2" size="small" placeholder=""
+                            style="width:30px;margin-right: 3px;" v-if="row.多仓暂停补单 === '是'" />
+                        <el-button type="success" size="small" @click="恢复补单(row, 'LONG', $index)"
+                            style="margin-left:0;margin-right:0px" v-if="row.多仓暂停补单 === '是'">恢复补单</el-button>
+
                     </template>
                 </el-table-column>
-                <el-table-column prop="做空本轮时间" label="做空本轮时间" width="110" show-overflow-tooltip
+                <el-table-column prop="做空本轮时间" label="做空本轮时间" width="70" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="做空第几次补单" label="做空第几次补单" width="130" show-overflow-tooltip align="center">
+                <el-table-column prop="做空第几次补单" label="做空补单次数" width="70" show-overflow-tooltip align="center">
                     <template #header="{ column }">
                         <div class="highlight-title">{{ column.label }}</div>
                     </template>
                 </el-table-column>
 
-                <el-table-column prop="做空仓位价值" label="做空仓位价值" width="110" show-overflow-tooltip
+                <el-table-column prop="做空仓位价值" label="做空仓位价值" width="100" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="140" show-overflow-tooltip
+                <el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="100" show-overflow-tooltip
                     align="center"></el-table-column>
-                <el-table-column :fixed="选择框_空仓操作 ? 'right' : false" label="空仓操作" width="295" align="center">
+                <el-table-column prop="空仓暂停补单" label="空仓暂停补单" width="70" align="center"></el-table-column>
+                <el-table-column :fixed="选择框_空仓操作 ? 'right' : false" label="空仓操作" width="330" align="center">
                     <template #default="{ row, $index }">
-                        <el-row :gutter="0">
-                            <el-col :span="13">
-                                <el-input v-model="short_inputValues[$index]" class="w-50 m-2" size="small" placeholder=""
-                                    style="width:45px;margin-right: 5px;" />
-                                <el-button type="danger" size="small" @click="重挂止盈(row, 'SHORT', $index)">空仓重挂止盈</el-button>
-                            </el-col>
-                            <el-col :span="11">
-                                <el-button type="danger" size="small" @click="市价平仓(row, 'SHORT')">空仓市价平仓</el-button>
-                            </el-col>
-                        </el-row>
+
+                        <el-input v-model="short_inputValues[$index]" class="w-50 m-2" size="small" placeholder=""
+                            style="width:45px;margin-right: 3px;margin-left:0px" />
+                        <el-button type="danger" size="small" @click="重挂止盈(row, 'SHORT', $index)"
+                            style="margin-left:0;margin-right:3px">重挂止盈</el-button>
+
+                        <el-button type="danger" size="small" @click="市价平仓(row, 'SHORT')"
+                            style="margin-left:0;margin-right:3px">市价平仓</el-button>
+
+                        <el-button type="danger" size="small" @click="暂停补单(row, 'SHORT')"
+                            style="margin-left:0;margin-right:3px" v-if="row.空仓暂停补单 === '否'">暂停补单</el-button>
+                        <el-input v-model="short_cover_inputValues[$index]" class="w-50 m-2" size="small" placeholder=""
+                            style="width:30px;margin-right: 3px;" v-if="row.空仓暂停补单 === '是'" />
+                        <el-button type="danger" size="small" @click="恢复补单(row, 'SHORT', $index)"
+                            style="margin-left:0;margin-right:0px" v-if="row.空仓暂停补单 === '是'">恢复补单</el-button>
+
                     </template>
                 </el-table-column>
 
@@ -159,6 +190,7 @@
                         <el-button type="danger" size="small" @click="切换成对冲双马丁(row)">切换成对冲双马丁</el-button>
                     </template>
                 </el-table-column>
+
                 <el-table-column prop="是否暂停" label="是否暂停" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column prop="是否停止" label="是否停止" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column :fixed="选择框_仓位浮动盈亏 ? 'right' : false" prop="仓位浮动盈亏" label="仓位浮动盈亏" width="110"
@@ -176,19 +208,103 @@
   
 <script setup>
 import {
-api_仓位重启,
-api_停止,
-api_切换成对冲双马丁,
-api_启动,
-api_市价平仓,
-api_恢复,
-api_暂停,
-api_重挂止盈,
-api_重新启动,
+    api_仓位重启,
+    api_停止,
+    api_切换成对冲双马丁,
+    api_启动,
+    api_市价平仓,
+    api_恢复,
+    api_暂停,
+    api_重挂止盈,
+    api_重新启动,
+    api_监控墙_暂停补单,
+    api_监控墙_恢复补单
 } from "@/api/smading_strategy_api";
 import router from '@/router'; // 确保你的路由实例已经导入
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
+
+// ------------------------------------------------------------------------------------------------------------告警相关功能----------------------------------------------------------------------------------------------------
+const audioInput = ref(null);
+const audioPlayer = ref(null);
+const audioSrc = ref('');
+const audioName = ref('');
+const alarm_num = ref(null);
+const open_alarm = ref(false);
+const show_alarm_stop = ref(false);
+const is_playing = ref(true);
+let timer = null;
+const start_alarm = ref(false);
+watch(start_alarm, (newValue) => {
+    if (newValue) {
+        playAudio(); // 直接播放音频
+        // 监听音频播放完成事件
+        audioPlayer.value.addEventListener('ended', handleAudioEnded);
+    } else {
+        // 移除监听
+        audioPlayer.value.removeEventListener('ended', handleAudioEnded);
+    }
+});
+// 打开文件选择对话框
+const selectAudioFile = () => {
+    audioInput.value.click();
+};
+
+const handleAudioEnded = () => {
+    if (is_playing.value) { // 音频播放完成后，如果open_alarm仍为true，则再次播放
+        playAudio();
+    }
+};
+
+// 处理选择的音频文件
+const handleAudioSelect = (event) => {
+    const files = event.target.files;
+    if (files.length > 0) {
+        const file = files[0];
+
+        audioSrc.value = URL.createObjectURL(file);
+        audioName.value = file.name; // 更新文件名
+    }
+};
+
+const stop_alarm = () => {
+    if (is_playing.value) {
+        is_playing.value = false;
+        audioPlayer.value.pause(); // 暂停音频
+    } else {
+        is_playing.value = true;
+        show_alarm_stop.value = false;
+        start_alarm.value = false;
+    }
+
+}
+// 播放选中的音频文件
+const playAudio = () => {
+    audioPlayer.value.currentTime = 0; // 从头开始
+    audioPlayer.value.play();
+};
+
+const checkAudioSelected = (value) => {
+    if (value) {
+        if (!audioSrc.value) {
+            ElMessage({
+                message: "请先选择一个音频文件！",
+                type: "error"
+            });
+            open_alarm.value = false;  // 可选择将复选框取消勾选
+        }
+        console.log(alarm_num.value, isNaN(alarm_num.value), alarm_num.value < 0)
+        if (alarm_num.value === null || isNaN(alarm_num.value) || alarm_num.value <= 0) {
+            ElMessage({
+                message: "请先输入大于多少单告警！",
+                type: "error"
+            });
+            open_alarm.value = false;  // 可选择将复选框取消勾选
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------------------初始化选择框----------------------------------------------------------------------------------------------------
 const show_profit = ref(false)
 const 选择框_账号名 = ref(true)
 const 选择框_交易对 = ref(true)
@@ -210,6 +326,8 @@ const symbolFilters = ref([]);
 const 选中的交易所账号 = ref([]);//选中的交易所账号
 const short_inputValues = ref({});//空仓重挂止盈的百分比
 const long_inputValues = ref({});//多仓重挂止盈的百分比
+const short_cover_inputValues = ref({});//空仓恢复补单
+const long_cover_inputValues = ref({});//多仓恢复补单
 function handleFilterChange(filters) {
     if (filters.hasOwnProperty('name')) {
         currentNameFilters.value = filters.name || [];
@@ -292,6 +410,10 @@ onBeforeUnmount(() => {
         ws.close();
     }
     window.removeEventListener('resize', updateHeight);
+    if (timer) {
+        clearInterval(timer);
+    }
+    audioPlayer.value.removeEventListener('ended', handleAudioEnded);
 });
 
 // ------------------------------------------------------------------------------------------------------------websocket相关功能开始----------------------------------------------------------------------------------------------------
@@ -320,7 +442,7 @@ function connectToWebSocket() {
         ws = null;
     }
     const token = localStorage.getItem('token');
-    ws = new WebSocket(`ws://45.159.50.15:7878/ws/smading/${token}`);
+    ws = new WebSocket(`ws://54.238.137.72:7878/ws/smading/${token}`);
 
     ws.onopen = (event) => {
         console.log("WebSocket 已连接:", event);
@@ -342,7 +464,6 @@ function connectToWebSocket() {
                     query: { redirect: router.currentRoute.fullPath }
                 });
             }
-
             // 关闭WebSocket连接
             ws.close();
         } else {
@@ -369,9 +490,32 @@ function connectToWebSocket() {
                 (!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(item.symbol)) &&
                 选中的交易所账号.value.includes(item.name)
             );
+            // 取出最大补单次数
+            let max_long_add_times = 0;
+            let max_short_add_times = 0;
+            smading_infos_list.value.forEach(item => {
+                if (item.hasOwnProperty('做多第几次补单')) {
+                    max_long_add_times = Math.max(max_long_add_times, item['做多第几次补单']);
+                }
+                if (item.hasOwnProperty('做空第几次补单')) {
+                    max_short_add_times = Math.max(max_short_add_times, item['做空第几次补单']);
+                }
+            });
+            const max_add_times = Math.max(max_long_add_times, max_short_add_times);
+            if (is_playing.value) {
+                if (open_alarm.value && max_add_times >= alarm_num.value) {
+                    start_alarm.value = true;
+                    show_alarm_stop.value = true;
+                } else {
+                    audioPlayer.value.pause(); // 暂停音频
+                    start_alarm.value = false;
+                    show_alarm_stop.value = false;
+                }
+            }
         }
+    }
 
-    };
+
 
     ws.onclose = (event) => {
         console.log("WebSocket 已关闭:", event);
@@ -415,14 +559,16 @@ const 更新监控的交易所账号 = () => {
 
 const 重挂止盈 = async (row, position_side, index) => {
     let inputvalues = 0
-    if (position_side == 'LONG') {
-        inputvalues = long_inputValues.value[index]
-    } else {
-        inputvalues = short_inputValues.value[index]
-    }
-    inputvalues = parseFloat(inputvalues);
-    // 如果inputvalues不能转化为小数，则提示错误
-    if (isNaN(inputvalues)) {
+    try {
+
+        if (position_side == 'LONG') {
+            inputvalues = long_inputValues.value[index]
+        } else {
+            inputvalues = short_inputValues.value[index]
+        }
+        inputvalues = parseFloat(inputvalues);
+    } catch (error) {
+        // 如果inputvalues不能转化为小数，则提示错误
         ElMessage({
             message: "重挂止盈失败：请输入正确的数字",
             type: "error"
@@ -516,6 +662,81 @@ const 仓位重启 = async (row, position_side) => {
         });
     }
 };
+
+
+const 暂停补单 = async (row, position_side) => {
+    // 先弹一个提示框确定是否暂停
+    const res = await ElMessageBox.confirm('确定要暂停补单吗？如暂停补单，则下一次补单会暂停直到恢复补单！止盈单不受影响', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    });
+    if (res !== 'confirm') {
+        return;
+    }
+    // console.log(row, position_side);
+    try {
+        const res = await api_监控墙_暂停补单(row.symbol, row.strategy_id, position_side, row.exchange_id);
+        if (res.status === 200 && res.data.code === 200) {
+            ElMessage({
+                message: "暂停补单成功",
+                type: "success"
+            });
+        } else {
+            ElMessage({
+                message: "暂停补单失败：" + res.data.msg,
+                type: "error"
+            });
+        }
+    } catch (error) {
+        ElMessage({
+            message: "暂停补单失败：" + error,
+            type: "error"
+        });
+    }
+}
+
+
+const 恢复补单 = async (row, position_side, index) => {
+    let inputvalues = 0
+    try {
+
+        if (position_side == 'LONG') {
+            inputvalues = long_cover_inputValues.value[index]
+        } else {
+            inputvalues = short_cover_inputValues.value[index]
+        }
+        inputvalues = parseInt(inputvalues);
+    } catch (error) {
+        // 如果inputvalues不能转化为小数，则提示错误
+        ElMessage({
+            message: "重挂止盈失败：请输入正确的数字",
+            type: "error"
+        });
+        return;
+    }
+    try {
+        const res = await api_监控墙_恢复补单(row.symbol, row.strategy_id, position_side, inputvalues, row.exchange_id);
+        if (res.status === 200 && res.data.code === 200) {
+            ElMessage({
+                message: "恢复补单成功",
+                type: "success"
+            });
+        } else {
+            ElMessage({
+                message: "恢复补单失败：" + res.data.msg,
+                type: "error"
+            });
+        }
+    } catch (error) {
+        ElMessage({
+            message: "恢复补单失败：" + error,
+            type: "error"
+        });
+    }
+};
+
+
 
 const 暂停 = async (row) => {
     // 先弹一个提示框确定是否暂停
@@ -793,7 +1014,13 @@ const cellClassName = ({ row, rowIndex, column, columnIndex }) => {
     if (column.property === '是否暂停' && row['是否暂停'] == '是') {
         return 'highlight-cell';
     }
-    if (column.property === '是否停止' && row['是否停止'] == '是') {
+    if (column.property === '是否暂停' && row['是否暂停'] == '是') {
+        return 'highlight-cell';
+    }
+    if (column.property === '多仓暂停补单' && row['多仓暂停补单'] == '是') {
+        return 'highlight-cell';
+    }
+    if (column.property === '空仓暂停补单' && row['空仓暂停补单'] == '是') {
         return 'highlight-cell';
     }
     if (column.property === '仓位浮动盈亏' && row['仓位浮动盈亏'] <= -10) {
@@ -839,6 +1066,11 @@ const cellClassName = ({ row, rowIndex, column, columnIndex }) => {
 
 .el-table .color-yyn5 {
     background-color: #b3dbee;
+}
+
+.flex-container {
+    display: flex;
+    align-items: center;
 }
 </style>
   

@@ -83,12 +83,6 @@ const routes = [
         component: () => import('@/views/MdBots'),
         children: [
           {
-            path: 'list',
-            name: 'md_bots_list',
-            component: () => import('@/views/MdBots/List.vue'),
-            meta: { title: '马丁机器人列表', requiresAuth: true }, // 需要鉴权的路由
-          },
-          {
             path: 'smadingList',
             name: 'smadingList',
             component: () => import('@/views/MdBots/SmadingList.vue'),
@@ -98,26 +92,32 @@ const routes = [
             name: 'smadingMonitor',
             component: () => import('@/views/MdBots/SmadingMonitor.vue'),
             meta: { title: '双马丁监控墙', requiresAuth: true }, // 需要鉴权的路由
-          },
-          {
-            path: 'detail',
-            name: 'md_bots_detail',
-            component: () => import('@/views/MdBots/Detail.vue'),
-            meta: { title: '马丁机器人详情', requiresAuth: true }, // 需要鉴权的路由
-          },
-          {
-            path: 'create_bot',
-            name: 'md_bots_create_bot',
-            component: () => import('@/views/MdBots/CreateBot.vue'),
-            meta: { title: '新建马丁机器人', requiresAuth: true }, // 需要鉴权的路由
-          }, {
-            path: 'edit_bot/:botId',
-            name: 'md_bots_edit_bot',
-            component: () => import('@/views/MdBots/CreateBot.vue'),
-            props: (route) => ({ editMode: true, botId: route.params.botId }),
-            meta: { title: '修改马丁机器人', requiresAuth: true }, // 需要鉴权的路由
           }
         ]
+      }
+      , {
+        path: '/partner_plan',
+        component: () => import('@/views/PartnerPlan'),
+        children: [
+          {
+            path: 'partner_plan',
+            name: 'partner_plan',
+            component: () => import('@/views/PartnerPlan/PartnerPlan.vue'),
+            meta: { title: '交易合伙人计划', requiresAuth: true }, // 需要鉴权的路由
+          }
+          ,{
+            path: 'my_cash_back',
+            name: 'my_cash_back',
+            component: () => import('@/views/PartnerPlan/MyCashBack.vue'),
+            meta: { title: '我的返现', requiresAuth: true }, // 需要鉴权的路由
+          }
+        ]
+      }
+      ,{
+        path: '/disclaimer',
+        name: 'disclaimer',
+        component: () => import('@/views/Mzsm/Mzsm.vue'),
+        meta: { title: '免责声明', requiresAuth: true }, // 需要鉴权的路由
       }
     ]
   }, {

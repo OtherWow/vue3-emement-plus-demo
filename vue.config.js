@@ -7,6 +7,14 @@ const productionGzipExtensions = ['js', 'css']
 module.exports = defineConfig({
   transpileDependencies: true,
   configureWebpack: {
+    module: {
+      rules: [
+        {
+          test: /\.md$/,
+          use: 'raw-loader',
+        },
+      ],
+    },
     plugins: [
       AutoImport({
         resolvers: [ElementPlusResolver()],
