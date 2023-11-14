@@ -60,8 +60,13 @@
                                     @change="data_change" /></el-form-item>
                         </el-col>
 
-                        <el-col :span="2">
+                        <el-col :span="1">
                             <el-button type="primary" class="grid-content ep-bg-purple" @click="query">查询</el-button>
+                        </el-col>
+
+                        <el-col :span="4">
+                            <el-text class="mx-1" tag="b" type="danger" size="large">日期范围内的预估总返现: {{ 日期范围内的预计总返现 }}
+                                USDT</el-text>
                         </el-col>
                     </el-row>
                 </el-form>
@@ -305,7 +310,7 @@ const formatDateToISOStringWithoutTimeZone = (date) => {
         dif + pad(tzo / 60) +
         ':' + pad(tzo % 60);
 }
-
+const 日期范围内的预计总返现 = ref(0)
 const query = async () => {
     // 所有查询条件为必传 检查
     if (data_r.value[0] === "" || data_r.value[1] === "") {
@@ -324,6 +329,12 @@ const query = async () => {
         // console.log("api_查询我的推荐人交易额明细", res);
         if (res.status === 200 && res.data.code === 200) {
             recommend_list.value = res.data.data.partner_recommend_list;
+            //如果recommend_list不为空
+            if (recommend_list.value.length > 0) {
+                // 日期范围内的预计总返现 = all_cash_back的总和，保留2位小数
+                日期范围内的预计总返现.value = recommend_list.value.map(item => item.all_cash_back).reduce((total, num) => total + num).toFixed(2)
+            }
+
             ElMessage({
                 message: "查询我的推荐人交易额明细成功！",
                 type: "success"

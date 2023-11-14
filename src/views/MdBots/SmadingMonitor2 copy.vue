@@ -51,14 +51,12 @@
 
                 </el-col>
 
-                <el-col :span="5" style="margin-left: 20px;" v-if="!黑名单 && can_show">
+                <el-col :span="4" style="margin-left: 20px;" v-if="can_show">
 
-                    <el-input v-model="编辑框净浮盈" placeholder="" @change="净浮盈改变" style="width:380px">
-                        <template #prepend>净盈利 <el-text tag="b" :type="显示净盈利 > 0 ? 'success' : 'danger'">
-                                {{ 显示净盈利 }}
-                            </el-text> 满</template>
+                    <el-input v-model="编辑框净浮盈" placeholder="" @change="净浮盈改变">
+                        <template #prepend>净盈利满</template>
                         <template #append>USDT 自动重开<el-tooltip placement="top" effect="dark" class="box-item">
-                                <template #content> 净盈利=总盈利+仓位浮动盈亏 (不包含已被禁止重开的币种)<br />
+                                <template #content> 净盈利=总盈利+仓位浮动盈亏<br />
                                     自动重开是指当前运行的策略停止后重新开启,这样被套住的币种就自动解套了
                                 </template>
                                 <el-icon :span="12" size="20" style="margin-left:2px;margin-top:0px">
@@ -70,7 +68,137 @@
 
                 </el-col>
             </el-row>
-            <el-table id="monitor_table" :data="smading_infos_list" style="width: 100%" :fit="false" border
+            <!-- <div :style="{ height: monitor_table_height }"> -->
+            <div>
+                <vxe-table id="monitor_table" border :data="smading_infos_list" align="center" size="mini" round
+                    show-overflow max-height="700" r>
+                    <vxe-column type="seq" width="60" :fixed="选择框_账号名 ? 'left' : undefined"></vxe-column>
+                    <vxe-column :fixed="选择框_账号名 ? 'left' : undefined" field="name" title="账号名" width="80"></vxe-column>
+                    <vxe-column :fixed="选择框_交易对 ? 'left' : undefined" field="symbol" title="交易对" width="120"
+                        :filters="symbolFilters">
+                        <template #default="scope">
+                            <el-tag type="info" effect="dark">{{ scope.row.symbol }}</el-tag>
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="交易类型" title="交易类型" width="110"></vxe-column>
+                    <vxe-column field="启动资金" title="启动资金" width="110"></vxe-column>
+                    <vxe-column field="账户余额" title="账户余额" width="110"></vxe-column>
+                    <vxe-column :fixed="选择框_运行时间 ? 'left' : undefined" field="运行时间" title="运行时间" width="90"></vxe-column>
+                    <vxe-column :fixed="选择框_每小时盈利 ? 'left' : undefined" field="每小时盈利" title="每小时盈利"
+                        width="100"></vxe-column>
+                    <vxe-column field="当前权重" title="当前权重" width="90"></vxe-column>
+                    <vxe-column field="最新价格" title="最新价格" width="90"></vxe-column>
+                    <vxe-column field="止盈次数" title="止盈次数" width="90"></vxe-column>
+                    <vxe-column field="止盈总利润" title="止盈总利润" width="100" v-if="show_profit"></vxe-column>
+                    <vxe-column field="做空止盈次数" title="做空止盈次数" width="120"></vxe-column>
+                    <vxe-column field="做空止盈总利润" title="做空止盈总利润" width="130" v-if="show_profit"></vxe-column>
+                    <vxe-column field="做多止盈次数" title="做多止盈次数" width="120"></vxe-column>
+                    <vxe-column field="做多止盈总利润" title="做多止盈总利润" width="130" v-if="show_profit"></vxe-column>
+                    <vxe-column field="触发对冲单次数" title="触发对冲单次数" width="130"></vxe-column>
+                    <vxe-column field="第几次对冲单" title="第几次对冲单" width="110"></vxe-column>
+                    <vxe-column field="第几次补单" title="第几次补单" width="110"></vxe-column>
+                    <vxe-column field="做空仓位数量" title="做空仓位数量" width="110"></vxe-column>
+                    <vxe-column field="做空仓位价格" title="做空仓位价格" width="110"></vxe-column>
+                    <vxe-column field="做空总盈利" title="做空总盈利" width="100" v-if="show_profit"></vxe-column>
+                    <vxe-column field="做多仓位数量" title="做多仓位数量" width="110"></vxe-column>
+                    <vxe-column field="做多仓位价格" title="做多仓位价格" width="110"></vxe-column>
+
+
+                    <vxe-column field="做多总盈利" title="做多总盈利" width="100" v-if="show_profit"></vxe-column>
+
+                    <vxe-column field="仓位手续费" title="仓位手续费" width="100" v-if="show_profit"></vxe-column>
+
+                    <vxe-column field="总浮盈(已扣手续费)" title="总浮盈(已扣手续费)" width="150" v-if="show_profit"></vxe-column>
+
+                    <vxe-column field="当前版本" title="当前版本" width="110"></vxe-column>
+                    <vxe-column field="做多本轮时间" title="做多本轮时间" width="70"></vxe-column>
+                    <vxe-column field="做多第几次补单" title="做多补单次数" width="70">
+                        <template #header="{ column }">
+                            <div class="highlight-title">{{ column.title }}</div>
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="做多仓位价值" title="做多仓位价值" width="100"></vxe-column>
+                    <vxe-column field="做多仓位浮动盈亏" title="做多仓位浮动盈亏" width="100"></vxe-column>
+
+                    <vxe-column field="多仓暂停补单" title="多仓暂停补单" width="70"></vxe-column>
+                    <vxe-column :fixed="选择框_多仓操作 ? 'right' : false" title="多仓操作" width="330">
+                        <template #default="{ row, $index }">
+                            <el-button type="success" size="small" @click="暂停补单(row, 'LONG')"
+                                style="margin-left:0;margin-right:3px" v-if="row.多仓暂停补单 === '否'">暂停补单</el-button>
+                            <el-input v-model="long_cover_inputValues[$index]" class="w-50 m-2" size="small" placeholder=""
+                                style="width:30px;margin-right: 3px;" v-if="row.多仓暂停补单 === '是'" />
+                            <el-button type="success" size="small" @click="恢复补单(row, 'LONG', $index)"
+                                style="margin-left:0;margin-right:3px" v-if="row.多仓暂停补单 === '是'">恢复补单</el-button>
+
+
+                            <el-button type="success" size="small" @click="市价平仓(row, 'LONG')"
+                                style="margin-left:0;margin-right:3px">市价平仓</el-button>
+                            <el-input v-model="long_inputValues[$index]" class="w-50 m-2" size="small" placeholder=""
+                                style="width:40px;margin-right: 3px;margin-left:0px" />
+                            <el-button type="success" size="small" @click="重挂止盈(row, 'LONG', $index)"
+                                style="margin-left:0;margin-right:0px">重挂止盈</el-button>
+
+
+
+
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="做空本轮时间" title="做空本轮时间" width="70"></vxe-column>
+                    <vxe-column field="做空第几次补单" title="做空补单次数" width="70">
+                        <template #header="{ column }">
+                            <div class="highlight-title">{{ column.title }}</div>
+                        </template>
+                    </vxe-column>
+
+                    <vxe-column field="做空仓位价值" title="做空仓位价值" width="100"></vxe-column>
+                    <vxe-column field="做空仓位浮动盈亏" title="做空仓位浮动盈亏" width="100"></vxe-column>
+                    <vxe-column field="空仓暂停补单" title="空仓暂停补单" width="70"></vxe-column>
+                    <vxe-column :fixed="选择框_空仓操作 ? 'right' : false" title="空仓操作" width="330">
+                        <template #default="{ row, $index }">
+                            <el-button type="danger" size="small" @click="暂停补单(row, 'SHORT')"
+                                style="margin-left:0;margin-right:3px" v-if="row.空仓暂停补单 === '否'">暂停补单</el-button>
+                            <el-input v-model="short_cover_inputValues[$index]" class="w-50 m-2" size="small" placeholder=""
+                                style="width:30px;margin-right: 3px;" v-if="row.空仓暂停补单 === '是'" />
+                            <el-button type="danger" size="small" @click="恢复补单(row, 'SHORT', $index)"
+                                style="margin-left:0;margin-right:3px" v-if="row.空仓暂停补单 === '是'">恢复补单</el-button>
+
+                            <el-button type="danger" size="small" @click="市价平仓(row, 'SHORT')"
+                                style="margin-left:0;margin-right:3px">市价平仓</el-button>
+                            <el-input v-model="short_inputValues[$index]" class="w-50 m-2" size="small" placeholder=""
+                                style="width:45px;margin-right: 3px;margin-left:0px" />
+                            <el-button type="danger" size="small" @click="重挂止盈(row, 'SHORT', $index)"
+                                style="margin-left:0;margin-right:0px">重挂止盈</el-button>
+
+
+
+                        </template>
+                    </vxe-column>
+
+                    <vxe-column :fixed="选择框_需要确认的操作 ? 'right' : false" title="需要确认的操作" width="550">
+                        <template #default="{ row }">
+                            <el-button type="success" size="small" @click="仓位重启(row, 'LONG')">多仓重启</el-button>
+                            <el-button type="danger" size="small" @click="仓位重启(row, 'SHORT')">空仓重启</el-button>
+                            <el-button type="danger" size="small" @click="暂停(row)" v-if="row.是否暂停 === '否'">暂停</el-button>
+                            <el-button type="success" size="small" @click="恢复(row)" v-if="row.是否暂停 === '是'">恢复</el-button>
+                            <el-button type="danger" size="small" @click="停止(row)" v-if="row.是否停止 === '否'">停止</el-button>
+                            <el-button type="success" size="small" @click="启动(row)" v-if="row.是否停止 === '是'">启动</el-button>
+                            <el-button type="danger" size="small" @click="重新启动(row)">重新启动</el-button>
+                            <el-button type="danger" size="small" @click="切换成对冲双马丁(row)">切换成对冲双马丁</el-button>
+                        </template>
+                    </vxe-column>
+
+                    <vxe-column field="是否暂停" title="是否暂停" width="90"></vxe-column>
+                    <vxe-column field="是否停止" title="是否停止" width="90"></vxe-column>
+                    <vxe-column :fixed="选择框_仓位浮动盈亏 ? 'right' : undefined" field="仓位浮动盈亏" title="仓位浮动盈亏"
+                        width="110"></vxe-column>
+                    <vxe-column :fixed="选择框_总手续费 ? 'right' : undefined" field="总手续费" title="总手续费" width="85"
+                        v-if="show_profit"></vxe-column>
+                    <vxe-column :fixed="选择框_总盈利 ? 'right' : undefined" field="总盈利" title="总盈利" width="100"></vxe-column>
+
+                </vxe-table>
+            </div>
+
+            <!-- <el-table id="monitor_table" :data="smading_infos_list" style="width: 100%" :fit="false" border
                 highlight-current-row :summary-method="getSummaries" show-summary :height="monitor_table_height"
                 :row-class-name="tableRowClassName" :cell-class-name="cellClassName" @filter-change="handleFilterChange"
                 scrollbar-always-on show-overflow-tooltip ref="monitorTable" row-key="id">
@@ -205,40 +333,22 @@
 
                     </template>
                 </el-table-column>
-                <el-table-column prop="禁止重开" label="禁止重开" width="130" show-overflow-tooltip align="center">
-                    <template #default="{ row, $index }">
-                        <el-text :tag="row.禁止重开 === '是' ? 'b' : undefined"
-                            :type="row.禁止重开 === '是' ? 'danger' : undefined">{{ row.禁止重开 }}<el-button type="primary"
-                                style="margin-left: 10px;margin-bottom: 1px;margin-top: 0px;" size="small"
-                                @click="禁止重开(row)">{{
-                                    row.禁止重开 === '是' ? '恢复重开' : '禁止重开'
-                                }}</el-button></el-text>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="止损阈值" label="止损阈值" width="60" show-overflow-tooltip align="center"></el-table-column>
 
-                <el-table-column :fixed="选择框_需要确认的操作 ? 'right' : false" label="需要确认的操作" width="450" align="center">
-                    <template #default="{ row, $index }">
-                        <el-input v-model="stop_loss_inputValues[$index]" class="w-50 m-2" size="small" placeholder=""
-                            style="width:40px;margin-right: 3px;margin-left: 3px;" />
-                        <el-button type="danger" size="small" @click="设置止损(row, $index)"
-                            style="margin-left:0;margin-right:0px">设置止损</el-button>
+                <el-table-column :fixed="选择框_需要确认的操作 ? 'right' : false" label="需要确认的操作" width="550" align="center">
+                    <template #default="{ row }">
                         <el-button type="success" size="small" @click="仓位重启(row, 'LONG')">多仓重启</el-button>
                         <el-button type="danger" size="small" @click="仓位重启(row, 'SHORT')">空仓重启</el-button>
                         <el-button type="danger" size="small" @click="暂停(row)" v-if="row.是否暂停 === '否'">暂停</el-button>
                         <el-button type="success" size="small" @click="恢复(row)" v-if="row.是否暂停 === '是'">恢复</el-button>
                         <el-button type="danger" size="small" @click="停止(row)" v-if="row.是否停止 === '否'">停止</el-button>
                         <el-button type="success" size="small" @click="启动(row)" v-if="row.是否停止 === '是'">启动</el-button>
-                        <!-- <el-button type="danger" size="small" @click="重新启动(row)">重新启动</el-button> -->
-                        <!-- <el-button type="danger" size="small" @click="切换成对冲双马丁(row)">切换成对冲双马丁</el-button> -->
-
-
-
+                        <el-button type="danger" size="small" @click="重新启动(row)">重新启动</el-button>
+                        <el-button type="danger" size="small" @click="切换成对冲双马丁(row)">切换成对冲双马丁</el-button>
                     </template>
                 </el-table-column>
-                <el-table-column prop="是否暂停" label="是否暂停" width="60" show-overflow-tooltip align="center"></el-table-column>
 
-                <el-table-column prop="是否停止" label="是否停止" width="60" show-overflow-tooltip align="center"></el-table-column>
+                <el-table-column prop="是否暂停" label="是否暂停" width="90" show-overflow-tooltip align="center"></el-table-column>
+                <el-table-column prop="是否停止" label="是否停止" width="90" show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column :fixed="选择框_仓位浮动盈亏 ? 'right' : false" prop="仓位浮动盈亏" label="仓位浮动盈亏" width="110"
                     show-overflow-tooltip align="center"></el-table-column>
                 <el-table-column :fixed="选择框_总手续费 ? 'right' : false" prop="总手续费" label="总手续费" width="85"
@@ -247,7 +357,7 @@
                     align="center"></el-table-column>
 
 
-            </el-table>
+            </el-table> -->
         </el-main>
     </el-container>
 </template>
@@ -269,34 +379,34 @@ import {
     api_监控墙_所有停止,
     api_监控墙_所有暂停,
     api_监控墙_所有重新开始,
-    api_监控墙_禁止重开,
-    api_监控墙_设置止损,
-    api_监控墙_更新多少usdt自动重开,
-    api_监控墙_获取多少usdt自动重开
 } from "@/api/smading_strategy_api";
+import dayjs from 'dayjs'
+import {
+    ElButton,
+    ElIcon,
+    ElTag,
+    ElTooltip,
+    TableV2FixedDir,
+} from 'element-plus'
 import router from '@/router'; // 确保你的路由实例已经导入
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-// import { useMonitorStore } from '@/store/monitor';
-// const monitorStore = useMonitorStore()
-let 净浮盈_初始值 = 9999
-const 编辑框净浮盈 = ref(净浮盈_初始值)
-const 净浮盈改变 = async (value) => {
-    if (value === '') {
-        编辑框净浮盈.value = 净浮盈_初始值
-    }
+import { onBeforeUnmount, onMounted, ref, watch, reactive } from 'vue';
+
+let 净浮盈 = 0
+const 编辑框净浮盈 = ref(0)
+const 净浮盈改变 = (value) => {
     if (isNaN(value)) {
-        编辑框净浮盈.value = 净浮盈_初始值
+        编辑框净浮盈.value = 0
     }
     if (value === null) {
-        编辑框净浮盈.value = 净浮盈_初始值
+        编辑框净浮盈.value = 0
     }
     if (value < 0) {
-        编辑框净浮盈.value = 净浮盈_初始值
+        编辑框净浮盈.value = 0
     }
-    编辑框净浮盈.value = parseFloat(编辑框净浮盈.value)
-    await 更新多少usdt自动重开()
+    净浮盈 = 编辑框净浮盈.value
 }
-const 显示净盈利 = ref(0)
+
+
 // ------------------------------------------------------------------------------------------------------------告警相关功能----------------------------------------------------------------------------------------------------
 const audioInput = ref(null);
 const audioPlayer = ref(null);
@@ -390,7 +500,7 @@ const 选择框_空仓操作 = ref(false)
 const 选择框_需要确认的操作 = ref(false)
 const 选择框_每小时盈利 = ref(false)
 // ------------------------------------------------------------------------------------------------------------筛选相关功能开始----------------------------------------------------------------------------------------------------
-
+const currentNameFilters = ref([]);  // 默认为空数组，表示没有筛选
 const currentSymbolFilters = ref([]);  // 默认为空数组，表示没有筛选
 const nameFilters = ref([]);
 const 列名列表 = ref(['账号名', '交易对', '运行时间', '每小时盈利', '仓位浮动盈亏', '总盈利', '多仓操作', '空仓操作', '需要确认的操作']);
@@ -401,9 +511,10 @@ const short_inputValues = ref({});//空仓重挂止盈的百分比
 const long_inputValues = ref({});//多仓重挂止盈的百分比
 const short_cover_inputValues = ref({});//空仓恢复补单
 const long_cover_inputValues = ref({});//多仓恢复补单
-const stop_loss_inputValues = ref({});//设置止损的值
-let 止损记录map = {}
 function handleFilterChange(filters) {
+    if (filters.hasOwnProperty('name')) {
+        currentNameFilters.value = filters.name || [];
+    }
     if (filters.hasOwnProperty('symbol')) {
         currentSymbolFilters.value = filters.symbol || [];
     }
@@ -458,17 +569,7 @@ const updateHeight = () => {
     // console.log(window.innerHeight)
 };
 const monitorTable = ref(null)
-const 黑名单 = ref(false)
 onMounted(async () => {
-    await 获取多少usdt自动重开()
-    window.addEventListener('scroll', function () {
-        console.log('滚动事件被触发!')
-    })
-
-    if (localStorage.getItem('username') === '徐建煜' || localStorage.getItem('username') === '刘倩' || localStorage.getItem('username') === '徐馥蓉') {
-        黑名单.value = true
-    }
-
     if (localStorage.getItem('username') === 'syb' || localStorage.getItem('username') === 'yyn') {
         show_profit.value = true
         突出显示的列.value.push('总手续费')
@@ -480,10 +581,10 @@ onMounted(async () => {
     updateHeight()
     connectToWebSocket();
     window.addEventListener('resize', updateHeight);
-    setTimeout(() => {
-        const scrollArea = monitorTable.value?.$el.querySelector('.el-table__body-wrapper')
-        monitorTable.value.setScrollLeft(scrollArea.clientWidth + 400);
-    }, 300);
+    // setTimeout(() => {
+    //     const scrollArea = monitorTable.value?.$el.querySelector('.el-table__body-wrapper')
+    //     monitorTable.value.setScrollLeft(scrollArea.clientWidth + 400);
+    // }, 300);
 });
 
 onBeforeUnmount(() => {
@@ -492,7 +593,6 @@ onBeforeUnmount(() => {
         ws.close();
     }
     window.removeEventListener('resize', updateHeight);
-
     if (timer) {
         clearInterval(timer);
     }
@@ -547,9 +647,7 @@ const keys = [
     "仓位浮动盈亏",
     "总浮盈(已扣手续费)",
     "总盈利",
-    "总手续费",
-    "禁止重开",
-    "止损阈值",
+    "总手续费"
 ];
 
 // 定义函数，将二维数组转换为对象数组
@@ -589,7 +687,7 @@ function scheduleReconnect() {
     reconnectScheduled = true;       // 设置重连标志
 }
 
-let 自动重开中 = false
+
 function connectToWebSocket() {
     if (ws) {
         ws.close();
@@ -623,85 +721,49 @@ function connectToWebSocket() {
             // 关闭WebSocket连接
             ws.close();
         } else {
-            const versionCheck = (version) => ['v1.0.24', 'v1.0.23', 'v1.0.22', 'v1.0.21', 'v1.0.20', 'v1.0.19', 'v1.0.18', 'v1.0.17'].some(v => version.includes(v));
-            let 计算总盈利 = 0;
-            let 计算仓位浮动盈亏 = 0;
-            let names = new Set();
-            let nameAndTypes = new Set();
-            let symbols = new Set();
-            // 用于存储符合条件的项目,用于表格展示
-            let tempSmadingInfos = [];
-            // 取出最大补单次数
-            let max_long_add_times = 0;
-            let max_short_add_times = 0;
             rawData.forEach(item => {
-                const { 当前版本, 总盈利, 总手续费, 禁止重开, 仓位浮动盈亏, name, symbol, 交易类型, 做多第几次补单, 做空第几次补单 } = item;
-                //版本不符合，新功能不展示
-                if (can_show.value && !versionCheck(当前版本)) {
-                    can_show.value = false;
+                if (can_show.value && !item['当前版本'].includes('v1.0.16')) {
+                    can_show.value = false
                 }
-
-
-                // 数据过滤
-                if ((!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(symbol)) &&
-                    选中的交易所账号.value.includes(name)) {
-
-                    // 计算总盈利
-                    if (总盈利 !== undefined && 总手续费 !== undefined) {
-                        item['总盈利'] = (总盈利 - 总手续费).toFixed(4);
-                        if (禁止重开 !== '是') {
-                            计算总盈利 += parseFloat(item['总盈利']);
-                        }
-                    }
-
-                    if (仓位浮动盈亏 !== undefined && 禁止重开 !== '是') {
-                        计算仓位浮动盈亏 += parseFloat(仓位浮动盈亏);
-                    }
-                    //下面这2个是用于告警的
-                    if (做多第几次补单 !== undefined) {
-                        max_long_add_times = Math.max(max_long_add_times, 做多第几次补单);
-                    }
-                    if (做空第几次补单 !== undefined) {
-                        max_short_add_times = Math.max(max_short_add_times, 做空第几次补单);
-                    }
-
-                    tempSmadingInfos.push(item);
+                if (item.hasOwnProperty('总盈利') && item.hasOwnProperty('总手续费')) {
+                    item['总盈利'] = (item['总盈利'] - item['总手续费']).toFixed(4);
                 }
-                // 构建用于过滤和排序的集合
-                names.add(name);
-                symbols.add(symbol);
-                nameAndTypes.add(`${name}|${交易类型}`);
             });
-            //表格数据赋值
-            smading_infos_list.value = tempSmadingInfos;
-
-            //自动重开的逻辑
-            显示净盈利.value = (计算总盈利 + 计算仓位浮动盈亏).toFixed(2);
-            if (!黑名单.value && !自动重开中 && can_show.value && 编辑框净浮盈.value > 0 && 显示净盈利.value > 编辑框净浮盈.value) {
-                自动重开中 = true
-                console.log('计算总盈利 + 计算仓位浮动盈亏', 显示净盈利.value, '编辑框净浮盈.value', 编辑框净浮盈.value)
-                await 所有重新开始()
-                await 根据止损记录map重设止损()
-                // 等待2分钟 防止重复提交
-                setTimeout(() => {
-                    自动重开中 = false
-                }, 20000);
+            if (can_show.value && 净浮盈 > 0 && (计算总盈利 + 计算仓位浮动盈亏) > 净浮盈) {
+                console.log('计算总盈利 + 计算仓位浮动盈亏', 计算总盈利 + 计算仓位浮动盈亏, '净浮盈', 净浮盈)
+                // await 所有重新开始()
             }
+            // 直接创建一个排序后的名称数组
+            const sortedNames = [...new Set(rawData.map(item => item.name))].sort();
+            const sorted = [...new Set(rawData.map(item => item.name + '|' + item.交易类型))].sort();
+            // 分配颜色到名字
+            assignColorToName(sorted);
 
-            // 将Set转换为排序后的数组
-            const sortedNames = [...names].sort();
+            const symbols = new Set(rawData.map(item => item.symbol));
+            nameFilters.value = sortedNames.map(name => ({ text: name, value: name }));
             if (选中的交易所账号.value.length == 0) {
                 选中的交易所账号.value = [...sortedNames];
             }
-            // 根据交易所的名字跟交易类型分配表格颜色
-            const sortedNameAndTypes = [...nameAndTypes].sort();
-            assignColorToName(sortedNameAndTypes);
-
-            // 设置过滤器值
-            nameFilters.value = sortedNames.map(name => ({ text: name, value: name }));
             symbolFilters.value = [...symbols].map(symbol => ({ text: symbol, value: symbol }));
 
-            //告警的逻辑
+            smading_infos_list.value = rawData.filter(item =>
+                (!currentNameFilters.value.length || currentNameFilters.value.includes(item.name)) &&
+                (!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(item.symbol)) &&
+                选中的交易所账号.value.includes(item.name)
+            );
+            //上面这个filter是筛选出选中的交易所账号的数据
+            //下面是告警的逻辑
+            // 取出最大补单次数
+            let max_long_add_times = 0;
+            let max_short_add_times = 0;
+            smading_infos_list.value.forEach(item => {
+                if (item.hasOwnProperty('做多第几次补单')) {
+                    max_long_add_times = Math.max(max_long_add_times, item['做多第几次补单']);
+                }
+                if (item.hasOwnProperty('做空第几次补单')) {
+                    max_short_add_times = Math.max(max_short_add_times, item['做空第几次补单']);
+                }
+            });
             const max_add_times = Math.max(max_long_add_times, max_short_add_times);
             if (is_playing.value) {
                 if (open_alarm.value && max_add_times >= alarm_num.value) {
@@ -713,6 +775,7 @@ function connectToWebSocket() {
                     show_alarm_stop.value = false;
                 }
             }
+
         }
     }
 
@@ -746,67 +809,17 @@ function assignColorToName(names) {
         color_list_copy.push(color);
     }
 }
-
+function manualReconnect() {
+    const scrollArea = monitorTable.value?.$el.querySelector('.el-table__body-wrapper')
+    console.log(scrollArea.clientWidth);
+    monitorTable.value.setScrollLeft(scrollArea.clientWidth + 1000)
+    ws.close();
+}
 // ------------------------------------------------------------------------------------------------------------websocket相关功能结束----------------------------------------------------------------------------------------------------
 
 const 更新监控的交易所账号 = () => {
     console.log(选中的交易所账号.value)
 }
-
-const 设置止损 = async (row, index) => {
-    const res = await ElMessageBox.confirm(`确定要设置止损吗？如确定，则会覆盖原来的止损规则！设置后如需取消。可以填-9999后再次点次按钮。`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-    });
-    let inputvalues = 0
-    try {
-        inputvalues = stop_loss_inputValues.value[index]
-        inputvalues = parseFloat(inputvalues);
-        if (inputvalues >= 0) {
-            ElMessage({
-                message: "设置止损失败：请输入 小于0 的数字",
-                type: "error"
-            });
-            return;
-        }
-
-    } catch (error) {
-        // 如果inputvalues不能转化为小数，则提示错误
-        ElMessage({
-            message: "设置止损失败：请输入正确的数字",
-            type: "error"
-        });
-        return;
-    }
-    try {
-        const _data = {
-            "stop_loss_value": inputvalues,
-            "symbol": row.symbol,
-            "strategy_id": row.strategy_id,
-            "exchange_id": row.exchange_id
-        }
-        const res = await api_监控墙_设置止损(_data);
-        // console.log("res", res);
-        if (res.status === 200 && res.data.code === 200) {
-            ElMessage({
-                message: "设置止损成功",
-                type: "success"
-            });
-        } else {
-            ElMessage({
-                message: "设置止损失败：" + res.data.msg,
-                type: "error"
-            });
-        }
-    } catch (error) {
-        ElMessage({
-            message: "设置止损失败：" + error,
-            type: "error"
-        });
-    }
-};
-
 
 const 重挂止盈 = async (row, position_side, index) => {
     let inputvalues = 0
@@ -1191,42 +1204,18 @@ const 所有停止 = async () => {
     }
 };
 
-const 根据止损记录map重设止损 = async () => {
-    //遍历止损记录map
-    for (const key in 止损记录map) {
-        if (Object.hasOwnProperty.call(止损记录map, key)) {
-            const _data = 止损记录map[key];
-            console.log(_data)
-            await api_监控墙_设置止损(_data);
-        }
-    }
-}
+
 const 所有重新开始 = async () => {
     let obj_list = []
     smading_infos_list.value.forEach(item => {
         let obj = {
             symbol: item.symbol,
             strategy_id: item.strategy_id,
-            exchange_id: item.exchange_id,
-            net_profit: 显示净盈利.value,
-        }
-        const key = item.strategy_id + item.symbol + item.exchange_id
-        const _data = {
-            'symbol': item.symbol,
-            'strategy_id': item.strategy_id,
-            'exchange_id': item.exchange_id,
-            'stop_loss_value': item.止损阈值,
-        }
-        //判断key是不是在止损记录map，不在则添加，在则覆盖，如果inputvalues为-9999则删除
-        if (item.止损阈值 === -9999 || item.止损阈值 === '') {
-            delete 止损记录map[key]
-        } else {
-            止损记录map[key] = _data
+            exchange_id: item.exchange_id
         }
         obj_list.push(obj)
     });
     try {
-        console.log('止损记录map', 止损记录map)
         const res = await api_监控墙_所有重新开始(obj_list);
         if (res.status === 200 && res.data.code === 200) {
             ElMessage({
@@ -1247,78 +1236,6 @@ const 所有重新开始 = async () => {
     }
 };
 
-
-const 更新多少usdt自动重开 = async () => {
-    try {
-        const _data = {
-            'how_much_restart_monitor': 编辑框净浮盈.value
-        }
-        const res = await api_监控墙_更新多少usdt自动重开(_data);
-        if (res.status === 200 && res.data.code === 200) {
-            ElMessage({
-                message: "成功",
-                type: "success"
-            });
-        } else {
-            ElMessage({
-                message: "失败：" + res.data.msg,
-                type: "error"
-            });
-        }
-    } catch (error) {
-        ElMessage({
-            message: "失败：" + error,
-            type: "error"
-        });
-    }
-};
-
-const 获取多少usdt自动重开 = async () => {
-    try {
-        const res = await api_监控墙_获取多少usdt自动重开();
-        if (res.status === 200 && res.data.code === 200) {
-            编辑框净浮盈.value = res.data.data['how_much_restart_monitor']
-        } else {
-            ElMessage({
-                message: "失败：" + res.data.msg,
-                type: "error"
-            });
-        }
-    } catch (error) {
-        ElMessage({
-            message: "失败：" + error,
-            type: "error"
-        });
-    }
-};
-
-
-const 禁止重开 = async (row) => {
-    try {
-        const _data = {
-            'symbol': row.symbol,
-            'strategy_id': row.strategy_id,
-            'exchange_id': row.exchange_id
-        }
-        const res = await api_监控墙_禁止重开(_data);
-        if (res.status === 200 && res.data.code === 200) {
-            ElMessage({
-                message: "成功",
-                type: "success"
-            });
-        } else {
-            ElMessage({
-                message: "失败：" + res.data.msg,
-                type: "error"
-            });
-        }
-    } catch (error) {
-        ElMessage({
-            message: "失败：" + error,
-            type: "error"
-        });
-    }
-};
 
 const 停止 = async (row) => {
     // 先弹一个提示框确定是否停止
@@ -1484,9 +1401,7 @@ function calculateSum(data, decimalPlaces) {
 
 const getSummaries = (param) => {
     const { columns, data } = param;
-    // console.log("columns", columns, data)
     const sums = [];
-    const sums2 = [];
     columns.forEach((column, index) => {
         if (index === 0) {
             sums[index] = '总计';
@@ -1503,11 +1418,19 @@ const getSummaries = (param) => {
             sums[index] = Math.max(...values);
             return;
         }
-        // if 
         const decimalPlaces = columnsToSummarize[column.property];
         if (decimalPlaces !== undefined) {
             const values = data.map((item) => item[column.property]);
             sums[index] = calculateSum(values, decimalPlaces);
+            if (column.property === '总盈利') {
+                计算总盈利 = parseFloat(sums[index])
+                // console.log('计算总盈利', 计算总盈利)
+            }
+            if (column.property === '仓位浮动盈亏') {
+                // 转成小数
+                计算仓位浮动盈亏 = parseFloat(sums[index])
+                // console.log('计算仓位浮动盈亏', 计算仓位浮动盈亏)
+            }
         } else {
             sums[index] = '';
         }
@@ -1544,9 +1467,6 @@ const cellClassName = ({ row, rowIndex, column, columnIndex }) => {
     if (column.property === '是否暂停' && row['是否暂停'] == '是') {
         return 'highlight-cell';
     }
-    if (column.property === '禁止重开' && row['禁止重开'] == '是') {
-        return 'highlight-cell';
-    }
     if (column.property === '是否暂停' && row['是否暂停'] == '是') {
         return 'highlight-cell';
     }
@@ -1563,11 +1483,32 @@ const cellClassName = ({ row, rowIndex, column, columnIndex }) => {
 };
 // ------------------------------------------------------------------------------------------------------------表格统计相关功能结束----------------------------------------------------------------------------------------------------
 
+const tableData = ref([
+    { id: 10001, name: 'Test1', role: 'Develop', sex: 'Man', age: 28, address: 'test abc' },
+    { id: 10002, name: 'Test2', role: 'Test', sex: 'Women', age: 22, address: 'Guangzhou' },
+    { id: 10003, name: 'Test3', role: 'PM', sex: 'Man', age: 32, address: 'Shanghai' },
+    { id: 10004, name: 'Test4', role: 'Designer', sex: 'Women', age: 24, address: 'Shanghai' }
+])
 
+const gridOptions = reactive({
+    border: true,
+    columns: [
+        { type: 'seq', width: 50 },
+        { field: 'name', title: 'Name', slots: { default: 'name' } },
+        { field: 'sex', title: 'Sex', showHeaderOverflow: true },
+        { field: 'address', title: 'Address', showOverflow: true }
+    ],
+    data: [
+        { id: 10001, name: 'Test1', role: 'Develop', sex: 'Man', age: 28, address: 'test abc' },
+        { id: 10002, name: 'Test2', role: 'Test', sex: 'Women', age: 22, address: 'Guangzhou' },
+        { id: 10003, name: 'Test3', role: 'PM', sex: 'Man', age: 32, address: 'Shanghai' },
+        { id: 10004, name: 'Test4', role: 'Designer', sex: 'Women', age: 24, address: 'Shanghai' }
+    ]
+})
 </script>
   
 <style >
-.el-table .highlight-title {
+.highlight-title {
     background-color: #406be4;
     color: rgb(255, 255, 255);
 }

@@ -281,6 +281,10 @@ const query = async () => {
             let maxY = Math.max(...y3_data);
             let y2_minY = Math.min(...y2_data);
             let y2_maxY = Math.max(...y2_data);
+            // let minY = Math.min(...y2_data);
+            // let maxY = Math.max(...y2_data);
+            // let y2_minY = Math.min(...y5_data);
+            // let y2_maxY = Math.max(...y5_data);
             var myChart = $echarts.init(document.getElementById('main'));
             myChart.setOption({
                 title: {
@@ -335,6 +339,7 @@ const query = async () => {
                         max: y2_maxY,
                         axisLabel: {
                             formatter: '总盈利 {value} USDT'
+                            // formatter: '总手续费 {value} USDT'
                         }
                     }
                 ],
@@ -387,7 +392,7 @@ const query = async () => {
                     // {
                     //     name: '总手续费',
                     //     type: 'line',
-                    //     // yAxisIndex: 1,  // 指定使用右边的Y轴
+                    //     yAxisIndex: 1,  // 指定使用右边的Y轴
                     //     data: y5_data,
                     //     smooth: true
                     // },

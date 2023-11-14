@@ -77,6 +77,23 @@ const routes = [
             meta: { title: '交易所划转记录查询', requiresAuth: true }, // 需要鉴权的路由
           }
         ]
+      }, {
+        path: '/rebot_order',
+        component: () => import('@/views/RobotOrder'),
+        children: [
+          {
+            path: 'panel',
+            name: 'panel',
+            component: () => import('@/views/RobotOrder/Panel.vue'),
+            meta: { title: '辅助下单面板', requiresAuth: true }, // 需要鉴权的路由
+          },
+          {
+            path: 'his',
+            name: 'his',
+            component: () => import('@/views/RobotOrder/His.vue'),
+            meta: { title: '辅助下单历史记录', requiresAuth: true }, // 需要鉴权的路由
+          }
+        ]
       }
       , {
         path: '/md_bots',
@@ -92,6 +109,16 @@ const routes = [
             name: 'smadingMonitor',
             component: () => import('@/views/MdBots/SmadingMonitor.vue'),
             meta: { title: '双马丁监控墙', requiresAuth: true }, // 需要鉴权的路由
+          }, {
+            path: 'smadingMonitor2',
+            name: 'smadingMonitor2',
+            component: () => import('@/views/MdBots/SmadingMonitor2.vue'),
+            meta: { title: '双马丁监控墙（多账号）', requiresAuth: true }, // 需要鉴权的路由
+          }, {
+            path: 'smadingMonitor3',
+            name: 'smadingMonitor3',
+            component: () => import('@/views/MdBots/SmadingMonitor3.vue'),
+            meta: { title: '双马丁监控墙（多账号2）', requiresAuth: true }, // 需要鉴权的路由
           }
         ]
       }

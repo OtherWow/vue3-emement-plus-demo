@@ -10,13 +10,21 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import * as echarts from 'echarts';
 import LoadingButton from '@/components/LoadingButton.vue';
 import locale from 'element-plus/dist/locale/zh-cn.mjs'
+import { createPinia } from 'pinia'
+import VXETable from 'vxe-table'
+import 'vxe-table/lib/style.css'
+
 
 
 const app = createApp(App)
-app.config.errorHandler = (err, vm, info) => {
-    console.error("Captured an error:", err, "Component:", vm, "Info:", info);
-    // 你可以在此添加额外的错误处理，例如将错误信息发送到日志服务器
-};
+
+app.use(VXETable)
+
+app.use(createPinia())
+// app.config.errorHandler = (err, vm, info) => {
+//     // console.error("Captured an error:", err, "Component:", vm, "Info:", info);
+//     // 你可以在此添加额外的错误处理，例如将错误信息发送到日志服务器
+// };
 app.use(ElementPlus, { locale });
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)

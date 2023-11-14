@@ -1,6 +1,6 @@
 <template>
     <el-menu :default-active="route.path" class="el-menu-vertical-demo" :collapse="isClose" active-text-color="#ffd04b"
-        background-color="rgb(47, 64, 80)" text-color="#fff" router collapse-transition="false">
+        background-color="rgb(47, 64, 80)" text-color="#fff" router :collapse-transition="false">
 
         <el-menu-item><template #title><el-text tag="b" type="warning">Buzz</el-text></template></el-menu-item>
         <el-menu-item index="/"><el-icon>
@@ -16,22 +16,23 @@
                 <!-- <el-menu-item index="/goods/category">产品分类</el-menu-item> -->
             </el-menu-item-group>
         </el-sub-menu>
-        <el-sub-menu index="/FundingRate">
+        <!-- <el-sub-menu index="/FundingRate">
             <template #title><el-icon>
                     <Coin />
                 </el-icon><span>资金费率策略管理</span></template>
             <el-menu-item-group>
                 <el-menu-item index="/FundingRate/list" :disabled="true">资金费率策略列表</el-menu-item>
             </el-menu-item-group>
-        </el-sub-menu>
-        <!-- <el-sub-menu index="/exchange_infos" :disabled="true">
+        </el-sub-menu> -->
+        <el-sub-menu index="/rebot_order">
             <template #title><el-icon>
                     <Connection />
-                </el-icon><span>交易所账号管理</span></template>
+                </el-icon><span>辅助下单管理</span></template>
             <el-menu-item-group>
-                <el-menu-item index="/exchange_infos/list">交易所账号列表</el-menu-item>
+                <el-menu-item index="/rebot_order/panel">辅助下单面板</el-menu-item>
+                <el-menu-item index="/rebot_order/his" :disabled="true">辅助下单历史记录</el-menu-item>
             </el-menu-item-group>
-        </el-sub-menu> -->
+        </el-sub-menu>
         <el-sub-menu index="/md_bots">
             <template #title><el-icon>
                     <Operation />
@@ -40,6 +41,8 @@
                 <!-- <el-menu-item index="/md_bots/list">马丁机器人列表</el-menu-item> -->
                 <el-menu-item index="/md_bots/smadingList">双马丁机器人列表</el-menu-item>
                 <el-menu-item index="/md_bots/smadingMonitor">双马丁监控墙</el-menu-item>
+                <!-- <el-menu-item index="/md_bots/smadingMonitor2">监控墙vxe-table</el-menu-item>
+                <el-menu-item index="/md_bots/smadingMonitor3">监控墙虚拟表格</el-menu-item> -->
                 <!-- <el-menu-item index="/md_bots/detail">马丁明细</el-menu-item> -->
             </el-menu-item-group>
         </el-sub-menu>

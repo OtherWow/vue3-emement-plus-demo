@@ -17,9 +17,12 @@
     "md-editor-v3": "^4.8.1",
     "normalize.css": "^8.0.1",
     "pdfjs-dist": "^3.6.172",
+    "pinia": "^2.1.7",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
-    "vuex": "^4.0.0"
+    "vuex": "^4.0.0",
+    "vxe-table": "^4.5.13",
+    "xe-utils": "^3.5.13"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-methods": "^7.18.6",

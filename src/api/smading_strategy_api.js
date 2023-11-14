@@ -17,6 +17,8 @@ export const api_获取双马丁策略列表 = async (is_deleted) => {
 };
 
 
+
+
 //获取指定id的双马丁策略详情
 export const api_获取指定id的双马丁策略详情 = async (id) => {
     const response = await http.get(`/${model_url}/detail/${id}`);
@@ -136,6 +138,56 @@ export const api_市价平仓 = async (symbol, strategy_id, position_side, excha
         exchange_id: exchange_id
     };
     const response = await http_tokyo.post(`/${model_url}/monitor/one_key_close_market`, data);
+    return response;
+};
+
+//    api_监控墙_所有暂停,
+export const api_监控墙_所有暂停 = async (data) => {
+    const response = await http_tokyo.post(`/${model_url}/monitor/all_pause`, data);
+    return response;
+};
+
+//    api_监控墙_更新多少usdt自动重开,
+export const api_监控墙_更新多少usdt自动重开 = async (data) => {
+    const response = await http_tokyo.post(`/${model_url}/monitor/update_how_much_restart`, data);
+    return response;
+};
+
+//    api_监控墙_获取多少usdt自动重开,
+export const api_监控墙_获取多少usdt自动重开 = async (data) => {
+    const response = await http_tokyo.get(`/${model_url}/monitor/get_how_much_restart`);
+    return response;
+};
+
+//    api_监控墙_设置止损,
+export const api_监控墙_设置止损 = async (data) => {
+    const response = await http_tokyo.post(`/${model_url}/monitor/set_stop_profit`, data);
+    return response;
+};
+
+//    api_监控墙_禁止重开,
+export const api_监控墙_禁止重开 = async (data) => {
+    const response = await http_tokyo.post(`/${model_url}/monitor/banned_restart`, data);
+    return response;
+};
+
+
+//api_监控墙_所有停止
+export const api_监控墙_所有停止 = async (data) => {
+    const response = await http_tokyo.post(`/${model_url}/monitor/all_stop`, data);
+    return response;
+};
+
+//api_监控墙_所有重新开始
+export const api_监控墙_所有重新开始 = async (data) => {
+    const response = await http_tokyo.post(`/${model_url}/monitor/all_stop_and_start`, data);
+    return response;
+};
+
+
+// api_监控墙_所有市价平仓
+export const api_监控墙_所有市价平仓 = async (data) => {
+    const response = await http_tokyo.post(`/${model_url}/monitor/all_one_key_close_market`, data);
     return response;
 };
 
