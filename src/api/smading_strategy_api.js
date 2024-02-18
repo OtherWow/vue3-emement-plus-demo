@@ -130,12 +130,13 @@ export const api_恢复指定id的双马丁策略 = async (data) => {
 //-----------------------------------------------------------------------------monitor-------------------------------------------------
 
 //    api_市价平仓,
-export const api_市价平仓 = async (symbol, strategy_id, position_side, exchange_id) => {
+export const api_市价平仓 = async (symbol, strategy_id, position_side, exchange_id,trade_type) => {
     const data = {
         symbol: symbol,
         strategy_id: strategy_id,
         position_side: position_side,
-        exchange_id: exchange_id
+        exchange_id: exchange_id,
+        trade_type:trade_type
     };
     const response = await http_tokyo.post(`/${model_url}/monitor/one_key_close_market`, data);
     return response;

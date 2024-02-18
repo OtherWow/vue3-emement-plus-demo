@@ -30,7 +30,7 @@
                 </el-icon><span>辅助下单管理</span></template>
             <el-menu-item-group>
                 <el-menu-item index="/rebot_order/panel">辅助下单面板</el-menu-item>
-                <el-menu-item index="/rebot_order/his" :disabled="true">辅助下单历史记录</el-menu-item>
+                <!-- <el-menu-item index="/rebot_order/his">辅助下单历史记录</el-menu-item> -->
             </el-menu-item-group>
         </el-sub-menu>
         <el-sub-menu index="/md_bots">

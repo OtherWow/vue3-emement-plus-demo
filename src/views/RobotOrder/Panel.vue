@@ -179,13 +179,14 @@
                             </el-col>
                         </el-row>
                         <el-row :gutter="20">
-                            <el-col :span="11">
+                            <el-col :span="10">
 
                             </el-col>
-                            <el-col :span="10">
-                                <el-button type="primary" @click="submitStrategy" :disabled="currentStrategy.is_run"
-                                    style="width:300px"> 开始下单
+                            <el-col :span="11">
+
+                                <el-button type="primary" @click="submitStrategy" style="width:300px"> 开始下单
                                 </el-button>
+
                             </el-col>
 
 
@@ -571,6 +572,9 @@ function connectToWebSocket() {
         ws = null;
     }
     const token = localStorage.getItem('token');
+    if (token === null) {
+        return;
+    }
     ws = new WebSocket(`ws://54.238.137.72:7878/ws/robot_order/${token}`);
 
     ws.onopen = (event) => {

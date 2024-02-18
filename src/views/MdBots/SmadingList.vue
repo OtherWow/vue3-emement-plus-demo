@@ -186,6 +186,15 @@
               </el-form-item>
               <el-row :gutter="20">
                 <el-col :span="12">
+                  <el-form-item label="交易所" required>
+                    <el-select v-model="exchange" clearable placeholder="请选择" style="width: 100%" filterable
+                      value-key="id" :disabled="currentStrategy.is_run" @change="更新交易所信息()">
+                      <el-option v-for="item in buzz_exchange_options" :key="item.id" :label="item.exchange_name"
+                        :value="item" />
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
                   <el-form-item label="交易所账号" required>
                     <el-select v-model="exchange_info" clearable placeholder="请选择" style="width: 100%" filterable
                       value-key="id" :disabled="currentStrategy.is_run">
@@ -194,6 +203,10 @@
                     </el-select>
                   </el-form-item>
                 </el-col>
+
+              </el-row>
+              <el-row :gutter="20">
+
                 <el-col :span="12">
                   <el-form-item label="交易类型" required>
                     <el-radio-group :disabled="currentStrategy.is_run" v-model="currentStrategy.trade_type"
@@ -208,7 +221,6 @@
                   </el-form-item>
                 </el-col>
               </el-row>
-
               <el-row :gutter="20">
                 <el-col :span="18">
                   <div>
@@ -1388,6 +1400,10 @@ const exchange_info = ref({
   id: '',
   exchange_name: '',
 })
+const exchange = ref({
+  id: '',
+  exchange_name: '',
+})
 const dialogVisible = ref(false)
 const dialogTitle = ref('新增双马丁策略')
 function addStrategy() {
@@ -1450,6 +1466,14 @@ function editStrategy(item) {
   // console.log(exchange_info)
   // exchange_info.value.exchange_name = item.exchange_name;
   dialogVisible.value = true
+}
+const 选择交易所 = async () => {
+  if (currentStrategy.value.exchange == 'binance') {
+    symbol_options.value = [...futures_all_symbols.value]
+  } else if (currentStrategy.value.exchange == 'gate') {
+    symbol_options.value = [...spot_all_symbols.value]
+
+  }
 }
 
 const 选择交易类型 = async () => {
@@ -1521,6 +1545,32 @@ async function 获取现货所有usdt交易对() {
 }
 
 const exchange_options = ref([])
+const buzz_exchange_options = ref([
+  {
+    id: 'binance',
+    exchange_name: '币安',
+  },
+  {
+    id: 'gate',
+    exchange_name: 'Gate',
+  }
+])
+// 更新交易所信息
+async function 更新交易所信息() {
+  try {
+    const res = await 查询当前用户的所有交易所信息()
+    // console.log("res", res);
+    if (res.status === 200) {
+      // console.log(res.data.data);
+      exchange_options.value = res.data.data
+    }
+  } catch (error) {
+    ElMessage({
+      message: '查询当前用户的所有交易所信息失败：' + error,
+      type: 'error',
+    })
+  }
+}
 // 获取交易所信息
 async function getExchangeInfoList() {
   try {

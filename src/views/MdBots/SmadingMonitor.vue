@@ -70,6 +70,10 @@
 
                 </el-col>
             </el-row>
+            <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+                <el-menu-item index="1">现货监控墙</el-menu-item>
+                <el-menu-item index="2">合约监控墙</el-menu-item>
+            </el-menu>
             <el-table id="monitor_table" :data="smading_infos_list" style="width: 100%" :fit="false" border
                 highlight-current-row :summary-method="getSummaries" show-summary :height="monitor_table_height"
                 :row-class-name="tableRowClassName" :cell-class-name="cellClassName" @filter-change="handleFilterChange"
@@ -138,6 +142,9 @@
                 <el-table-column prop="当前版本" label="当前版本" width="110" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="做多本轮时间" label="做多本轮时间" width="70" show-overflow-tooltip
+                    align="center"></el-table-column>
+
+                <el-table-column prop="做多当前挂单数" label="做多当前挂单数" width="90" show-overflow-tooltip
                     align="center"></el-table-column>
                 <el-table-column prop="做多第几次补单" label="做多补单次数" width="70" show-overflow-tooltip align="center">
                     <template #header="{ column }">
@@ -469,7 +476,7 @@ onMounted(async () => {
         黑名单.value = true
     }
 
-    if (localStorage.getItem('username') === 'syb' || localStorage.getItem('username') === 'yyn') {
+    if (localStorage.getItem('username') === 'syb' || localStorage.getItem('username') === 'yyn' || localStorage.getItem('username') === 'yyn2') {
         show_profit.value = true
         突出显示的列.value.push('总手续费')
         列名列表.value.push('总手续费')
@@ -478,6 +485,7 @@ onMounted(async () => {
     }
     更新突出显示的列()
     updateHeight()
+    console.log('监控墙页面加载完成,开始连接websocket')
     connectToWebSocket();
     window.addEventListener('resize', updateHeight);
     setTimeout(() => {
@@ -550,6 +558,7 @@ const keys = [
     "总手续费",
     "禁止重开",
     "止损阈值",
+    "做多当前挂单数",
 ];
 
 // 定义函数，将二维数组转换为对象数组
@@ -592,10 +601,12 @@ function scheduleReconnect() {
 let 自动重开中 = false
 function connectToWebSocket() {
     if (ws) {
+        console.log('已存在ws,关闭WebSocket连接');
         ws.close();
         ws = null;
     }
     const token = localStorage.getItem('token');
+    console.log('开始连接WebSocket:', token);
     ws = new WebSocket(`ws://54.238.137.72:7878/ws/smading/${token}`);
 
     ws.onopen = (event) => {
@@ -607,7 +618,7 @@ function connectToWebSocket() {
         const array2d = JSON.parse(event.data);
         // 调用函数，将二维数组转换为对象数组
         const rawData = websocket_数组转对象(array2d);
-        // console.log("WebSocket 收到消息:", rawData, rawData.error, rawData.error == true);
+        console.log("WebSocket 收到消息:", rawData, rawData.error, rawData.error == true);
         // 检查消息中是否有'error'字段
         if (rawData.error) {
             console.error('WebSocket error received:', rawData.error);
@@ -853,7 +864,7 @@ const 重挂止盈 = async (row, position_side, index) => {
 const 市价平仓 = async (row, position_side) => {
     // console.log(row, position_side);
     try {
-        const res = await api_市价平仓(row.symbol, row.strategy_id, position_side, row.exchange_id);
+        const res = await api_市价平仓(row.symbol, row.strategy_id, position_side, row.exchange_id, row.交易类型);
         // console.log("res", res);
         if (res.status === 200 && res.data.code === 200) {
             ElMessage({
