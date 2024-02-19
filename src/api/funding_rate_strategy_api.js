@@ -6,10 +6,16 @@ export const api_获取资金费率策略列表 = () => {
     return http.get(`/${model_url}/list`);
 };
 
-//获取交易对列表
+//获取币安合约交易对列表
 export const api_获取交易对列表 = () => {
     return http.get(`/${model_url}/symbol_list`);
 };
+
+//获取芝麻现货交易对列表
+export const api_芝麻现货交易对列表 = () => {
+    return http.get(`/${model_url}/gate/spot/symbol_list`);
+};
+
 
 //获取指定id的资金费率策略详情
 export const api_获取指定id的资金费率策略详情 = (id) => {

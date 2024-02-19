@@ -1,0 +1,9 @@
+{
+    "htmlWhitespaceSensitivity": "ignore",
+    "singleQuote":true,
+    "semi":false,
+    "printWidth":1000,
+    "wrapAttributes":false,
+    "useTabs": true,
+    "tabWidth": 4
+}
