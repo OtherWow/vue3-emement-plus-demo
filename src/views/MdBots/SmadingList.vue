@@ -86,7 +86,8 @@
 					</template>
 				</el-table-column>
 				<el-table-column type="index" width="55" label="序号" align="center" />
-				<el-table-column prop="exchange_name" label="交易所" width="100" show-overflow-tooltip sortable align="center"></el-table-column>
+				<el-table-column prop="exchange_type" label="交易所" width="100" show-overflow-tooltip sortable align="center"></el-table-column>
+				<el-table-column prop="exchange_name" label="交易所账号" width="130" show-overflow-tooltip sortable align="center"></el-table-column>
 				<el-table-column prop="trade_type" label="策略类型" width="100" show-overflow-tooltip align="center">
 					<template #default="{ row }">
 						{{ getTradeTypeName(row.trade_type) }}
@@ -139,7 +140,7 @@
 					</template>
 				</el-table-column>
 
-				<el-table-column fixed="right" prop="exchange_name" label="交易所" width="100" show-overflow-tooltip sortable align="center"></el-table-column>
+				<el-table-column fixed="right" prop="exchange_name" label="交易所账号" width="130" show-overflow-tooltip sortable align="center"></el-table-column>
 				<el-table-column fixed="right" label="操作" width="300" align="center">
 					<template #default="{ row }">
 						<el-button type="primary" size="small" @click="editStrategy(row)" plain>编辑</el-button>
@@ -150,7 +151,7 @@
 				</el-table-column>
 			</el-table>
 
-			<el-dialog v-model="dialogVisible" :title="dialogTitle" width="65%" :before-close="handleClose" :close-on-click-modal="false">
+			<el-dialog v-model="dialogVisible" :title="dialogTitle" width="65%" :before-close="handleClose" :close-on-click-modal="false" @closed="关闭策略明细弹窗()">
 				<el-form :model="currentStrategy" label-width="150px">
 					<div class="dialog-content">
 						<el-card class="box-card" style="margin-bottom: 20px; margin-right: 20px; margin-left: 20px; margin-top: 20px">
@@ -165,8 +166,8 @@
 							<el-row :gutter="20">
 								<el-col :span="12">
 									<el-form-item label="交易所" required>
-										<el-select v-model="exchange" clearable placeholder="请选择" style="width: 100%" filterable value-key="id" :disabled="currentStrategy.is_run" @change="更新交易所信息()">
-											<el-option v-for="item in buzz_exchange_options" :key="item.id" :label="item.exchange_name" :value="item" />
+										<el-select v-model="exchange_type" clearable placeholder="请选择" style="width: 100%" filterable value-key="id" :disabled="currentStrategy.is_run" @change="更新交易所信息()">
+											<el-option v-for="item in buzz_exchange_options" :key="item" :label="item" :value="item" />
 										</el-select>
 									</el-form-item>
 								</el-col>
@@ -182,7 +183,7 @@
 								<el-col :span="12">
 									<el-form-item label="交易类型" required>
 										<el-radio-group :disabled="currentStrategy.is_run" v-model="currentStrategy.trade_type" class="my-radio-group" @change="选择交易类型()">
-											<el-radio-button :label="'futures'" class="my-radio-50" :disabled="exchange.id === 'gate'">
+											<el-radio-button :label="'futures'" class="my-radio-50" :disabled="exchange_type === 'gate'">
 												<template #default>合约</template>
 											</el-radio-button>
 											<el-radio-button :label="'spot'" class="my-radio-50">
@@ -994,7 +995,7 @@ import { 查询当前用户的所有交易所信息 } from '@/api/exchange_infos
 import { api_获取交易对列表, api_芝麻现货交易对列表 } from '@/api/funding_rate_strategy_api'
 import { api_停止指定id的双马丁策略, api_删除指定ids的交易对双马丁策略, api_删除指定id的交易对双马丁策略, api_删除指定id的双马丁策略, api_启动指定id的双马丁策略, api_复制交易对信息, api_恢复指定id的双马丁策略, api_新增双马丁策略, api_暂停指定id的双马丁策略, api_更新指定id的双马丁策略, api_模拟数据, api_获取双马丁策略列表 } from '@/api/smading_strategy_api'
 import { ElMessage } from 'element-plus'
-import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref, watch, nextTick } from 'vue'
 
 const strategy_is_deleted = ref(false)
 const change_is_deleted = async () => {
@@ -1007,6 +1008,8 @@ const mock_symbol = ref('')
 onMounted(() => {
 	getSymbolList()
 	getStartegyList(strategy_is_deleted.value)
+	获取币安现货所有usdt交易对()
+	获取gate现货所有usdt交易对()
 	// intervalId.value = setInterval(() => {
 	//     if (dialogVisible.value) {
 	//         return;
@@ -1120,21 +1123,13 @@ const submitCopySymbolStrategy = async () => {
 // 复制策略的方法
 const copyStrategy = () => {
 	//先清空原来的交易所选项
-	exchange_info.value = {}
 	if (!selectedStrategy.value) {
 		console.warn('请先选择一个策略!')
 		ElMessage.warning('请先选择一个策略!')
 		return
 	}
 	currentStrategy.value = { ...selectedStrategy.value }
-
 	dialogTitle.value = '新增双马丁策略'
-	exchange_info.value.id = currentStrategy.value.exchange_id
-	// 需要先判断exchange_options是否为空 然后通过exchange_options找到对应的交易所名称
-	const currentExchange = exchange_options.value.find((exchange) => {
-		return exchange.id === currentStrategy.value.exchange_id
-	})
-	exchange_info.value.exchange_name = currentExchange.exchange_name
 	// 循环 currentStrategy.value.symbol_infos 给symbol_options加入对应的symbol
 	currentStrategy.value.symbols = []
 	for (let key in symbol_precisions) {
@@ -1214,6 +1209,7 @@ function currentStrategy_init() {
 		id: null, // 唯一标识
 		trade_type: 'futures', //交易类型
 		strategy_note: '', // 策略备注
+		exchange_type: null, // 交易所类型
 		exchange_id: null, // 交易所ID
 		exchange_name: null, // 交易所名称
 		symbols: [], // 交易对
@@ -1285,10 +1281,7 @@ const exchange_info = ref({
 	id: '',
 	exchange_name: '',
 })
-const exchange = ref({
-	id: '',
-	exchange_name: '',
-})
+const exchange_type = ref('')
 const dialogVisible = ref(false)
 const dialogTitle = ref('新增双马丁策略')
 function addStrategy() {
@@ -1299,17 +1292,28 @@ function addStrategy() {
 		id: '',
 		exchange_name: '',
 	}
+	exchange_type.value = ''
 	dialogVisible.value = true
 }
 
 // 编辑双马丁策略
-function editStrategy(item) {
+const editStrategy = async (item) => {
 	console.log(item)
 	dialogTitle.value = '编辑双马丁策略'
 	当前策略对应的对冲马丁的策略列表.value = []
 	currentStrategy.value = item
+	exchange_type.value = item.exchange_type
+	await 更新交易所信息()
 	if (currentStrategy.value.trade_type === 'spot') {
-		symbol_options.value = [...spot_all_symbols.value]
+		if (item.exchange_type === 'gate') {
+			if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
+				symbol_options.value = [...gate_spot_all_symbols.value]
+			}
+		} else {
+			if (binance_spot_all_symbols.value.length !== symbol_options.value.length) {
+				symbol_options.value = [...binance_spot_all_symbols.value]
+			}
+		}
 	} else {
 		symbol_options.value = [...futures_all_symbols.value]
 	}
@@ -1326,11 +1330,11 @@ function editStrategy(item) {
 	})
 	// console.log("当前策略对应的对冲马丁的策略列表", 当前策略对应的对冲马丁的策略列表.value)
 	// 需要先判断exchange_options是否为空 然后通过exchange_options找到对应的交易所名称
-	const currentExchange = exchange_options.value.find((exchange) => {
-		return exchange.id === item.exchange_id
+	const currentExchange = exchange_options.value.find((e) => {
+		return e.id === item.exchange_id
 	})
-	对冲马丁策略id.value = currentStrategy.value.hedge_mading_strategy_id
 	exchange_info.value = currentExchange
+	对冲马丁策略id.value = currentStrategy.value.hedge_mading_strategy_id
 	// 循环 currentStrategy.value.symbol_infos 给symbol_options加入对应的symbol
 	currentStrategy.value.symbols = []
 	for (let key in symbol_precisions) {
@@ -1344,23 +1348,24 @@ function editStrategy(item) {
 		updateSymbolPrecisionFields(currentStrategy.value.symbols)
 	}
 
-	// console.log(exchange_info)
 	// exchange_info.value.exchange_name = item.exchange_name;
 	dialogVisible.value = true
 }
-const 选择交易所 = async () => {
-	if (currentStrategy.value.exchange == 'binance') {
-		symbol_options.value = [...futures_all_symbols.value]
-	} else if (currentStrategy.value.exchange == 'gate') {
-		symbol_options.value = [...spot_all_symbols.value]
-	}
-}
 
 const 选择交易类型 = async () => {
-	if (currentStrategy.value.trade_type == 'futures') {
+	if (currentStrategy.value.trade_type === 'futures') {
 		symbol_options.value = [...futures_all_symbols.value]
-	} else if (currentStrategy.value.trade_type == 'spot') {
-		symbol_options.value = [...spot_all_symbols.value]
+	} else if (currentStrategy.value.trade_type === 'spot') {
+		if (currentStrategy.value.exchange_type === 'gate') {
+			if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
+				symbol_options.value = [...gate_spot_all_symbols.value]
+			}
+		} else {
+			if (binance_spot_all_symbols.value.length !== symbol_options.value.length) {
+				symbol_options.value = [...binance_spot_all_symbols.value]
+			}
+		}
+
 		currentStrategy.value.position_side = 'LONG'
 	}
 }
@@ -1402,58 +1407,74 @@ const getTradeTypeName = (tradeType) => {
 			return ''
 	}
 }
-const spot_all_symbols = ref([])
-async function 获取现货所有usdt交易对() {
+const binance_spot_all_symbols = ref([])
+const gate_spot_all_symbols = ref([])
+async function 获取币安现货所有usdt交易对() {
 	try {
 		let res = []
-		if (exchange.value.id === 'gate') {
-			res = await api_芝麻现货交易对列表()
-		} else {
-			// 默认为币安
-			res = await api_获取现货所有usdt交易对()
-		}
-
+		// 默认为币安
+		res = await api_获取现货所有usdt交易对()
 		// console.log("res", res);
 		if (res.status === 200 && res.data.code === 200) {
 			// console.log(res.data.data);
-			spot_all_symbols.value = res.data.data
+			binance_spot_all_symbols.value = res.data.data
 		} else {
 			ElMessage({
-				message: '获取现货所有usdt交易对失败：' + res.data.msg,
+				message: '获取币安现货所有usdt交易对失败：' + res.data.msg,
 				type: 'error',
 			})
 		}
 	} catch (error) {
 		ElMessage({
-			message: '获取现货所有usdt交易对失败：' + error,
+			message: '获取币安现货所有usdt交易对失败：' + error,
+			type: 'error',
+		})
+	}
+}
+
+async function 获取gate现货所有usdt交易对() {
+	try {
+		let res = []
+		res = await api_芝麻现货交易对列表()
+		// console.log("res", res);
+		if (res.status === 200 && res.data.code === 200) {
+			// console.log(res.data.data);
+			gate_spot_all_symbols.value = res.data.data
+		} else {
+			ElMessage({
+				message: '获取芝麻现货所有usdt交易对失败：' + res.data.msg,
+				type: 'error',
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '获取芝麻现货所有usdt交易对失败：' + error,
 			type: 'error',
 		})
 	}
 }
 
 const exchange_options = ref([])
-const buzz_exchange_options = ref([
-	{
-		id: '币安',
-		exchange_name: '币安',
-	},
-	{
-		id: 'gate',
-		exchange_name: 'Gate',
-	},
-])
+const buzz_exchange_options = ref(['币安', 'gate'])
 // 更新交易所信息
 async function 更新交易所信息() {
-	await 获取现货所有usdt交易对()
-	if (exchange.value.id == 'gate' && currentStrategy.value.trade_type == 'spot') {
-		symbol_options.value = [...spot_all_symbols.value]
+	currentStrategy.value.exchange_type = exchange_type.value
+	if (currentStrategy.value.exchange_type === 'gate') {
+		if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
+			symbol_options.value = [...gate_spot_all_symbols.value]
+		}
+	} else {
+		if (binance_spot_all_symbols.value.length !== symbol_options.value.length) {
+			symbol_options.value = [...binance_spot_all_symbols.value]
+		}
 	}
 	try {
-		const res = await 查询当前用户的所有交易所信息(exchange.value.id)
+		const res = await 查询当前用户的所有交易所信息(exchange_type.value)
 		// console.log("res", res);
 		if (res.status === 200) {
 			// console.log(res.data.data);
 			exchange_options.value = res.data.data
+			exchange_info.value = {}
 		}
 	} catch (error) {
 		ElMessage({
@@ -1535,6 +1556,7 @@ const mock_short_table_list = ref([])
 const 模拟数据 = async () => {
 	currentStrategy.value.exchange_id = exchange_info.value.id
 	currentStrategy.value.exchange_name = exchange_info.value.exchange_name
+	currentStrategy.value.exchange_type = exchange_type.value
 	// 遍历symbol_precisions 如果精度是空字符串的就转成0
 	for (const key in symbol_precisions) {
 		if (!symbol_precisions[key]) {
@@ -1581,6 +1603,7 @@ const 模拟数据 = async () => {
 async function submitStrategy() {
 	currentStrategy.value.exchange_id = exchange_info.value.id
 	currentStrategy.value.exchange_name = exchange_info.value.exchange_name
+	currentStrategy.value.exchange_type = exchange_type.value
 	// 遍历symbol_precisions 如果精度是空字符串的就转成0
 	for (const key in symbol_precisions) {
 		if (!symbol_precisions[key]) {
@@ -1971,6 +1994,13 @@ const selectContinueSymbolStrategy = async (parent_row) => {
 			message: '请先选择一个交易对策略',
 			type: 'error',
 		})
+	}
+}
+
+const 关闭策略明细弹窗 = async () => {
+	if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
+		await nextTick() // 等待DOM更新
+		symbol_options.value = [...gate_spot_all_symbols.value]
 	}
 }
 </script>
