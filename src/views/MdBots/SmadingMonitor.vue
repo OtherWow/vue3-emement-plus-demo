@@ -88,7 +88,6 @@
 				<el-table-column :fixed="选择框_运行时间 ? 'left' : false" prop="运行时间" label="运行时间" width="90" show-overflow-tooltip align="center"></el-table-column>
 				<el-table-column :fixed="选择框_每小时盈利 ? 'left' : false" prop="每小时盈利" label="每小时盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
 				<el-table-column prop="当前权重" label="当前权重" width="90" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="最新价格" label="最新价格" width="90" show-overflow-tooltip align="center"></el-table-column>
 				<el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center"></el-table-column>
 				<el-table-column prop="止盈总利润" label="止盈总利润" width="100" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
 				<el-table-column prop="做空止盈次数" label="做空止盈次数" width="120" show-overflow-tooltip align="center"></el-table-column>
@@ -111,6 +110,7 @@
 				<el-table-column prop="总浮盈(已扣手续费)" label="总浮盈(已扣手续费)" width="150" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
 
 				<el-table-column prop="当前版本" label="当前版本" width="110" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="最新价格" label="最新价格" width="90" show-overflow-tooltip align="center"></el-table-column>
 				<el-table-column prop="做多本轮时间" label="做多本轮时间" width="70" show-overflow-tooltip align="center"></el-table-column>
 
 				<el-table-column prop="做多当前挂单数" label="做多当前挂单数" width="90" show-overflow-tooltip align="center"></el-table-column>
@@ -183,7 +183,7 @@
 
 				<el-table-column prop="是否停止" label="是否停止" width="60" show-overflow-tooltip align="center"></el-table-column>
 				<el-table-column :fixed="选择框_仓位浮动盈亏 ? 'right' : false" prop="仓位浮动盈亏" label="仓位浮动盈亏" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column :fixed="选择框_总手续费 ? 'right' : false" prop="总手续费" label="总手续费" width="85" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column :fixed="选择框_总手续费 ? 'right' : false" prop="总手续费" label="总手续费" width="85" show-overflow-tooltip align="center" v-if="false"></el-table-column>
 				<el-table-column :fixed="选择框_总盈利 ? 'right' : false" prop="总盈利" label="总盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
 			</el-table>
 		</el-main>
@@ -191,7 +191,7 @@
 </template>
 
 <script setup>
-import { api_仓位重启, api_停止, api_切换成对冲双马丁, api_启动, api_市价平仓, api_恢复, api_暂停, api_重挂止盈, api_重新启动, api_监控墙_暂停补单, api_监控墙_恢复补单, api_监控墙_所有市价平仓, api_监控墙_所有停止, api_监控墙_所有暂停, api_监控墙_所有重新开始, api_监控墙_禁止重开, api_监控墙_设置止损, api_监控墙_更新多少usdt自动重开, api_监控墙_获取多少usdt自动重开 } from '@/api/smading_strategy_api'
+import { api_仓位重启, api_停止, api_切换成对冲双马丁, api_启动, api_市价平仓, api_恢复, api_暂停, api_监控墙_恢复补单, api_监控墙_所有停止, api_监控墙_所有市价平仓, api_监控墙_所有暂停, api_监控墙_所有重新开始, api_监控墙_暂停补单, api_监控墙_更新多少usdt自动重开, api_监控墙_禁止重开, api_监控墙_获取多少usdt自动重开, api_监控墙_设置止损, api_重挂止盈, api_重新启动 } from '@/api/smading_strategy_api'
 import router from '@/router' // 确保你的路由实例已经导入
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 // import { useMonitorStore } from '@/store/monitor';
@@ -465,11 +465,11 @@ function connectToWebSocket() {
 		ws = null
 	}
 	const token = localStorage.getItem('token')
-	console.log('开始连接WebSocket:', token)
+	// console.log('开始连接WebSocket:', token)
 	ws = new WebSocket(`ws://54.238.137.72:7878/ws/smading/${token}`)
 
 	ws.onopen = (event) => {
-		console.log('WebSocket 已连接:', event)
+		// console.log('WebSocket 已连接:', event)
 		currentReconnectDelay = INITIAL_RECONNECT_DELAY // 重置当前的重连延迟
 	}
 
@@ -477,7 +477,7 @@ function connectToWebSocket() {
 		const array2d = JSON.parse(event.data)
 		// 调用函数，将二维数组转换为对象数组
 		const rawData = websocket_数组转对象(array2d)
-		console.log('WebSocket 收到消息:', rawData, rawData.error, rawData.error == true)
+		// console.log('WebSocket 收到消息:', rawData, rawData.error, rawData.error == true)
 		// 检查消息中是否有'error'字段
 		if (rawData.error) {
 			console.error('WebSocket error received:', rawData.error)

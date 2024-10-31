@@ -3,7 +3,7 @@
 		<el-main>
 			<el-row :gutter="20" style="margin-bottom: 20px">
 				<el-col :span="6">
-					<el-button type="primary" @click="addStrategy()">新增策略</el-button>
+					<el-button type="primary" @click="addStrategy()" v-if="show">新增策略</el-button>
 					<el-button type="primary" @click="copyStrategy()">复制选中策略</el-button>
 					<el-button type="primary" @click="copySymbolsInfo()">复制币种信息</el-button>
 				</el-col>
@@ -112,9 +112,9 @@
 					</template>
 				</el-table-column>
 
-				<el-table-column prop="pos_value_1st" label="首单价值" width="85" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="cover_order_pos_value_1st" label="补单首单" width="85" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="all_cover_order_count" label="补单次数" width="85" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="pos_value_1st" label="首单价值" width="85" show-overflow-tooltip align="center" v-if="show"></el-table-column>
+				<el-table-column prop="cover_order_pos_value_1st" label="补单首单" width="85" show-overflow-tooltip align="center" v-if="show"></el-table-column>
+				<el-table-column prop="all_cover_order_count" label="补单次数" width="85" show-overflow-tooltip align="center" v-if="show"></el-table-column>
 
 				<el-table-column label="对冲马丁" width="90" show-overflow-tooltip align="center">
 					<template #default="{ row }">
@@ -215,9 +215,12 @@
 							</el-row>
 							<!-- 交易对的多选框 -->
 							<el-form-item label="币种" required>
-								<el-select v-model="currentStrategy.symbols" @change="updateSymbolPrecisionFields" clearable placeholder="请选择" style="width: 100%" multiple filterable>
-									<el-option v-for="item in symbol_options" :key="item.symbol" :label="item.symbol" :value="item.symbol" />
-								</el-select>
+								<el-select-v2 v-model="currentStrategy.symbols" :options="symbol_options" placeholder="请选择" @change="updateSymbolPrecisionFields" style="width: 100%" multiple clearable filterable value-key="symbol" />
+								<!-- <el-select v-model="currentStrategy.symbols" @change="updateSymbolPrecisionFields" clearable
+                  placeholder="请选择" style="width: 100%" multiple filterable>
+                  <el-option v-for="item in symbol_options" :key="item.symbol" :label="item.symbol"
+                    :value="item.symbol" />
+                </el-select> -->
 							</el-form-item>
 
 							<!-- 动态的交易对精度编辑框 -->
@@ -230,7 +233,7 @@
 							</el-row>
 						</el-card>
 
-						<el-card class="box-card" style="margin-right: 20px; margin-left: 20px" :disabled="currentStrategy.is_run">
+						<el-card class="box-card" style="margin-right: 20px; margin-left: 20px" :disabled="currentStrategy.is_run" v-if="show">
 							<template #header>
 								<div class="card-header">
 									<span>下单设置</span>
@@ -357,7 +360,7 @@
 								</el-col>
 							</el-row>
 						</el-card>
-						<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px" v-if="currentStrategy.trade_type === 'futures'">
+						<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px" v-if="show && currentStrategy.trade_type === 'futures'">
 							<template #header>
 								<div class="card-header">
 									<span>对冲马丁设置</span>
@@ -436,7 +439,7 @@
 								<el-col :span="12"></el-col>
 							</el-row>
 						</el-card>
-						<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px">
+						<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px" v-if="show">
 							<template #header>
 								<div class="card-header">
 									<span>止盈设置</span>
@@ -496,7 +499,7 @@
 								<el-col :span="12">
 									<div>
 										<el-form-item label="高单重置止盈" required>
-											<el-radio-group v-model.number="currentStrategy.open_high_order_reset_take_profit" class="my-radio-group">
+											<el-radio-group v-model.number="currentStrategy.open_high_order_reset_take_profit" :disabled="currentStrategy.is_run" class="my-radio-group">
 												<el-radio-button :label="true" class="my-radio-50">
 													<template #default>开启</template>
 												</el-radio-button>
@@ -527,7 +530,7 @@
 								<el-col :span="12">
 									<div>
 										<el-form-item label="横盘重挂止盈" required>
-											<el-radio-group v-model.number="currentStrategy.open_hp_order_reset_take_profit" class="my-radio-group">
+											<el-radio-group v-model.number="currentStrategy.open_hp_order_reset_take_profit" :disabled="currentStrategy.is_run" class="my-radio-group">
 												<el-radio-button :label="true" class="my-radio-50">
 													<template #default>开启</template>
 												</el-radio-button>
@@ -713,7 +716,7 @@
 							</el-row>
 						</el-card>
 
-						<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px">
+						<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px" v-if="show">
 							<template #header>
 								<div class="card-header">
 									<span>止损设置</span>
@@ -736,7 +739,7 @@
 								</el-col>
 								<el-col :span="12" v-if="currentStrategy.open_stop_profit && !currentStrategy.open_stop_profit_switch_hedge_mading">
 									<el-form-item label="止损后等待时间" required>
-										<el-input type="number" v-model.number="currentStrategy.stop_profit_wait_time">
+										<el-input type="number" v-model.number="currentStrategy.stop_profit_wait_time" :disabled="currentStrategy.is_run">
 											<template #append>分钟</template>
 										</el-input>
 									</el-form-item>
@@ -747,7 +750,7 @@
 								<el-col :span="12">
 									<div>
 										<el-form-item label="止损后切换对冲马丁" required>
-											<el-radio-group v-model.number="currentStrategy.open_stop_profit_switch_hedge_mading" class="my-radio-group">
+											<el-radio-group v-model.number="currentStrategy.open_stop_profit_switch_hedge_mading" :disabled="currentStrategy.is_run" class="my-radio-group">
 												<el-radio-button :label="true" class="my-radio-50">
 													<template #default>开启</template>
 												</el-radio-button>
@@ -760,7 +763,7 @@
 								</el-col>
 								<el-col :span="12" v-if="currentStrategy.open_stop_profit_switch_hedge_mading">
 									<el-form-item label="对冲马丁策略" required>
-										<el-select v-model="对冲马丁策略id" @change="当前策略对应的对冲马丁的策略改变()" clearable placeholder="请选择对应策略的序号" style="width: 100%" filterable>
+										<el-select v-model="对冲马丁策略id" @change="当前策略对应的对冲马丁的策略改变()" clearable placeholder="请选择对应策略的序号" style="width: 100%" filterable :disabled="currentStrategy.is_run">
 											<el-option v-for="item in 当前策略对应的对冲马丁的策略列表" :key="item.value" :label="item.label" :value="item.value" />
 										</el-select>
 									</el-form-item>
@@ -771,7 +774,7 @@
 								<el-col :span="12" v-if="currentStrategy.open_stop_profit">
 									<div>
 										<el-form-item label="止损后自动暂停" required>
-											<el-radio-group v-model.number="currentStrategy.after_stop_profit_auto_pause" class="my-radio-group">
+											<el-radio-group v-model.number="currentStrategy.after_stop_profit_auto_pause" :disabled="currentStrategy.is_run" class="my-radio-group">
 												<el-radio-button :label="true" class="my-radio-50">
 													<template #default>开启</template>
 												</el-radio-button>
@@ -784,7 +787,7 @@
 								</el-col>
 								<el-col :span="12" v-if="currentStrategy.open_stop_profit">
 									<el-form-item label="止损前等待时间" required>
-										<el-input type="number" v-model.number="currentStrategy.before_stop_profit_wait_time">
+										<el-input type="number" v-model.number="currentStrategy.before_stop_profit_wait_time" :disabled="currentStrategy.is_run">
 											<template #append>秒</template>
 										</el-input>
 									</el-form-item>
@@ -792,7 +795,7 @@
 							</el-row>
 						</el-card>
 
-						<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px">
+						<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px" v-if="show">
 							<template #header>
 								<div class="card-header">
 									<span>告警设置</span>
@@ -801,7 +804,7 @@
 							<el-row :gutter="20">
 								<el-col :span="12">
 									<el-form-item label="补到多少单微信告警">
-										<el-input type="number" v-model.number="currentStrategy.cover_alarm_num" placeholder="比如第20补单挂上后触发告警"></el-input>
+										<el-input type="number" v-model.number="currentStrategy.cover_alarm_num" :disabled="currentStrategy.is_run" placeholder="比如第20补单挂上后触发告警"></el-input>
 									</el-form-item>
 								</el-col>
 								<el-col :span="12">
@@ -815,7 +818,7 @@
 												</el-icon>
 											</el-tooltip>
 										</template>
-										<el-input type="number" v-model.number="currentStrategy.cover_order_pause_num" placeholder=""></el-input>
+										<el-input type="number" v-model.number="currentStrategy.cover_order_pause_num" :disabled="currentStrategy.is_run" placeholder=""></el-input>
 									</el-form-item>
 								</el-col>
 							</el-row>
@@ -864,14 +867,15 @@
 							<el-row :gutter="2" v-if="currentStrategy.open_prevent_falls">
 								<el-col :span="8">
 									<el-form-item label="触发条件">
-										<el-input type="number" v-model.number="currentStrategy.falls_second_num">
+										<el-input type="number" v-model.number="currentStrategy.falls_second_num" :disabled="currentStrategy.is_run">
 											<template #append>秒内</template>
 										</el-input>
 									</el-form-item>
 								</el-col>
 								<el-col :span="8">
-									<el-input type="number" v-model.number="currentStrategy.falls_cover_num">
+									<el-input type="number" v-model.number="currentStrategy.falls_cover_num" :disabled="currentStrategy.is_run">
 										<template #prepend>补单</template>
+
 										<template #append>次</template>
 									</el-input>
 								</el-col>
@@ -913,7 +917,7 @@
 					<el-row :gutter="20">
 						<el-col :span="3">
 							<el-button @click="dialogVisible = false">取消</el-button>
-							<el-button type="primary" @click="submitStrategy" :disabled="currentStrategy.is_run">确定</el-button>
+							<el-button type="primary" @click="submitStrategy">确定</el-button>
 						</el-col>
 						<el-col :span="3">
 							<el-select v-model="mock_symbol" clearable placeholder="请选择" style="width: 100%" filterable>
@@ -928,9 +932,7 @@
 			</el-dialog>
 
 			<el-dialog v-model="copyDialogVisible" title="复制交易对信息" width="35%" :before-close="copyHandleClose" :close-on-click-modal="false">
-				<el-select v-model="target_copy_id" @change="updateSymbolPrecisionFields" clearable placeholder="请选择对应策略的序号" style="width: 100%" multiple filterable>
-					<el-option v-for="item in strategy_index_options" :key="item.value" :label="item.label" :value="item.value" />
-				</el-select>
+				<el-select-v2 v-model="currentStrategy.symbols" :options="symbol_options" placeholder="请选择" @change="updateSymbolPrecisionFields" style="width: 100%" multiple clearable filterable value-key="symbol" />
 				<div slot="footer" class="dialog-footer" style="margin-top: 20px">
 					<el-button @click="copyDialogVisible = false">取消</el-button>
 					<el-button type="primary" @click="submitCopySymbolStrategy">确定</el-button>
@@ -992,12 +994,13 @@
 <script setup>
 import { api_获取现货所有usdt交易对 } from '@/api/binance_api'
 import { 查询当前用户的所有交易所信息 } from '@/api/exchange_infos_api'
-import { api_获取交易对列表, api_芝麻现货交易对列表 } from '@/api/funding_rate_strategy_api'
+import { api_芝麻现货交易对列表, api_获取交易对列表 } from '@/api/funding_rate_strategy_api'
 import { api_停止指定id的双马丁策略, api_删除指定ids的交易对双马丁策略, api_删除指定id的交易对双马丁策略, api_删除指定id的双马丁策略, api_启动指定id的双马丁策略, api_复制交易对信息, api_恢复指定id的双马丁策略, api_新增双马丁策略, api_暂停指定id的双马丁策略, api_更新指定id的双马丁策略, api_模拟数据, api_获取双马丁策略列表 } from '@/api/smading_strategy_api'
 import { ElMessage } from 'element-plus'
-import { onBeforeUnmount, onMounted, reactive, ref, watch, nextTick } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
 const strategy_is_deleted = ref(false)
+const show = ref(true)
 const change_is_deleted = async () => {
 	await getStartegyList(strategy_is_deleted.value)
 }
@@ -1129,6 +1132,7 @@ const copyStrategy = () => {
 		return
 	}
 	currentStrategy.value = { ...selectedStrategy.value }
+	exchange_type.value = currentStrategy.exchange_type
 	dialogTitle.value = '新增双马丁策略'
 	// 循环 currentStrategy.value.symbol_infos 给symbol_options加入对应的symbol
 	currentStrategy.value.symbols = []
@@ -1179,6 +1183,7 @@ function updateSymbolPrecisionFields(symbols) {
 	// console.log(symbol_precisions)
 	const newSymbolPrecisions = {}
 	symbols.forEach((symbol) => {
+		console.log(symbol)
 		newSymbolPrecisions[symbol] = symbol_precisions[symbol] || '' // 保留已经填写的精度值，或者初始化为空字符串
 	})
 	for (const key in symbol_precisions) {
@@ -1307,15 +1312,24 @@ const editStrategy = async (item) => {
 	if (currentStrategy.value.trade_type === 'spot') {
 		if (item.exchange_type === 'gate') {
 			if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
-				symbol_options.value = [...gate_spot_all_symbols.value]
+				symbol_options.value = gate_spot_all_symbols.value.map((item) => ({
+					value: item.symbol,
+					label: item.symbol,
+				}))
 			}
 		} else {
 			if (binance_spot_all_symbols.value.length !== symbol_options.value.length) {
-				symbol_options.value = [...binance_spot_all_symbols.value]
+				symbol_options.value = binance_spot_all_symbols.value.map((item) => ({
+					value: item.symbol,
+					label: item.symbol,
+				}))
 			}
 		}
 	} else {
-		symbol_options.value = [...futures_all_symbols.value]
+		symbol_options.value = futures_all_symbols.value.map((item) => ({
+			value: item.symbol,
+			label: item.symbol,
+		}))
 	}
 	smading_strategy_list.value.forEach((strategy, index) => {
 		// console.log(strategy.exchange_name, currentStrategy.value.exchange_name, strategy.position_side, currentStrategy.value.position_side)
@@ -1354,15 +1368,24 @@ const editStrategy = async (item) => {
 
 const 选择交易类型 = async () => {
 	if (currentStrategy.value.trade_type === 'futures') {
-		symbol_options.value = [...futures_all_symbols.value]
+		symbol_options.value = futures_all_symbols.value.map((item) => ({
+			value: item.symbol,
+			label: item.symbol,
+		}))
 	} else if (currentStrategy.value.trade_type === 'spot') {
 		if (currentStrategy.value.exchange_type === 'gate') {
 			if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
-				symbol_options.value = [...gate_spot_all_symbols.value]
+				symbol_options.value = gate_spot_all_symbols.value.map((item) => ({
+					value: item.symbol,
+					label: item.symbol,
+				}))
 			}
 		} else {
 			if (binance_spot_all_symbols.value.length !== symbol_options.value.length) {
-				symbol_options.value = [...binance_spot_all_symbols.value]
+				symbol_options.value = binance_spot_all_symbols.value.map((item) => ({
+					value: item.symbol,
+					label: item.symbol,
+				}))
 			}
 		}
 
@@ -1379,7 +1402,10 @@ async function getSymbolList() {
 		if (res.status === 200 && res.data.code === 200) {
 			// console.log(res.data.data);
 			futures_all_symbols.value = res.data.data
-			symbol_options.value = [...futures_all_symbols.value]
+			symbol_options.value = futures_all_symbols.value.map((item) => ({
+				value: item.symbol,
+				label: item.symbol,
+			}))
 		} else {
 			ElMessage({
 				message: '查询交易对列表失败：' + res.data.msg,
@@ -1461,11 +1487,17 @@ async function 更新交易所信息() {
 	currentStrategy.value.exchange_type = exchange_type.value
 	if (currentStrategy.value.exchange_type === 'gate') {
 		if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
-			symbol_options.value = [...gate_spot_all_symbols.value]
+			symbol_options.value = gate_spot_all_symbols.value.map((item) => ({
+				value: item.symbol,
+				label: item.symbol,
+			}))
 		}
 	} else {
 		if (binance_spot_all_symbols.value.length !== symbol_options.value.length) {
-			symbol_options.value = [...binance_spot_all_symbols.value]
+			symbol_options.value = binance_spot_all_symbols.value.map((item) => ({
+				value: item.symbol,
+				label: item.symbol,
+			}))
 		}
 	}
 	try {
@@ -1998,10 +2030,10 @@ const selectContinueSymbolStrategy = async (parent_row) => {
 }
 
 const 关闭策略明细弹窗 = async () => {
-	if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
-		await nextTick() // 等待DOM更新
-		symbol_options.value = [...gate_spot_all_symbols.value]
-	}
+	// if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
+	//   await nextTick() // 等待DOM更新
+	//   symbol_options.value = [...gate_spot_all_symbols.value]
+	// }
 }
 </script>
 

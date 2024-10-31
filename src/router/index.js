@@ -122,24 +122,24 @@ const routes = [
           }
         ]
       }
-      , {
-        path: '/partner_plan',
-        component: () => import('@/views/PartnerPlan'),
-        children: [
-          {
-            path: 'partner_plan',
-            name: 'partner_plan',
-            component: () => import('@/views/PartnerPlan/PartnerPlan.vue'),
-            meta: { title: '交易合伙人计划', requiresAuth: true }, // 需要鉴权的路由
-          }
-          ,{
-            path: 'my_cash_back',
-            name: 'my_cash_back',
-            component: () => import('@/views/PartnerPlan/MyCashBack.vue'),
-            meta: { title: '我的返现', requiresAuth: true }, // 需要鉴权的路由
-          }
-        ]
-      }
+      // , {
+      //   path: '/partner_plan',
+      //   component: () => import('@/views/PartnerPlan'),
+      //   children: [
+      //     {
+      //       path: 'partner_plan',
+      //       name: 'partner_plan',
+      //       component: () => import('@/views/PartnerPlan/PartnerPlan.vue'),
+      //       meta: { title: '交易合伙人计划', requiresAuth: true }, // 需要鉴权的路由
+      //     }
+      //     ,{
+      //       path: 'my_cash_back',
+      //       name: 'my_cash_back',
+      //       component: () => import('@/views/PartnerPlan/MyCashBack.vue'),
+      //       meta: { title: '我的返现', requiresAuth: true }, // 需要鉴权的路由
+      //     }
+      //   ]
+      // }
       ,{
         path: '/disclaimer',
         name: 'disclaimer',
