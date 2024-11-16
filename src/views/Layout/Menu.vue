@@ -47,12 +47,12 @@
 				<el-icon>
 					<Operation />
 				</el-icon>
-				<span>马丁机器人管理</span>
+				<span>马丁策略管理</span>
 			</template>
 			<el-menu-item-group>
 				<!-- <el-menu-item index="/md_bots/list">马丁机器人列表</el-menu-item> -->
-				<el-menu-item index="/md_bots/smadingList">双马丁机器人列表</el-menu-item>
-				<el-menu-item index="/md_bots/smadingMonitor">双马丁监控墙</el-menu-item>
+				<el-menu-item index="/md_bots/smadingList">基础马丁策略列表</el-menu-item>
+				<el-menu-item index="/md_bots/smadingMonitor">基础马丁监控墙</el-menu-item>
 				<!-- <el-menu-item index="/md_bots/smadingMonitor2">监控墙vxe-table</el-menu-item>
                 <el-menu-item index="/md_bots/smadingMonitor3">监控墙虚拟表格</el-menu-item> -->
 				<!-- <el-menu-item index="/md_bots/detail">马丁明细</el-menu-item> -->
