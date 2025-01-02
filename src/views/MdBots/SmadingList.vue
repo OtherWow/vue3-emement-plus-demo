@@ -2,22 +2,22 @@
 	<div class="common-layout">
 		<el-container>
 			<el-header height="120">
-				<el-form :model="form" label-width="auto">
+				<el-form :model="form_data" label-width="auto">
 					<el-row :gutter="20" style="margin-top: 30px">
 						<el-col :xs="24" :sm="8" :md="8" :lg="4" :xl="4">
 							<el-form-item label="策略名称">
-								<el-input v-model="form.name" />
+								<el-input v-model="form_data.name" />
 							</el-form-item>
 						</el-col>
 
 						<el-col :xs="24" :sm="8" :md="8" :lg="4" :xl="4">
 							<el-form-item label="创建人">
-								<el-input v-model="form.name" />
+								<el-input v-model="form_data.username" />
 							</el-form-item>
 						</el-col>
 						<el-col :xs="24" :sm="8" :md="8" :lg="4" :xl="4">
 							<el-form-item label="是否共享">
-								<el-select @change="change_is_deleted" v-model="strategy_is_deleted" clearable placeholder="请选择" style="width: 100%">
+								<el-select v-model="form_data.is_share" clearable placeholder="请选择" style="width: 100%">
 									<el-option label="是" :value="true" />
 									<el-option label="否" :value="false" />
 								</el-select>
@@ -25,7 +25,7 @@
 						</el-col>
 						<el-col :xs="24" :sm="8" :md="8" :lg="4" :xl="4">
 							<el-form-item label="是否运行中">
-								<el-select @change="change_is_deleted" v-model="strategy_is_deleted" clearable placeholder="请选择" style="width: 100%">
+								<el-select v-model="form_data.is_run" clearable placeholder="请选择" style="width: 100%">
 									<el-option label="是" :value="true" />
 									<el-option label="否" :value="false" />
 								</el-select>
@@ -33,14 +33,14 @@
 						</el-col>
 						<el-col :xs="24" :sm="8" :md="8" :lg="4" :xl="4">
 							<el-form-item label="是否禁用">
-								<el-select @change="change_is_deleted" v-model="strategy_is_deleted" clearable placeholder="请选择" style="width: 100%">
+								<el-select v-model="form_data.is_ban" clearable placeholder="请选择" style="width: 100%">
 									<el-option label="是" :value="true" />
 									<el-option label="否" :value="false" />
 								</el-select>
 							</el-form-item>
 						</el-col>
 						<el-col :xs="24" :sm="8" :md="8" :lg="4" :xl="4">
-							<el-button type="primary" @click="onSubmit">查询</el-button>
+							<el-button type="primary" @click="get_strategy_page()">查询</el-button>
 						</el-col>
 						<el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="4">
 							<el-button type="primary" @click="addStrategy()" v-if="show">新增策略</el-button>
@@ -50,10 +50,11 @@
 				</el-form>
 			</el-header>
 			<el-main>
-				<el-table ref="singleTableRef" :data="smading_strategy_list" table-layout="fixed" border highlight-current-row @current-change="handleSelectionChangeOuter" row-key="id">
+				<el-table ref="singleTableRef" :data="strategy_list" table-layout="fixed" border highlight-current-row @current-change="handleSelectionChangeOuter" row-key="id">
 					<el-table-column type="index" width="55" label="序号" align="center" />
 
-					<el-table-column prop="strategy_note" label="策略名称" :min-width="450" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="name" label="策略名称" :min-width="300" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="username" label="创建人" width="130" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column label="持仓方向" width="90" show-overflow-tooltip align="center">
 						<template #default="{ row }">
 							<el-tag :type="getTagType(row.position_side)" effect="dark">
@@ -68,13 +69,12 @@
 							</el-tag>
 						</template>
 					</el-table-column>
-					<el-table-column prop="run_num" label="运行中数量" width="100" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="run_num" label="运行中盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="run_num" label="总数量" width="130" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="run_num" label="总盈利" width="130" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="run_num" label="创建人" width="130" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="run_num" label="创建时间" width="180" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="run_num" label="修改时间" width="180" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="all_count" label="总数量" width="130" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="all_profit" label="总盈利(USDT)" width="130" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="running_count" label="运行中数量" width="100" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="running_profit" label="运行中盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="create_time" label="创建时间" width="180" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="update_time" label="修改时间" width="180" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column label="是否共享" width="110" show-overflow-tooltip align="center">
 						<template #header>
 							<span>是否共享</span>
@@ -91,32 +91,35 @@
 							</el-tooltip>
 						</template>
 						<template #default="{ row }">
-							<el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">
-								{{ row.is_run ? '是' : '否' }}
+							<el-tag :type="row.is_share ? 'success' : 'danger'" effect="dark">
+								{{ row.is_share ? '是' : '否' }}
 							</el-tag>
 						</template>
 					</el-table-column>
 					<el-table-column label="是否禁用" width="90" show-overflow-tooltip align="center">
 						<template #default="{ row }">
-							<el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">
-								{{ row.is_run ? '是' : '否' }}
+							<el-tag :type="row.is_ban ? 'success' : 'danger'" effect="dark">
+								{{ row.is_ban ? '是' : '否' }}
 							</el-tag>
 						</template>
 					</el-table-column>
-
-					<el-table-column label="操作" width="430" align="center">
+					<el-table-column label="其他操作" width="220" align="center">
+						<template #default="{ row }">
+							<el-button type="danger" size="small" @click="禁用策略(row, true)" v-if="!row.is_share">取消共享</el-button>
+							<el-button type="success" size="small" @click="禁用策略(row, false)" v-if="row.is_share">共享</el-button>
+							<el-button type="danger" size="small" @click="禁用策略(row, true)" v-if="!row.is_ban">禁用</el-button>
+							<el-button type="success" size="small" @click="禁用策略(row, false)" v-if="row.is_ban">启用</el-button>
+							<el-button type="danger" size="small" @click="deleteStrategy(row)">删除</el-button>
+						</template>
+					</el-table-column>
+					<el-table-column label="操作" width="220" align="center" fixed="right">
 						<template #default="{ row }">
 							<el-button type="primary" size="small" @click="editStrategy(row)" plain>编辑策略</el-button>
 							<el-button type="primary" size="small" @click="viewDetail(row)" plain>查看策略明细</el-button>
-							<el-button type="danger" size="small" @click="禁用策略(row, true)" v-if="!row.is_deleted">取消共享</el-button>
-							<el-button type="success" size="small" @click="禁用策略(row, false)" v-if="row.is_deleted">共享</el-button>
-							<el-button type="danger" size="small" @click="禁用策略(row, true)" v-if="!row.is_deleted">禁用</el-button>
-							<el-button type="success" size="small" @click="禁用策略(row, false)" v-if="row.is_deleted">启用</el-button>
-							<el-button type="danger" size="small" @click="deleteStrategy(row)" :disabled="row.is_run">删除</el-button>
 						</template>
 					</el-table-column>
 				</el-table>
-				<el-pagination v-model:current-page="currentPage4" style="margin-top: 20px" v-model:page-size="pageSize4" :page-sizes="[10, 20, 50, 100]" :size="size" :disabled="disabled" :background="background" layout="total, sizes, prev, pager, next, jumper" :total="400" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
+				<el-pagination v-model:current-page="page" style="margin-top: 20px" v-model:page-size="size" :page-sizes="[10, 20, 50, 100]" :disabled="disabled" :background="background" layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange" @current-change="handlePageChange" default-page-size="10" />
 
 				<el-dialog v-model="dialogVisible" :title="dialogTitle" width="65%" :before-close="handleClose" :close-on-click-modal="false" @closed="关闭策略明细弹窗()">
 					<el-form :model="currentStrategy" label-width="150px">
@@ -897,17 +900,32 @@
 import { api_获取现货所有usdt交易对 } from '@/api/binance_api'
 import { 查询当前用户的所有交易所信息 } from '@/api/exchange_infos_api'
 import { api_芝麻现货交易对列表, api_获取交易对列表 } from '@/api/funding_rate_strategy_api'
-import { api_停止指定id的双马丁策略, api_删除指定ids的交易对双马丁策略, api_删除指定id的交易对双马丁策略, api_删除指定id的双马丁策略, api_启动指定id的双马丁策略, api_复制交易对信息, api_恢复指定id的双马丁策略, api_新增双马丁策略, api_暂停指定id的双马丁策略, api_更新指定id的双马丁策略, api_模拟数据, api_获取双马丁策略列表 } from '@/api/smading_strategy_api'
+import { api_get_strategy_page, api_停止指定id的双马丁策略, api_删除指定ids的交易对双马丁策略, api_删除指定id的交易对双马丁策略, api_删除指定id的双马丁策略, api_启动指定id的双马丁策略, api_复制交易对信息, api_恢复指定id的双马丁策略, api_新增双马丁策略, api_暂停指定id的双马丁策略, api_更新指定id的双马丁策略, api_模拟数据 } from '@/api/smading_strategy_api'
 import * as commonConst from '@/constants/CommonConstant'
 import { useMdBotsDetailStore } from '@/store/MdBots_Detail'
 import { ElMessage } from 'element-plus'
 import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
+// 分页参数
+const page = ref(1)
+const size = ref(10)
+const total = ref(0)
+
+// 表单数据
+const form_data = ref({
+	name: null,
+	username: null,
+	is_share: null,
+	is_run: null,
+	is_ban: false,
+})
+
+// 储存双马丁策略列表的数组
+const strategy_list = ref([])
+
 const router = useRouter()
 const detailStore = useMdBotsDetailStore()
-const form = reactive({
-	symbol: '',
-})
 
 const viewDetail = (row) => {
 	detailStore.setSelectedItem(row) // 保存选中的数据
@@ -915,16 +933,13 @@ const viewDetail = (row) => {
 }
 const strategy_is_deleted = ref(false)
 const show = ref(true)
-const change_is_deleted = async () => {
-	await getStartegyList(strategy_is_deleted.value)
-}
+
 const filter_run = (value, row) => {
 	return row.is_run === value
 }
 const mock_symbol = ref('')
 onMounted(() => {
-	getSymbolList()
-	getStartegyList(strategy_is_deleted.value)
+	get_strategy_page(page.value, size.value, form_data.value)
 	获取币安现货所有usdt交易对()
 	获取gate现货所有usdt交易对()
 	// intervalId.value = setInterval(() => {
@@ -1274,7 +1289,7 @@ const editStrategy = async (item) => {
 			label: item.symbol,
 		}))
 	}
-	smading_strategy_list.value.forEach((strategy, index) => {
+	strategy_list.value.forEach((strategy, index) => {
 		// console.log(strategy.exchange_name, currentStrategy.value.exchange_name, strategy.position_side, currentStrategy.value.position_side)
 		if (strategy.exchange_name == currentStrategy.value.exchange_name && currentStrategy.value.position_side == 'BOTH' && strategy.position_side != 'BOTH') {
 			const 持仓方向 = strategy.position_side === 'LONG' ? '做多' : '做空'
@@ -1459,19 +1474,20 @@ async function 更新交易所信息() {
 	}
 }
 
-// 储存双马丁策略列表的数组
-const smading_strategy_list = ref([])
-// 获取策略信息
-async function getStartegyList(is_deleted) {
+const get_strategy_page = async () => {
+	// 获取策略信息
 	try {
-		const res = await api_获取双马丁策略列表(is_deleted)
-		// console.log("res", res);
+		const res = await api_get_strategy_page(page.value, size.value, form_data.value)
+		console.log('res', res)
 		if (res.status === 200 && res.data.code === 200) {
 			// console.log(res.data.data);
-			smading_strategy_list.value = res.data.data
+			strategy_list.value = res.data.data.items
+			page.value = res.data.data.page
+			size.value = res.data.data.size
+			total.value = res.data.data.total
 			// 遍历samding_strategy_list
 			strategy_index_options.value = []
-			smading_strategy_list.value.forEach((strategy, index) => {
+			strategy_list.value.forEach((strategy, index) => {
 				const _data = {
 					value: strategy.id,
 					label: strategy.exchange_name + '-' + strategy.strategy_note,
@@ -1494,6 +1510,19 @@ async function getStartegyList(is_deleted) {
 			type: 'error',
 		})
 	}
+}
+
+// 监听当前页码改变事件
+const handlePageChange = (newPage) => {
+	page.value = newPage
+	get_strategy_page()
+}
+
+// 监听每页条数改变事件
+const handleSizeChange = (newSize) => {
+	size.value = newSize
+	page.value = 1
+	get_strategy_page()
 }
 
 const 禁用策略 = async (row, tag) => {

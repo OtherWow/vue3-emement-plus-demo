@@ -4,16 +4,8 @@ const model_url = 'smading_strategy'
 //-----------------------------------------------------------------------------base-------------------------------------------------
 
 //获取双马丁策略列表
-export const api_获取双马丁策略列表 = async (is_deleted) => {
-    // 如果is_deleted不是true也不是false，那么就是undefined，此时不传is_deleted参数
-    let data = {
-    }
-    if (is_deleted === true || is_deleted === false) {
-        data = {
-            'is_deleted': is_deleted
-        }
-    }
-    return await http.post(`/${model_url}/list`, data);
+export const api_get_strategy_page = async (page,size,form_data) => {
+    return await http.post(`/${model_url}/strategy/page?page=${page}&size=${size}`, form_data);
 };
 
 
