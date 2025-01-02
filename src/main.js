@@ -1,18 +1,18 @@
-import { createApp, reactive } from 'vue'
+import LoadingButton from '@/components/LoadingButton.vue'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import * as echarts from 'echarts'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import 'normalize.css'
-import './assets/css/base.css'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import * as echarts from 'echarts';
-import LoadingButton from '@/components/LoadingButton.vue';
 import locale from 'element-plus/dist/locale/zh-cn.mjs'
+import 'normalize.css'
 import { createPinia } from 'pinia'
+import { createApp, reactive } from 'vue'
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
+import App from './App.vue'
+import './assets/css/base.css'
+import router from './router'
+import store from './store'
 
 
 

@@ -1,7 +1,7 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import Layout from '@/views/Layout'
-import Login from '@/views/Login'
-import Home from '@/views/Home'
+import * as CommonConstant from '@/constants/CommonConstant';
+import Layout from '@/views/Layout';
+import Login from '@/views/Login';
+import { createRouter, createWebHistory } from 'vue-router';
 
 
 const routes = [
@@ -101,14 +101,19 @@ const routes = [
         children: [
           {
             path: 'smadingList',
-            name: 'smadingList',
+            name: CommonConstant.PATH_MD_BOTS_LIST,
             component: () => import('@/views/MdBots/SmadingList.vue'),
-            meta: { title: '双马丁机器人列表', requiresAuth: true }, // 需要鉴权的路由
+            meta: { title: '马丁机器人列表', requiresAuth: true }, // 需要鉴权的路由
+          }, {
+            path: 'Detail',
+            name: CommonConstant.PATH_MD_BOTS_DETAIL,
+            component: () => import('@/views/MdBots/Detail.vue'),
+            meta: { title: '马丁机器人明细', requiresAuth: true }, // 需要鉴权的路由
           }, {
             path: 'smadingMonitor',
             name: 'smadingMonitor',
             component: () => import('@/views/MdBots/SmadingMonitor.vue'),
-            meta: { title: '双马丁监控墙', requiresAuth: true }, // 需要鉴权的路由
+            meta: { title: '马丁机器人监控墙', requiresAuth: true }, // 需要鉴权的路由
           }, {
             path: 'smadingMonitor2',
             name: 'smadingMonitor2',
