@@ -8,8 +8,17 @@ export const api_get_strategy_page = async (page,size,form_data) => {
     return await http.post(`/${model_url}/strategy/page?page=${page}&size=${size}`, form_data);
 };
 
+//更新指定id的双马丁策略
+export const api_update_strategy = async (data) => {
+    const response = await http.post(`/${model_url}/strategy/update`, data);
+    return response;
+};
 
-
+//api_模拟数据
+export const api_strategy_mock = async (data) => {
+    const response = await http.post(`/${model_url}/strategy/mock`, data);
+    return response;
+};
 
 //获取指定id的双马丁策略详情
 export const api_获取指定id的双马丁策略详情 = async (id) => {
@@ -63,29 +72,18 @@ export const api_删除指定ids的交易对双马丁策略 = async (ids) => {
 };
 
 
-//api_模拟数据
-export const api_模拟数据 = async (data) => {
-    const response = await http.post(`/${model_url}/mock`, data);
-    return response;
-};
+
 
 
 //新增双马丁策略
 export const api_新增双马丁策略 = async (data) => {
     const response = await http.post(`/${model_url}/`, data);
     // 使用new Promise与setTimeout结合，等待1秒
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // await new Promise(resolve => setTimeout(resolve, 1000));
     return response;
 };
 
 
-//更新指定id的双马丁策略
-export const api_更新指定id的双马丁策略 = async (id, data) => {
-    const response = await http.put(`/${model_url}/${id}`, data);
-    // 使用new Promise与setTimeout结合，等待1秒
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return response;
-};
 
 
 //复制交易对信息

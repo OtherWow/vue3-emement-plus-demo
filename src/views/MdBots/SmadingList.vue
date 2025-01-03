@@ -54,7 +54,6 @@
 					<el-table-column type="index" width="55" label="序号" align="center" />
 
 					<el-table-column prop="name" label="策略名称" :min-width="300" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="username" label="创建人" width="130" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column label="持仓方向" width="90" show-overflow-tooltip align="center">
 						<template #default="{ row }">
 							<el-tag :type="getTagType(row.position_side)" effect="dark">
@@ -62,6 +61,7 @@
 							</el-tag>
 						</template>
 					</el-table-column>
+					<el-table-column prop="username" label="创建人" width="130" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column label="运行中" width="90" show-overflow-tooltip align="center">
 						<template #default="{ row }">
 							<el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">
@@ -105,11 +105,11 @@
 					</el-table-column>
 					<el-table-column label="其他操作" width="220" align="center">
 						<template #default="{ row }">
-							<el-button type="danger" size="small" @click="禁用策略(row, true)" v-if="!row.is_share">取消共享</el-button>
-							<el-button type="success" size="small" @click="禁用策略(row, false)" v-if="row.is_share">共享</el-button>
-							<el-button type="danger" size="small" @click="禁用策略(row, true)" v-if="!row.is_ban">禁用</el-button>
-							<el-button type="success" size="small" @click="禁用策略(row, false)" v-if="row.is_ban">启用</el-button>
-							<el-button type="danger" size="small" @click="deleteStrategy(row)">删除</el-button>
+							<el-button type="primary" size="small" @click="禁用策略(row, true)" v-if="row.is_share" plain>取消共享</el-button>
+							<el-button type="primary" size="small" @click="禁用策略(row, false)" v-if="!row.is_share" plain>共享</el-button>
+							<el-button type="danger" size="small" @click="禁用策略(row, true)" v-if="!row.is_ban" plain>禁用</el-button>
+							<el-button type="success" size="small" @click="禁用策略(row, false)" v-if="row.is_ban" plain>启用</el-button>
+							<el-button type="danger" size="small" @click="deleteStrategy(row)" plain>删除</el-button>
 						</template>
 					</el-table-column>
 					<el-table-column label="操作" width="220" align="center" fixed="right">
@@ -122,7 +122,7 @@
 				<el-pagination v-model:current-page="page" style="margin-top: 20px" v-model:page-size="size" :page-sizes="[10, 20, 50, 100]" :disabled="disabled" :background="background" layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange" @current-change="handlePageChange" default-page-size="10" />
 
 				<el-dialog v-model="dialogVisible" :title="dialogTitle" width="65%" :before-close="handleClose" :close-on-click-modal="false" @closed="关闭策略明细弹窗()">
-					<el-form :model="currentStrategy" label-width="150px">
+					<el-form :model="current_strategy" label-width="150px">
 						<div class="dialog-content">
 							<el-card class="box-card" style="margin-bottom: 20px; margin-right: 20px; margin-left: 20px; margin-top: 20px">
 								<template #header>
@@ -133,7 +133,7 @@
 								<el-row :gutter="20">
 									<el-col :xs="24" :sm="24" :md="24" :lg="18" :xl="18">
 										<el-form-item label="策略名称" required>
-											<el-input v-model="currentStrategy.name" autosize type="textarea" placeholder="请输入策略的名称" />
+											<el-input v-model="current_strategy.name" autosize type="textarea" placeholder="请输入策略的名称" />
 										</el-form-item>
 									</el-col>
 								</el-row>
@@ -141,14 +141,14 @@
 									<el-col :xs="24" :sm="24" :md="24" :lg="18" :xl="18">
 										<div>
 											<el-form-item label="马丁持仓方向" required>
-												<el-radio-group v-model="currentStrategy.position_side" class="my-radio-group">
+												<el-radio-group v-model="current_strategy.position_side" class="my-radio-group">
 													<el-radio-button :label="'LONG'" class="my-radio-33">
 														<template #default>做多</template>
 													</el-radio-button>
-													<el-radio-button :label="'SHORT'" class="my-radio-33" :disabled="currentStrategy.trade_type === 'spot'">
+													<el-radio-button :label="'SHORT'" class="my-radio-33" :disabled="current_strategy.trade_type === 'spot'">
 														<template #default>做空</template>
 													</el-radio-button>
-													<el-radio-button :label="'BOTH'" class="my-radio-33" :disabled="currentStrategy.trade_type === 'spot'">
+													<el-radio-button :label="'BOTH'" class="my-radio-33" :disabled="current_strategy.trade_type === 'spot'">
 														<template #default>双向</template>
 													</el-radio-button>
 												</el-radio-group>
@@ -178,7 +178,7 @@
 														</el-icon>
 													</el-tooltip>
 												</template>
-												<el-radio-group v-model.number="currentStrategy.open_high_order_reset_take_profit" class="my-radio-group">
+												<el-radio-group v-model.number="current_strategy.open_high_order_reset_take_profit" class="my-radio-group">
 													<el-radio-button :label="true" class="my-radio-50">
 														<template #default>开启</template>
 													</el-radio-button>
@@ -191,21 +191,21 @@
 									</el-col>
 								</el-row>
 								<el-row :gutter="20">
-									<el-col :span="12" v-if="currentStrategy.open_high_order_reset_take_profit">
+									<el-col :span="12" v-if="current_strategy.open_high_order_reset_take_profit">
 										<el-form-item label="第几单后重挂止盈" required>
-											<el-input type="number" v-model.number="currentStrategy.when_repull_take_profit"></el-input>
+											<el-input type="number" v-model.number="current_strategy.when_repull_take_profit"></el-input>
 										</el-form-item>
 									</el-col>
-									<el-col :span="12" v-if="currentStrategy.open_high_order_reset_take_profit">
+									<el-col :span="12" v-if="current_strategy.open_high_order_reset_take_profit">
 										<el-form-item label="重挂止盈大小" required>
-											<el-input type="number" v-model="currentStrategy.repull_take_profit_num" @change="handle_repull_take_profit_num">
+											<el-input type="number" v-model="current_strategy.repull_take_profit_num" @change="handle_repull_take_profit_num">
 												<template #append>USDT</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
 								</el-row>
 							</el-card>
-							<el-card class="box-card" style="margin-right: 20px; margin-left: 20px" v-if="show && (currentStrategy.position_side === 'BOTH' || currentStrategy.position_side === 'LONG')">
+							<el-card class="box-card" style="margin-right: 20px; margin-left: 20px" v-if="show && (current_strategy.position_side === 'BOTH' || current_strategy.position_side === 'LONG')">
 								<template #header>
 									<div class="card-header">
 										<span>做多下单设置</span>
@@ -214,14 +214,14 @@
 								<el-row :gutter="20">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="首单" required>
-											<el-input type="number" v-model.number="currentStrategy.long_1st_pos_val">
+											<el-input type="number" v-model.number="current_strategy.long_1st_pos_val">
 												<template #append>USDT</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单首单" required>
-											<el-input type="number" v-model.number="currentStrategy.long_cover_1st_pos_val">
+											<el-input type="number" v-model.number="current_strategy.long_cover_1st_pos_val">
 												<template #append>USDT</template>
 											</el-input>
 										</el-form-item>
@@ -230,14 +230,14 @@
 								<el-row :gutter="20">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="活跃订单" required>
-											<el-input v-model.number="currentStrategy.long_act_order_num" placeholder="一次性挂多少个补单">
+											<el-input v-model.number="current_strategy.long_act_order_num" placeholder="一次性挂多少个补单">
 												<template #append>个</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单次数" required>
-											<el-input v-model.number="currentStrategy.long_cover_order_num">
+											<el-input v-model.number="current_strategy.long_cover_order_num">
 												<template #append>次</template>
 											</el-input>
 										</el-form-item>
@@ -247,11 +247,11 @@
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<div>
 											<el-form-item label="波动参照" required>
-												<el-radio-group v-model.number="currentStrategy.long_bdcz" class="my-radio-group">
-													<el-radio-button :label="sd" class="my-radio-50">
+												<el-radio-group v-model.number="current_strategy.long_bdcz" class="my-radio-group">
+													<el-radio-button :label="1" class="my-radio-50">
 														<template #default>首单</template>
 													</el-radio-button>
-													<el-radio-button :label="syd" class="my-radio-50">
+													<el-radio-button :label="2" class="my-radio-50">
 														<template #default>上一单</template>
 													</el-radio-button>
 												</el-radio-group>
@@ -260,7 +260,7 @@
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单波动" required>
-											<el-input v-model.number="currentStrategy.long_bdbd" type="number">
+											<el-input v-model.number="current_strategy.long_bdbd" type="number">
 												<template #append>%</template>
 											</el-input>
 										</el-form-item>
@@ -269,14 +269,14 @@
 								<el-row :gutter="20">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单倍数" required>
-											<el-input-number type="number" v-model.number="currentStrategy.long_cover_value_mult">
+											<el-input-number type="number" v-model.number="current_strategy.long_cover_value_mult">
 												<template #append>倍</template>
 											</el-input-number>
 										</el-form-item>
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="加速补单" required>
-											<el-input type="number" v-model.number="currentStrategy.long_accel_cover" placeholder="正数加快补单负数放慢补单">
+											<el-input type="number" v-model.number="current_strategy.long_accel_cover" placeholder="正数加快补单负数放慢补单">
 												<template #append>%</template>
 											</el-input>
 										</el-form-item>
@@ -286,7 +286,7 @@
 									<el-col :span="24">
 										<div>
 											<el-form-item label="止盈方式" required>
-												<el-radio-group v-model="currentStrategy.long_take_profit_type" class="my-radio-group">
+												<el-radio-group v-model="current_strategy.long_take_profit_type" class="my-radio-group">
 													<el-radio-button :label="'price'" class="my-radio-25">
 														<template #default>固定止盈</template>
 													</el-radio-button>
@@ -303,16 +303,16 @@
 											</el-form-item>
 										</div>
 									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="currentStrategy.long_take_profit_type === 'price' || currentStrategy.long_take_profit_type === 'mix_min' || currentStrategy.long_take_profit_type === 'mix_max'">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.long_take_profit_type === 'price' || current_strategy.long_take_profit_type === 'mix_min' || current_strategy.long_take_profit_type === 'mix_max'">
 										<el-form-item label="止盈价格" required>
-											<el-input type="number" v-model.number="currentStrategy.long_take_profit_price">
+											<el-input type="number" v-model.number="current_strategy.long_take_profit_price">
 												<template #append>USDT</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="currentStrategy.long_take_profit_type === 'percent' || currentStrategy.long_take_profit_type === 'mix_min' || currentStrategy.long_take_profit_type === 'mix_max'">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.long_take_profit_type === 'percent' || current_strategy.long_take_profit_type === 'mix_min' || current_strategy.long_take_profit_type === 'mix_max'">
 										<el-form-item label="止盈百分比" required>
-											<el-input type="number" v-model.number="currentStrategy.long_take_profit_percent">
+											<el-input type="number" v-model.number="current_strategy.long_take_profit_percent">
 												<template #append>%</template>
 											</el-input>
 										</el-form-item>
@@ -321,7 +321,7 @@
 								<el-row :gutter="20">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="做多止损" required>
-											<el-radio-group v-model.number="currentStrategy.long_stop_profit" class="my-radio-group">
+											<el-radio-group v-model.number="current_strategy.long_stop_loss" class="my-radio-group">
 												<el-radio-button :label="true" class="my-radio-50">
 													<template #default>开启</template>
 												</el-radio-button>
@@ -331,9 +331,9 @@
 											</el-radio-group>
 										</el-form-item>
 									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="currentStrategy.long_stop_profit">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.long_stop_loss">
 										<el-form-item label="止损后自动暂停" required>
-											<el-radio-group v-model.number="currentStrategy.long_after_stop_profit_auto_pause" class="my-radio-group">
+											<el-radio-group v-model.number="current_strategy.long_after_stop_profit_auto_pause" class="my-radio-group">
 												<el-radio-button :label="true" class="my-radio-50">
 													<template #default>开启</template>
 												</el-radio-button>
@@ -345,7 +345,7 @@
 									</el-col>
 								</el-row>
 								<el-row :gutter="20">
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="currentStrategy.long_stop_profit">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.long_stop_loss">
 										<el-form-item label="止损前等待" required>
 											<template #label>
 												止损前等待
@@ -364,14 +364,14 @@
 													</el-icon>
 												</el-tooltip>
 											</template>
-											<el-input type="number" v-model.number="currentStrategy.long_stop_profit_wait_time">
+											<el-input type="number" v-model.number="current_strategy.long_stop_loss_wait_time">
 												<template #append>秒</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="currentStrategy.long_stop_profit">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.long_stop_loss">
 										<el-form-item label="浮亏多少止损" required>
-											<el-input type="number" v-model.number="currentStrategy.long_stop_profit_usdt">
+											<el-input type="number" v-model.number="current_strategy.long_stop_loss_usdt">
 												<template #append>USDT</template>
 											</el-input>
 										</el-form-item>
@@ -379,7 +379,7 @@
 								</el-row>
 							</el-card>
 
-							<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px" v-if="show && (currentStrategy.position_side === 'BOTH' || currentStrategy.position_side === 'LONG')">
+							<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px" v-if="show && (current_strategy.position_side === 'BOTH' || current_strategy.position_side === 'LONG')">
 								<template #header>
 									<div class="card-header">
 										<span>做多叠加补单设置</span>
@@ -390,7 +390,7 @@
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<div>
 											<el-form-item label="做多叠加补单" required>
-												<el-radio-group v-model.number="currentStrategy.long_dj_open" class="my-radio-group">
+												<el-radio-group v-model.number="current_strategy.long_dj_open" class="my-radio-group">
 													<el-radio-button :label="true" class="my-radio-50">
 														<template #default>开启</template>
 													</el-radio-button>
@@ -402,17 +402,17 @@
 										</div>
 									</el-col>
 								</el-row>
-								<el-row :gutter="20" v-if="currentStrategy.long_dj_open">
+								<el-row :gutter="20" v-if="current_strategy.long_dj_open">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单首单" required>
-											<el-input type="number" v-model.number="currentStrategy.long_dj_cover_1st_pos_val">
+											<el-input type="number" v-model.number="current_strategy.long_dj_cover_1st_pos_val">
 												<template #append>USDT</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单次数" required>
-											<el-input v-model.number="currentStrategy.long_dj_cover_order_num">
+											<el-input v-model.number="current_strategy.long_dj_cover_order_num">
 												<template #append>次</template>
 											</el-input>
 										</el-form-item>
@@ -420,11 +420,11 @@
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<div>
 											<el-form-item label="波动参照" required>
-												<el-radio-group v-model.number="currentStrategy.long_dj_bdcz" class="my-radio-group">
-													<el-radio-button :label="sd" class="my-radio-50">
+												<el-radio-group v-model.number="current_strategy.long_dj_bdcz" class="my-radio-group">
+													<el-radio-button :label="1" class="my-radio-50">
 														<template #default>首单</template>
 													</el-radio-button>
-													<el-radio-button :label="syd" class="my-radio-50">
+													<el-radio-button :label="2" class="my-radio-50">
 														<template #default>上一单</template>
 													</el-radio-button>
 												</el-radio-group>
@@ -433,102 +433,23 @@
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单波动" required>
-											<el-input v-model.number="currentStrategy.long_dj_bdbd" type="number">
+											<el-input v-model.number="current_strategy.long_dj_bdbd" type="number">
 												<template #append>%</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
 								</el-row>
-								<el-row :gutter="20" v-if="currentStrategy.long_dj_open">
+								<el-row :gutter="20" v-if="current_strategy.long_dj_open">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单倍数" required>
-											<el-input-number type="number" v-model.number="currentStrategy.long_dj_cover_value_mult">
+											<el-input-number type="number" v-model.number="current_strategy.long_dj_cover_value_mult">
 												<template #append>倍</template>
 											</el-input-number>
 										</el-form-item>
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="加速补单" required>
-											<el-input type="number" v-model.number="currentStrategy.long_dj_accel_cover" placeholder="正数加快补单负数放慢补单">
-												<template #append>%</template>
-											</el-input>
-										</el-form-item>
-									</el-col>
-								</el-row>
-							</el-card>
-
-							<el-card class="box-card" style="margin-right: 20px; margin-left: 20px" v-if="show && (currentStrategy.position_side === 'BOTH' || currentStrategy.position_side === 'SHORT')">
-								<template #header>
-									<div class="card-header">
-										<span>做空下单设置</span>
-									</div>
-								</template>
-								<el-row :gutter="20">
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
-										<el-form-item label="首单" required>
-											<el-input type="number" v-model.number="currentStrategy.short_1st_pos_val">
-												<template #append>USDT</template>
-											</el-input>
-										</el-form-item>
-									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
-										<el-form-item label="补单首单" required>
-											<el-input type="number" v-model.number="currentStrategy.short_cover_1st_pos_val">
-												<template #append>USDT</template>
-											</el-input>
-										</el-form-item>
-									</el-col>
-								</el-row>
-								<el-row :gutter="20">
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
-										<el-form-item label="活跃订单" required>
-											<el-input v-model.number="currentStrategy.short_act_order_num" placeholder="一次性挂多少个补单">
-												<template #append>个</template>
-											</el-input>
-										</el-form-item>
-									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
-										<el-form-item label="补单次数" required>
-											<el-input v-model.number="currentStrategy.short_cover_order_num">
-												<template #append>次</template>
-											</el-input>
-										</el-form-item>
-									</el-col>
-								</el-row>
-								<el-row :gutter="20">
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
-										<div>
-											<el-form-item label="波动参照" required>
-												<el-radio-group v-model.number="currentStrategy.short_bdcz" class="my-radio-group">
-													<el-radio-button :label="sd" class="my-radio-50">
-														<template #default>首单</template>
-													</el-radio-button>
-													<el-radio-button :label="syd" class="my-radio-50">
-														<template #default>上一单</template>
-													</el-radio-button>
-												</el-radio-group>
-											</el-form-item>
-										</div>
-									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
-										<el-form-item label="补单波动" required>
-											<el-input v-model.number="currentStrategy.short_bdbd" type="number">
-												<template #append>%</template>
-											</el-input>
-										</el-form-item>
-									</el-col>
-								</el-row>
-								<el-row :gutter="20">
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
-										<el-form-item label="补单倍数" required>
-											<el-input-number type="number" v-model.number="currentStrategy.short_cover_value_mult">
-												<template #append>倍</template>
-											</el-input-number>
-										</el-form-item>
-									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
-										<el-form-item label="加速补单" required>
-											<el-input type="number" v-model.number="currentStrategy.short_accel_cover" placeholder="正数加快补单负数放慢补单">
+											<el-input type="number" v-model.number="current_strategy.long_dj_accel_cover" placeholder="正数加快补单负数放慢补单">
 												<template #append>%</template>
 											</el-input>
 										</el-form-item>
@@ -538,7 +459,7 @@
 									<el-col :span="24">
 										<div>
 											<el-form-item label="止盈方式" required>
-												<el-radio-group v-model="currentStrategy.short_take_profit_type" class="my-radio-group">
+												<el-radio-group v-model="current_strategy.long_dj_take_profit_type" class="my-radio-group">
 													<el-radio-button :label="'price'" class="my-radio-25">
 														<template #default>固定止盈</template>
 													</el-radio-button>
@@ -555,16 +476,131 @@
 											</el-form-item>
 										</div>
 									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="currentStrategy.short_take_profit_type === 'price' || currentStrategy.short_take_profit_type === 'mix_min' || currentStrategy.short_take_profit_type === 'mix_max'">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.long_dj_take_profit_type === 'price' || current_strategy.long_dj_take_profit_type === 'mix_min' || current_strategy.long_dj_take_profit_type === 'mix_max'">
 										<el-form-item label="止盈价格" required>
-											<el-input type="number" v-model.number="currentStrategy.short_take_profit_price">
+											<el-input v-model.number="current_strategy.long_dj_take_profit_price">
 												<template #append>USDT</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="currentStrategy.short_take_profit_type === 'percent' || currentStrategy.short_take_profit_type === 'mix_min' || currentStrategy.short_take_profit_type === 'mix_max'">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.long_dj_take_profit_type === 'percent' || current_strategy.long_dj_take_profit_type === 'mix_min' || current_strategy.long_dj_take_profit_type === 'mix_max'">
 										<el-form-item label="止盈百分比" required>
-											<el-input type="number" v-model.number="currentStrategy.short_take_profit_price">
+											<el-input v-model.number="current_strategy.long_dj_take_profit_percent">
+												<template #append>%</template>
+											</el-input>
+										</el-form-item>
+									</el-col>
+								</el-row>
+							</el-card>
+
+							<el-card class="box-card" style="margin-right: 20px; margin-left: 20px" v-if="show && (current_strategy.position_side === 'BOTH' || current_strategy.position_side === 'SHORT')">
+								<template #header>
+									<div class="card-header">
+										<span>做空下单设置</span>
+									</div>
+								</template>
+								<el-row :gutter="20">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+										<el-form-item label="首单" required>
+											<el-input type="number" v-model.number="current_strategy.short_1st_pos_val">
+												<template #append>USDT</template>
+											</el-input>
+										</el-form-item>
+									</el-col>
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+										<el-form-item label="补单首单" required>
+											<el-input type="number" v-model.number="current_strategy.short_cover_1st_pos_val">
+												<template #append>USDT</template>
+											</el-input>
+										</el-form-item>
+									</el-col>
+								</el-row>
+								<el-row :gutter="20">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+										<el-form-item label="活跃订单" required>
+											<el-input v-model.number="current_strategy.short_act_order_num" placeholder="一次性挂多少个补单">
+												<template #append>个</template>
+											</el-input>
+										</el-form-item>
+									</el-col>
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+										<el-form-item label="补单次数" required>
+											<el-input v-model.number="current_strategy.short_cover_order_num">
+												<template #append>次</template>
+											</el-input>
+										</el-form-item>
+									</el-col>
+								</el-row>
+								<el-row :gutter="20">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+										<div>
+											<el-form-item label="波动参照" required>
+												<el-radio-group v-model.number="current_strategy.short_bdcz" class="my-radio-group">
+													<el-radio-button :label="1" class="my-radio-50">
+														<template #default>首单</template>
+													</el-radio-button>
+													<el-radio-button :label="2" class="my-radio-50">
+														<template #default>上一单</template>
+													</el-radio-button>
+												</el-radio-group>
+											</el-form-item>
+										</div>
+									</el-col>
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+										<el-form-item label="补单波动" required>
+											<el-input v-model.number="current_strategy.short_bdbd" type="number">
+												<template #append>%</template>
+											</el-input>
+										</el-form-item>
+									</el-col>
+								</el-row>
+								<el-row :gutter="20">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+										<el-form-item label="补单倍数" required>
+											<el-input-number type="number" v-model.number="current_strategy.short_cover_value_mult">
+												<template #append>倍</template>
+											</el-input-number>
+										</el-form-item>
+									</el-col>
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+										<el-form-item label="加速补单" required>
+											<el-input type="number" v-model.number="current_strategy.short_accel_cover" placeholder="正数加快补单负数放慢补单">
+												<template #append>%</template>
+											</el-input>
+										</el-form-item>
+									</el-col>
+								</el-row>
+								<el-row :gutter="20">
+									<el-col :span="24">
+										<div>
+											<el-form-item label="止盈方式" required>
+												<el-radio-group v-model="current_strategy.short_take_profit_type" class="my-radio-group">
+													<el-radio-button :label="'price'" class="my-radio-25">
+														<template #default>固定止盈</template>
+													</el-radio-button>
+													<el-radio-button :label="'percent'" class="my-radio-25">
+														<template #default>百分比止盈</template>
+													</el-radio-button>
+													<el-radio-button :label="'mix_min'" class="my-radio-25">
+														<template #default>混合止盈(取最小值)</template>
+													</el-radio-button>
+													<el-radio-button :label="'mix_max'" class="my-radio-25">
+														<template #default>混合止盈(取最大值)</template>
+													</el-radio-button>
+												</el-radio-group>
+											</el-form-item>
+										</div>
+									</el-col>
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.short_take_profit_type === 'price' || current_strategy.short_take_profit_type === 'mix_min' || current_strategy.short_take_profit_type === 'mix_max'">
+										<el-form-item label="止盈价格" required>
+											<el-input type="number" v-model.number="current_strategy.short_take_profit_price">
+												<template #append>USDT</template>
+											</el-input>
+										</el-form-item>
+									</el-col>
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.short_take_profit_type === 'percent' || current_strategy.short_take_profit_type === 'mix_min' || current_strategy.short_take_profit_type === 'mix_max'">
+										<el-form-item label="止盈百分比" required>
+											<el-input type="number" v-model.number="current_strategy.short_take_profit_price">
 												<template #append>%</template>
 											</el-input>
 										</el-form-item>
@@ -573,7 +609,7 @@
 								<el-row :gutter="20">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="做空止损" required>
-											<el-radio-group v-model.number="currentStrategy.short_stop_profit" class="my-radio-group">
+											<el-radio-group v-model.number="current_strategy.short_stop_loss" class="my-radio-group">
 												<el-radio-button :label="true" class="my-radio-50">
 													<template #default>开启</template>
 												</el-radio-button>
@@ -583,9 +619,9 @@
 											</el-radio-group>
 										</el-form-item>
 									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="currentStrategy.short_stop_profit">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.short_stop_loss">
 										<el-form-item label="止损后自动暂停" required>
-											<el-radio-group v-model.number="currentStrategy.short_after_stop_profit_auto_pause" class="my-radio-group">
+											<el-radio-group v-model.number="current_strategy.short_after_stop_profit_auto_pause" class="my-radio-group">
 												<el-radio-button :label="true" class="my-radio-50">
 													<template #default>开启</template>
 												</el-radio-button>
@@ -597,7 +633,7 @@
 									</el-col>
 								</el-row>
 								<el-row :gutter="20">
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="currentStrategy.short_stop_profit">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.short_stop_loss">
 										<el-form-item label="止损前等待" required>
 											<template #label>
 												止损前等待
@@ -616,14 +652,14 @@
 													</el-icon>
 												</el-tooltip>
 											</template>
-											<el-input type="number" v-model.number="currentStrategy.short_stop_profit_wait_time">
+											<el-input type="number" v-model.number="current_strategy.short_stop_loss_wait_time">
 												<template #append>秒</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
-									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="currentStrategy.short_stop_profit">
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.short_stop_loss">
 										<el-form-item label="浮亏多少止损" required>
-											<el-input type="number" v-model.number="currentStrategy.short_stop_profit_usdt">
+											<el-input type="number" v-model.number="current_strategy.short_stop_loss_usdt">
 												<template #append>USDT</template>
 											</el-input>
 										</el-form-item>
@@ -631,7 +667,7 @@
 								</el-row>
 							</el-card>
 
-							<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px" v-if="show && (currentStrategy.position_side === 'BOTH' || currentStrategy.position_side === 'SHORT')">
+							<el-card class="box-card" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px" v-if="show && (current_strategy.position_side === 'BOTH' || current_strategy.position_side === 'SHORT')">
 								<template #header>
 									<div class="card-header">
 										<span>做空叠加补单设置</span>
@@ -642,7 +678,7 @@
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<div>
 											<el-form-item label="做空叠加补单" required>
-												<el-radio-group v-model.number="currentStrategy.short_dj_open" class="my-radio-group">
+												<el-radio-group v-model.number="current_strategy.short_dj_open" class="my-radio-group">
 													<el-radio-button :label="true" class="my-radio-50">
 														<template #default>开启</template>
 													</el-radio-button>
@@ -654,17 +690,17 @@
 										</div>
 									</el-col>
 								</el-row>
-								<el-row :gutter="20" v-if="currentStrategy.short_dj_open">
+								<el-row :gutter="20" v-if="current_strategy.short_dj_open">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单首单" required>
-											<el-input type="number" v-model.number="currentStrategy.short_dj_cover_1st_pos_val">
+											<el-input type="number" v-model.number="current_strategy.short_dj_cover_1st_pos_val">
 												<template #append>USDT</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单次数" required>
-											<el-input v-model.number="currentStrategy.short_dj_cover_order_num">
+											<el-input v-model.number="current_strategy.short_dj_cover_order_num">
 												<template #append>次</template>
 											</el-input>
 										</el-form-item>
@@ -672,11 +708,11 @@
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<div>
 											<el-form-item label="波动参照" required>
-												<el-radio-group v-model.number="currentStrategy.short_dj_bdcz" class="my-radio-group">
-													<el-radio-button :label="sd" class="my-radio-50">
+												<el-radio-group v-model.number="current_strategy.short_dj_bdcz" class="my-radio-group">
+													<el-radio-button :label="1" class="my-radio-50">
 														<template #default>首单</template>
 													</el-radio-button>
-													<el-radio-button :label="syd" class="my-radio-50">
+													<el-radio-button :label="2" class="my-radio-50">
 														<template #default>上一单</template>
 													</el-radio-button>
 												</el-radio-group>
@@ -685,23 +721,59 @@
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单波动" required>
-											<el-input v-model.number="currentStrategy.short_dj_bdbd" type="number">
+											<el-input v-model.number="current_strategy.short_dj_bdbd" type="number">
 												<template #append>%</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
 								</el-row>
-								<el-row :gutter="20" v-if="currentStrategy.short_dj_open">
+								<el-row :gutter="20" v-if="current_strategy.short_dj_open">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单倍数" required>
-											<el-input-number type="number" v-model.number="currentStrategy.short_dj_cover_value_mult">
+											<el-input-number type="number" v-model.number="current_strategy.short_dj_cover_value_mult">
 												<template #append>倍</template>
 											</el-input-number>
 										</el-form-item>
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="加速补单" required>
-											<el-input type="number" v-model.number="currentStrategy.short_dj_accel_cover" placeholder="正数加快补单负数放慢补单">
+											<el-input type="number" v-model.number="current_strategy.short_dj_accel_cover" placeholder="正数加快补单负数放慢补单">
+												<template #append>%</template>
+											</el-input>
+										</el-form-item>
+									</el-col>
+								</el-row>
+								<el-row :gutter="20">
+									<el-col :span="24">
+										<div>
+											<el-form-item label="止盈方式" required>
+												<el-radio-group v-model="current_strategy.short_dj_take_profit_type" class="my-radio-group">
+													<el-radio-button :label="'price'" class="my-radio-25">
+														<template #default>固定止盈</template>
+													</el-radio-button>
+													<el-radio-button :label="'percent'" class="my-radio-25">
+														<template #default>百分比止盈</template>
+													</el-radio-button>
+													<el-radio-button :label="'mix_min'" class="my-radio-25">
+														<template #default>混合止盈(取最小值)</template>
+													</el-radio-button>
+													<el-radio-button :label="'mix_max'" class="my-radio-25">
+														<template #default>混合止盈(取最大值)</template>
+													</el-radio-button>
+												</el-radio-group>
+											</el-form-item>
+										</div>
+									</el-col>
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.short_dj_take_profit_type === 'price' || current_strategy.short_dj_take_profit_type === 'mix_min' || current_strategy.short_dj_take_profit_type === 'mix_max'">
+										<el-form-item label="止盈价格" required>
+											<el-input type="number" v-model.number="current_strategy.short_dj_take_profit_price">
+												<template #append>USDT</template>
+											</el-input>
+										</el-form-item>
+									</el-col>
+									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.short_dj_take_profit_type === 'percent' || current_strategy.short_dj_take_profit_type === 'mix_min' || current_strategy.short_dj_take_profit_type === 'mix_max'">
+										<el-form-item label="止盈百分比" required>
+											<el-input type="number" v-model.number="current_strategy.short_dj_take_profit_price">
 												<template #append>%</template>
 											</el-input>
 										</el-form-item>
@@ -718,7 +790,7 @@
 								<el-row :gutter="20">
 									<el-col :span="12">
 										<el-form-item label="补到多少单微信告警">
-											<el-input type="number" v-model.number="currentStrategy.cover_alarm_num" placeholder="比如第20补单挂上后触发告警"></el-input>
+											<el-input type="number" v-model.number="current_strategy.cover_alarm_num" placeholder="比如第20补单挂上后触发告警"></el-input>
 										</el-form-item>
 									</el-col>
 									<el-col :span="12">
@@ -732,7 +804,7 @@
 													</el-icon>
 												</el-tooltip>
 											</template>
-											<el-input type="number" v-model.number="currentStrategy.cover_order_pause_num" placeholder=""></el-input>
+											<el-input type="number" v-model.number="current_strategy.cover_order_pause_num" placeholder=""></el-input>
 										</el-form-item>
 									</el-col>
 								</el-row>
@@ -766,7 +838,7 @@
 														</el-icon>
 													</el-tooltip>
 												</template>
-												<el-radio-group v-model.number="currentStrategy.open_prevent_falls" class="my-radio-group">
+												<el-radio-group v-model.number="current_strategy.open_prevent_falls" class="my-radio-group">
 													<el-radio-button :label="true" class="my-radio-50">
 														<template #default>开启</template>
 													</el-radio-button>
@@ -778,27 +850,27 @@
 										</div>
 									</el-col>
 								</el-row>
-								<el-row :gutter="2" v-if="currentStrategy.open_prevent_falls">
+								<el-row :gutter="2" v-if="current_strategy.open_prevent_falls">
 									<el-col :span="8">
 										<el-form-item label="触发条件">
-											<el-input type="number" v-model.number="currentStrategy.falls_second_num">
+											<el-input type="number" v-model.number="current_strategy.falls_second_num">
 												<template #append>秒内</template>
 											</el-input>
 										</el-form-item>
 									</el-col>
 									<el-col :span="8">
-										<el-input type="number" v-model.number="currentStrategy.falls_cover_num">
+										<el-input type="number" v-model.number="current_strategy.falls_cover_num">
 											<template #prepend>补单</template>
 
 											<template #append>次</template>
 										</el-input>
 									</el-col>
 								</el-row>
-								<el-row v-if="currentStrategy.open_prevent_falls">
+								<el-row v-if="current_strategy.open_prevent_falls">
 									<el-col :span="12">
 										<div>
 											<el-form-item label="触发后暂停补单" required>
-												<el-radio-group v-model.number="currentStrategy.open_falls_tigger_pause" class="my-radio-group">
+												<el-radio-group v-model.number="current_strategy.open_falls_tigger_pause" class="my-radio-group">
 													<el-radio-button :label="true" class="my-radio-50">
 														<template #default>开启</template>
 													</el-radio-button>
@@ -812,7 +884,7 @@
 									<el-col :span="12">
 										<div>
 											<el-form-item label="触发后微信告警" required>
-												<el-radio-group v-model.number="currentStrategy.open_falls_tigger_wx_alarm" class="my-radio-group">
+												<el-radio-group v-model.number="current_strategy.open_falls_tigger_wx_alarm" class="my-radio-group">
 													<el-radio-button :label="true" class="my-radio-50">
 														<template #default>开启</template>
 													</el-radio-button>
@@ -833,8 +905,14 @@
 								<el-button @click="dialogVisible = false">取消</el-button>
 								<el-button type="primary" @click="submitStrategy">确定</el-button>
 							</el-col>
+							<el-col :span="3"></el-col>
 							<el-col :span="3">
-								<el-input v-model="input" placeholder="请输入模拟的开单价格" />
+								<el-select v-model="current_strategy.exchange_type" placeholder="选择交易所">
+									<el-option v-for="item in exchange_options" :key="item.value" :label="item.label" :value="item.value" />
+								</el-select>
+							</el-col>
+							<el-col :span="3">
+								<el-input v-model="current_strategy.symbol" placeholder="输入交易对" />
 							</el-col>
 							<el-col :span="3">
 								<el-button type="primary" @click="模拟数据()">模拟数据</el-button>
@@ -900,7 +978,7 @@
 import { api_获取现货所有usdt交易对 } from '@/api/binance_api'
 import { 查询当前用户的所有交易所信息 } from '@/api/exchange_infos_api'
 import { api_芝麻现货交易对列表, api_获取交易对列表 } from '@/api/funding_rate_strategy_api'
-import { api_get_strategy_page, api_停止指定id的双马丁策略, api_删除指定ids的交易对双马丁策略, api_删除指定id的交易对双马丁策略, api_删除指定id的双马丁策略, api_启动指定id的双马丁策略, api_复制交易对信息, api_恢复指定id的双马丁策略, api_新增双马丁策略, api_暂停指定id的双马丁策略, api_更新指定id的双马丁策略, api_模拟数据 } from '@/api/smading_strategy_api'
+import { api_get_strategy_page, api_strategy_mock, api_update_strategy, api_停止指定id的双马丁策略, api_删除指定ids的交易对双马丁策略, api_删除指定id的交易对双马丁策略, api_删除指定id的双马丁策略, api_启动指定id的双马丁策略, api_复制交易对信息, api_恢复指定id的双马丁策略, api_新增双马丁策略, api_暂停指定id的双马丁策略 } from '@/api/smading_strategy_api'
 import * as commonConst from '@/constants/CommonConstant'
 import { useMdBotsDetailStore } from '@/store/MdBots_Detail'
 import { ElMessage } from 'element-plus'
@@ -923,6 +1001,9 @@ const form_data = ref({
 
 // 储存双马丁策略列表的数组
 const strategy_list = ref([])
+const current_strategy = ref({})
+
+const exchange_options = ref([{ value: 'Binance', label: '币安' }])
 
 const router = useRouter()
 const detailStore = useMdBotsDetailStore()
@@ -1025,10 +1106,10 @@ const copySymbolsInfo = () => {
 }
 //确认复制信息
 const submitCopySymbolStrategy = async () => {
-	currentStrategy.value = { ...selectedStrategy.value }
-	console.log(target_copy_id.value, currentStrategy.value)
+	current_strategy.value = { ...selectedStrategy.value }
+	console.log(target_copy_id.value, current_strategy.value)
 	try {
-		const res = await api_复制交易对信息(target_copy_id.value, currentStrategy.value.symbol_infos)
+		const res = await api_复制交易对信息(target_copy_id.value, current_strategy.value.symbol_infos)
 		// console.log("res", res);
 		if (res.status === 200 && res.data.code === 200) {
 			// console.log(res.data.data);
@@ -1060,47 +1141,46 @@ const copyStrategy = () => {
 		ElMessage.warning('请先选择一个策略!')
 		return
 	}
-	currentStrategy.value = { ...selectedStrategy.value }
-	exchange_type.value = currentStrategy.exchange_type
+	current_strategy.value = { ...selectedStrategy.value }
+	exchange_type.value = current_strategy.exchange_type
 	dialogTitle.value = '新增马丁策略'
-	// 循环 currentStrategy.value.symbol_infos 给symbol_options加入对应的symbol
-	currentStrategy.value.symbols = []
+	// 循环 current_strategy.value.symbol_infos 给symbol_options加入对应的symbol
+	current_strategy.value.symbols = []
 	for (let key in symbol_precisions) {
 		delete symbol_precisions[key]
 	}
-	currentStrategy.value.symbol_infos.forEach((symbol_info) => {
+	current_strategy.value.symbol_infos.forEach((symbol_info) => {
 		symbol_precisions[symbol_info['symbol']] = symbol_info['symbol_price_precision']
-		currentStrategy.value.symbols.push(symbol_info['symbol'])
+		current_strategy.value.symbols.push(symbol_info['symbol'])
 	})
-	updateSymbolPrecisionFields(currentStrategy.value.symbols)
-	currentStrategy.value.id = null
-	currentStrategy.value.is_run = false
+	updateSymbolPrecisionFields(current_strategy.value.symbols)
+	current_strategy.value.id = null
+	current_strategy.value.is_run = false
 	setCurrent()
 	dialogVisible.value = true
 }
 
-const currentStrategy = ref({})
-watch(
-	() => currentStrategy.value.cover_stop_num,
-	(val) => {
-		if (val === '') {
-			currentStrategy.value.cover_stop_num = null
-		}
-	}
-)
+// watch(
+// 	() => current_strategy.value.cover_stop_num,
+// 	(val) => {
+// 		if (val === '') {
+// 			current_strategy.value.cover_stop_num = null
+// 		}
+// 	}
+// )
 
 watch(
-	() => currentStrategy.value.live_order_num,
+	() => current_strategy.value.live_order_num,
 	(val) => {
 		// 如果是非数字的或者小于等于1的 统一转成1
 		if (val === null || isNaN(val) || val <= 1) {
-			currentStrategy.value.live_order_num = 1
+			current_strategy.value.live_order_num = 1
 		}
-		// 求currentStrategy.cover_stop_num跟currentStrategy.all_cover_order_count的最小值
-		if (currentStrategy.value.cover_stop_num && currentStrategy.value.all_cover_order_count) {
-			let max = Math.min(currentStrategy.value.cover_stop_num, currentStrategy.value.all_cover_order_count)
-			if (currentStrategy.value.live_order_num > max) {
-				currentStrategy.value.live_order_num = max
+		// 求current_strategy.cover_stop_num跟current_strategy.all_cover_order_count的最小值
+		if (current_strategy.value.cover_stop_num && current_strategy.value.all_cover_order_count) {
+			let max = Math.min(current_strategy.value.cover_stop_num, current_strategy.value.all_cover_order_count)
+			if (current_strategy.value.live_order_num > max) {
+				current_strategy.value.live_order_num = max
 			}
 		}
 	}
@@ -1126,20 +1206,20 @@ function updateSymbolPrecisionFields(symbols) {
 }
 const handle_repull_take_profit_num = () => {
 	// 手动处理输入的值 如果可以转成数字就转数字，不能转数字就改成0
-	const inputValue = currentStrategy.value.repull_take_profit_num
+	const inputValue = current_strategy.value.repull_take_profit_num
 	console.log(inputValue)
 	if (isNaN(inputValue)) {
-		currentStrategy.value.repull_take_profit_num = 0
+		current_strategy.value.repull_take_profit_num = 0
 	} else {
-		currentStrategy.value.repull_take_profit_num = parseFloat(inputValue)
+		current_strategy.value.repull_take_profit_num = parseFloat(inputValue)
 	}
-	console.log(currentStrategy.value.repull_take_profit_num)
+	console.log(current_strategy.value.repull_take_profit_num)
 }
 const 当前策略对应的对冲马丁的策略改变 = () => {
-	currentStrategy.value.hedge_mading_strategy_id = 对冲马丁策略id.value
+	current_strategy.value.hedge_mading_strategy_id = 对冲马丁策略id.value
 }
-function currentStrategy_init() {
-	currentStrategy.value = {
+function current_strategy_init() {
+	current_strategy.value = {
 		id: null, // 唯一标识
 		trade_type: 'futures', //交易类型
 		strategy_note: '', // 策略备注
@@ -1249,8 +1329,8 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('新增马丁策略')
 function addStrategy() {
 	dialogTitle.value = '新增马丁策略'
-	// 清空currentStrategy
-	currentStrategy_init()
+	// 清空current_strategy
+	current_strategy_init()
 	exchange_info.value = {
 		id: '',
 		exchange_name: '',
@@ -1261,77 +1341,22 @@ function addStrategy() {
 
 // 编辑双马丁策略
 const editStrategy = async (item) => {
-	console.log(item)
 	dialogTitle.value = '编辑马丁策略'
-	当前策略对应的对冲马丁的策略列表.value = []
-	currentStrategy.value = item
-	exchange_type.value = item.exchange_type
-	await 更新交易所信息()
-	if (currentStrategy.value.trade_type === 'spot') {
-		if (item.exchange_type === 'gate') {
-			if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
-				symbol_options.value = gate_spot_all_symbols.value.map((item) => ({
-					value: item.symbol,
-					label: item.symbol,
-				}))
-			}
-		} else {
-			if (binance_spot_all_symbols.value.length !== symbol_options.value.length) {
-				symbol_options.value = binance_spot_all_symbols.value.map((item) => ({
-					value: item.symbol,
-					label: item.symbol,
-				}))
-			}
-		}
-	} else {
-		symbol_options.value = futures_all_symbols.value.map((item) => ({
-			value: item.symbol,
-			label: item.symbol,
-		}))
-	}
-	strategy_list.value.forEach((strategy, index) => {
-		// console.log(strategy.exchange_name, currentStrategy.value.exchange_name, strategy.position_side, currentStrategy.value.position_side)
-		if (strategy.exchange_name == currentStrategy.value.exchange_name && currentStrategy.value.position_side == 'BOTH' && strategy.position_side != 'BOTH') {
-			const 持仓方向 = strategy.position_side === 'LONG' ? '做多' : '做空'
-			const _data = {
-				value: strategy.id,
-				label: strategy.exchange_name + '-' + strategy.strategy_note + '-' + 持仓方向,
-			}
-			当前策略对应的对冲马丁的策略列表.value.push(_data)
-		}
-	})
-	// console.log("当前策略对应的对冲马丁的策略列表", 当前策略对应的对冲马丁的策略列表.value)
-	// 需要先判断exchange_options是否为空 然后通过exchange_options找到对应的交易所名称
-	const currentExchange = exchange_options.value.find((e) => {
-		return e.id === item.exchange_id
-	})
-	exchange_info.value = currentExchange
-	对冲马丁策略id.value = currentStrategy.value.hedge_mading_strategy_id
-	// 循环 currentStrategy.value.symbol_infos 给symbol_options加入对应的symbol
-	currentStrategy.value.symbols = []
-	for (let key in symbol_precisions) {
-		delete symbol_precisions[key]
-	}
-	if (currentStrategy.value.symbol_infos && currentStrategy.value.symbol_infos.length > 0) {
-		currentStrategy.value.symbol_infos.forEach((symbol_info) => {
-			symbol_precisions[symbol_info['symbol']] = symbol_info['symbol_price_precision']
-			currentStrategy.value.symbols.push(symbol_info['symbol'])
-		})
-		updateSymbolPrecisionFields(currentStrategy.value.symbols)
-	}
-
-	// exchange_info.value.exchange_name = item.exchange_name;
+	current_strategy.value = item
+	current_strategy.value.exchange_type = 'Binance'
+	current_strategy.value.symbol = 'pepe'
+	console.log(item, typeof current_strategy.value.long_bdcz)
 	dialogVisible.value = true
 }
 
 const 选择交易类型 = async () => {
-	if (currentStrategy.value.trade_type === 'futures') {
+	if (current_strategy.value.trade_type === 'futures') {
 		symbol_options.value = futures_all_symbols.value.map((item) => ({
 			value: item.symbol,
 			label: item.symbol,
 		}))
-	} else if (currentStrategy.value.trade_type === 'spot') {
-		if (currentStrategy.value.exchange_type === 'gate') {
+	} else if (current_strategy.value.trade_type === 'spot') {
+		if (current_strategy.value.exchange_type === 'gate') {
 			if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
 				symbol_options.value = gate_spot_all_symbols.value.map((item) => ({
 					value: item.symbol,
@@ -1347,7 +1372,7 @@ const 选择交易类型 = async () => {
 			}
 		}
 
-		currentStrategy.value.position_side = 'LONG'
+		current_strategy.value.position_side = 'LONG'
 	}
 }
 
@@ -1438,12 +1463,11 @@ async function 获取gate现货所有usdt交易对() {
 	}
 }
 
-const exchange_options = ref([])
 const buzz_exchange_options = ref(['币安', 'gate'])
 // 更新交易所信息
 async function 更新交易所信息() {
-	currentStrategy.value.exchange_type = exchange_type.value
-	if (currentStrategy.value.exchange_type === 'gate') {
+	current_strategy.value.exchange_type = exchange_type.value
+	if (current_strategy.value.exchange_type === 'gate') {
 		if (gate_spot_all_symbols.value.length !== symbol_options.value.length) {
 			symbol_options.value = gate_spot_all_symbols.value.map((item) => ({
 				value: item.symbol,
@@ -1526,10 +1550,10 @@ const handleSizeChange = (newSize) => {
 }
 
 const 禁用策略 = async (row, tag) => {
-	currentStrategy.value = row
-	currentStrategy.value.is_deleted = tag
+	current_strategy.value = row
+	current_strategy.value.is_deleted = tag
 	try {
-		const res = await api_更新指定id的双马丁策略(currentStrategy.value.id, currentStrategy.value)
+		const res = await api_update_strategy(current_strategy.value.id, current_strategy.value)
 		// console.log("res", res);
 		if (res.status === 200 && res.data.code === 200) {
 			// console.log(res.data.data);
@@ -1558,20 +1582,23 @@ const mock_positon_side = ref('')
 const mock_long_table_list = ref([])
 const mock_short_table_list = ref([])
 const 模拟数据 = async () => {
-	currentStrategy.value.exchange_id = exchange_info.value.id
-	currentStrategy.value.exchange_name = exchange_info.value.exchange_name
-	currentStrategy.value.exchange_type = exchange_type.value
-	// 遍历symbol_precisions 如果精度是空字符串的就转成0
-	for (const key in symbol_precisions) {
-		if (!symbol_precisions[key]) {
-			symbol_precisions[key] = 0
-		}
+	if (!current_strategy.value.exchange_type) {
+		ElMessage({
+			message: '请先选择交易所!',
+			type: 'warning',
+		})
+		return
 	}
-	currentStrategy.value.symbol = mock_symbol.value
-	currentStrategy.value.symbol_precisions = symbol_precisions
+	if (!current_strategy.value.symbol) {
+		ElMessage({
+			message: '请先输入交易对!',
+			type: 'warning',
+		})
+		return
+	}
 	try {
-		const res = await api_模拟数据(currentStrategy.value)
-		// console.log("res", res);
+		const res = await api_strategy_mock(current_strategy.value)
+		console.log('res', res)
 		if (res.status === 200 && res.data.code === 200) {
 			console.log(res.data.data)
 			mock_long_table_list.value = res.data.data.long
@@ -1604,26 +1631,15 @@ const 模拟数据 = async () => {
 	}
 }
 
-async function submitStrategy() {
-	currentStrategy.value.exchange_id = exchange_info.value.id
-	currentStrategy.value.exchange_name = exchange_info.value.exchange_name
-	currentStrategy.value.exchange_type = exchange_type.value
-	// 遍历symbol_precisions 如果精度是空字符串的就转成0
-	for (const key in symbol_precisions) {
-		if (!symbol_precisions[key]) {
-			symbol_precisions[key] = 0
-		}
-	}
-	currentStrategy.value.symbol_precisions = symbol_precisions
-	console.log(currentStrategy.value)
-	if (currentStrategy.value.id) {
+const submitStrategy = async () => {
+	if (current_strategy.value.strategy_id) {
 		try {
-			const res = await api_更新指定id的双马丁策略(currentStrategy.value.id, currentStrategy.value)
+			const res = await api_update_strategy(current_strategy.value)
 			// console.log("res", res);
 			if (res.status === 200 && res.data.code === 200) {
 				// console.log(res.data.data);
 
-				await getStartegyList(strategy_is_deleted.value)
+				await get_strategy_page(strategy_is_deleted.value)
 				ElMessage({
 					message: '更新双马丁策略成功',
 					type: 'success',
@@ -1643,7 +1659,7 @@ async function submitStrategy() {
 		}
 	} else {
 		try {
-			const res = await api_新增双马丁策略(currentStrategy.value)
+			const res = await api_新增双马丁策略(current_strategy.value)
 			// console.log("res", res);
 			if (res.status === 200 && res.data.code === 200) {
 				// console.log(res.data.data);
