@@ -1,8 +1,8 @@
 import { http } from './http';
 
 //获取所有交易对
-export const api_获取所有交易对 = (use_cache) => {
-    return http.get(`/binance/api/exchange_info?use_cache=${use_cache}`);
+export const api_get_binance_api_usdt_symbols = () => {
+    return http.get(`/binance/api/get_usdt_symbols`);
 };
 
 

@@ -1,5 +1,11 @@
 import { http } from './http';
 
+
+//获取所有交易对
+export const api_get_binance_fapi_usdt_symbols = () => {
+    return http.get(`/binance/fapi/get_usdt_symbols`);
+};
+
 //获取用户持仓
 export const fapi_获取用户持仓 = () => {
     return http.get(`/binance/fapi/user_info`);
