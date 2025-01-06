@@ -21,11 +21,14 @@ export const api_strategy_mock = async (data) => {
 };
 
 //获取指定id的双马丁策略详情
-export const api_获取指定id的双马丁策略详情 = async (id) => {
-    const response = await http.get(`/${model_url}/detail/${id}`);
-    // 使用new Promise与setTimeout结合，等待1秒
-    await new Promise(resolve => setTimeout(resolve, 1000));
+export const api_get_strategy_by_id = async (strategy_id) => {
+    const response = await http.get(`/${model_url}/strategy/${strategy_id}`);
     return response;
+};
+
+//获取双马丁策略run列表
+export const api_get_run_page = async (page,size,form_data) => {
+    return await http.post(`/${model_url}/run/page?page=${page}&size=${size}`, form_data);
 };
 
 

@@ -54,18 +54,11 @@
 					<el-table-column type="index" width="55" label="序号" align="center" />
 
 					<el-table-column prop="name" label="策略名称" :min-width="300" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="username" label="创建人" width="130" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column label="持仓方向" width="90" show-overflow-tooltip align="center">
 						<template #default="{ row }">
 							<el-tag :type="getTagType(row.position_side)" effect="dark">
 								{{ getTagLabel(row.position_side) }}
-							</el-tag>
-						</template>
-					</el-table-column>
-					<el-table-column prop="username" label="创建人" width="130" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column label="运行中" width="90" show-overflow-tooltip align="center">
-						<template #default="{ row }">
-							<el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">
-								{{ row.is_run ? '是' : '否' }}
 							</el-tag>
 						</template>
 					</el-table-column>
@@ -91,16 +84,12 @@
 							</el-tooltip>
 						</template>
 						<template #default="{ row }">
-							<el-tag :type="row.is_share ? 'success' : 'danger'" effect="dark">
-								{{ row.is_share ? '是' : '否' }}
-							</el-tag>
+							{{ row.is_share ? '是' : '否' }}
 						</template>
 					</el-table-column>
 					<el-table-column label="是否禁用" width="90" show-overflow-tooltip align="center">
 						<template #default="{ row }">
-							<el-tag :type="row.is_ban ? 'success' : 'danger'" effect="dark">
-								{{ row.is_ban ? '是' : '否' }}
-							</el-tag>
+							{{ row.is_ban ? '是' : '否' }}
 						</template>
 					</el-table-column>
 					<el-table-column label="其他操作" width="220" align="center">
@@ -110,6 +99,13 @@
 							<el-button type="danger" size="small" @click="禁用策略(row, true)" v-if="!row.is_ban" plain>禁用</el-button>
 							<el-button type="success" size="small" @click="禁用策略(row, false)" v-if="row.is_ban" plain>启用</el-button>
 							<el-button type="danger" size="small" @click="deleteStrategy(row)" plain>删除</el-button>
+						</template>
+					</el-table-column>
+					<el-table-column label="运行中" width="90" show-overflow-tooltip align="center" fixed="right">
+						<template #default="{ row }">
+							<el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">
+								{{ row.is_run ? '是' : '否' }}
+							</el-tag>
 						</template>
 					</el-table-column>
 					<el-table-column label="操作" width="220" align="center" fixed="right">
@@ -269,7 +265,7 @@
 								<el-row :gutter="20">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单倍数" required>
-											<el-input-number type="number" v-model.number="current_strategy.long_cover_value_mult">
+											<el-input-number type="number" v-model.number="current_strategy.long_cover_value_mult" :precision="4" :step="0.01">
 												<template #append>倍</template>
 											</el-input-number>
 										</el-form-item>
@@ -442,7 +438,7 @@
 								<el-row :gutter="20" v-if="current_strategy.long_dj_open">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单倍数" required>
-											<el-input-number type="number" v-model.number="current_strategy.long_dj_cover_value_mult">
+											<el-input-number type="number" v-model.number="current_strategy.long_dj_cover_value_mult" :precision="4" :step="0.01">
 												<template #append>倍</template>
 											</el-input-number>
 										</el-form-item>
@@ -455,7 +451,7 @@
 										</el-form-item>
 									</el-col>
 								</el-row>
-								<el-row :gutter="20">
+								<el-row :gutter="20" v-if="current_strategy.long_dj_open">
 									<el-col :span="24">
 										<div>
 											<el-form-item label="止盈方式" required>
@@ -557,7 +553,7 @@
 								<el-row :gutter="20">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单倍数" required>
-											<el-input-number type="number" v-model.number="current_strategy.short_cover_value_mult">
+											<el-input-number type="number" v-model.number="current_strategy.short_cover_value_mult" :precision="4" :step="0.01">
 												<template #append>倍</template>
 											</el-input-number>
 										</el-form-item>
@@ -730,7 +726,7 @@
 								<el-row :gutter="20" v-if="current_strategy.short_dj_open">
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
 										<el-form-item label="补单倍数" required>
-											<el-input-number type="number" v-model.number="current_strategy.short_dj_cover_value_mult">
+											<el-input-number type="number" v-model.number="current_strategy.short_dj_cover_value_mult" :precision="4" :step="0.01">
 												<template #append>倍</template>
 											</el-input-number>
 										</el-form-item>
@@ -743,7 +739,7 @@
 										</el-form-item>
 									</el-col>
 								</el-row>
-								<el-row :gutter="20">
+								<el-row :gutter="20" v-if="current_strategy.short_dj_open">
 									<el-col :span="24">
 										<div>
 											<el-form-item label="止盈方式" required>
@@ -921,23 +917,23 @@
 					</div>
 				</el-dialog>
 
-				<el-dialog v-model="mockDialogVisible" title="模拟数据" width="65%" :before-close="mockHandleClose" :close-on-click-modal="false" v-if="mock_positon_side === 'both' || mock_positon_side === 'long'">
-					<el-card class="box-card">
+				<el-dialog v-model="mockDialogVisible" title="模拟数据" width="85%" :before-close="mockHandleClose" :close-on-click-modal="false">
+					<el-card class="box-card" v-if="mock_positon_side === 'both' || mock_positon_side === 'long'">
 						<template #header>
 							<el-text class="mx-1" type="success" size="large" tag="b">做多模拟表格</el-text>
 						</template>
-						<el-table :data="mock_long_table_list" style="width: 100%" border highlight-current-row height="800px" stripe>
+						<el-table :data="mock_long_table_list" style="width: 100%" border highlight-current-row stripe>
 							<el-table-column prop="当前补单次数" label="当前补单次数" width="120" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="补单数量" label="补单数量" width="100" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="补单价格" label="补单价格" width="100" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="补单价值" label="补单价值" width="100" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="价格波动" label="价格波动" width="100" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="预估仓位数量" label="预估仓位数量" width="120" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="补单数量" label="补单数量" width="120" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="补单价格" label="补单价格" width="120" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="补单价值" label="补单价值" width="120" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="价格波动" label="价格波动" width="120" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="仓位数量" label="仓位数量" width="120" show-overflow-tooltip align="center"></el-table-column>
 							<el-table-column prop="预估仓位价格" label="预估仓位价格" width="120" show-overflow-tooltip align="center"></el-table-column>
 							<el-table-column prop="预估仓位价值" label="预估仓位价值" width="120" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="预估盈利" label="预估盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="预估盈利" label="预估盈利" width="120" show-overflow-tooltip align="center"></el-table-column>
 
-							<el-table-column prop="止盈价格" label="止盈价格" width="100" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="止盈价格" label="止盈价格" width="120" show-overflow-tooltip align="center"></el-table-column>
 							<el-table-column prop="价格回调多少解套" label="价格回调多少解套" width="180" show-overflow-tooltip align="center"></el-table-column>
 							<el-table-column prop="止损价格" label="止损价格" width="100" show-overflow-tooltip align="center"></el-table-column>
 							<el-table-column prop="预估止损亏损" label="预估止损亏损" width="120" show-overflow-tooltip align="center"></el-table-column>
@@ -948,17 +944,17 @@
 						<template #header>
 							<el-text class="mx-1" type="danger" size="large" tag="b">做空模拟表格</el-text>
 						</template>
-						<el-table :data="mock_short_table_list" style="width: 100%" border highlight-current-row height="800px" stripe>
+						<el-table :data="mock_short_table_list" style="width: 100%" border highlight-current-row stripe>
 							<el-table-column prop="当前补单次数" label="当前补单次数" width="120" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="补单数量" label="补单数量" width="100" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="补单价格" label="补单价格" width="100" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="补单价值" label="补单价值" width="100" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="价格波动" label="价格波动" width="100" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="预估仓位数量" label="预估仓位数量" width="120" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="补单数量" label="补单数量" width="120" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="补单价格" label="补单价格" width="120" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="补单价值" label="补单价值" width="120" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="价格波动" label="价格波动" width="120" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="仓位数量" label="仓位数量" width="120" show-overflow-tooltip align="center"></el-table-column>
 							<el-table-column prop="预估仓位价格" label="预估仓位价格" width="120" show-overflow-tooltip align="center"></el-table-column>
 							<el-table-column prop="预估仓位价值" label="预估仓位价值" width="120" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="预估盈利" label="预估盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
-							<el-table-column prop="止盈价格" label="止盈价格" width="100" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="预估盈利" label="预估盈利" width="120" show-overflow-tooltip align="center"></el-table-column>
+							<el-table-column prop="止盈价格" label="止盈价格" width="120" show-overflow-tooltip align="center"></el-table-column>
 							<el-table-column prop="价格回调多少解套" label="价格回调多少解套" width="180" show-overflow-tooltip align="center"></el-table-column>
 							<el-table-column prop="止损价格" label="止损价格" width="100" show-overflow-tooltip align="center"></el-table-column>
 							<el-table-column prop="预估止损亏损" label="预估止损亏损" width="120" show-overflow-tooltip align="center"></el-table-column>
@@ -1010,7 +1006,10 @@ const detailStore = useMdBotsDetailStore()
 
 const viewDetail = (row) => {
 	detailStore.setSelectedItem(row) // 保存选中的数据
-	router.push({ name: commonConst.PATH_MD_BOTS_DETAIL }) // 跳转到详情页
+	router.push({
+		name: commonConst.PATH_MD_BOTS_DETAIL,
+		query: { strategy_id: row.strategy_id }, // 将 ID 作为查询参数
+	}) // 跳转到详情页
 }
 const strategy_is_deleted = ref(false)
 const show = ref(true)
@@ -1581,6 +1580,21 @@ const 禁用策略 = async (row, tag) => {
 const mock_positon_side = ref('')
 const mock_long_table_list = ref([])
 const mock_short_table_list = ref([])
+const keys = ['订单号', '当前补单次数', '价格波动', '补单价格', '补单数量', '仓位数量', '补单价值', '预估仓位价格', '预估仓位价值', '止盈价格', '价格回调多少解套', '预估盈利', '止损价格', '预估止损亏损']
+// 定义函数，将二维数组转换为对象数组
+const 模拟数据_数组转对象 = (array2d) => {
+	return array2d.map((array) => {
+		// 判断类型如果是对象则直接返回，如果是数组就进行下面的处理
+		if (typeof array === 'object' && !Array.isArray(array)) {
+			return array
+		}
+		const obj = {}
+		for (let i = 0; i < keys.length; i++) {
+			obj[keys[i]] = array[i]
+		}
+		return obj
+	})
+}
 const 模拟数据 = async () => {
 	if (!current_strategy.value.exchange_type) {
 		ElMessage({
@@ -1601,13 +1615,17 @@ const 模拟数据 = async () => {
 		console.log('res', res)
 		if (res.status === 200 && res.data.code === 200) {
 			console.log(res.data.data)
-			mock_long_table_list.value = res.data.data.long
-			mock_short_table_list.value = res.data.data.short
-			if (res.data.data.hasOwnProperty('long') && res.data.data.hasOwnProperty('short')) {
+			if (res.data.data.hasOwnProperty('short_data_list')) {
+				mock_short_table_list.value = 模拟数据_数组转对象(res.data.data.short_data_list)
+			}
+			if (res.data.data.hasOwnProperty('long_data_list')) {
+				mock_long_table_list.value = 模拟数据_数组转对象(res.data.data.long_data_list)
+			}
+			if (res.data.data.hasOwnProperty('long_data_list') && res.data.data.hasOwnProperty('short_data_list')) {
 				mock_positon_side.value = 'both'
-			} else if (res.data.data.hasOwnProperty('short')) {
+			} else if (res.data.data.hasOwnProperty('short_data_list')) {
 				mock_positon_side.value = 'short'
-			} else if (res.data.data.hasOwnProperty('long')) {
+			} else if (res.data.data.hasOwnProperty('long_data_list')) {
 				mock_positon_side.value = 'long'
 			} else {
 				mock_positon_side.value = ''

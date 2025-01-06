@@ -105,7 +105,7 @@ const routes = [
             component: () => import('@/views/MdBots/SmadingList.vue'),
             meta: { title: '马丁机器人列表', requiresAuth: true }, // 需要鉴权的路由
           }, {
-            path: 'Detail',
+            path: 'detail',
             name: CommonConstant.PATH_MD_BOTS_DETAIL,
             component: () => import('@/views/MdBots/Detail.vue'),
             meta: { title: '马丁机器人明细', requiresAuth: true }, // 需要鉴权的路由
