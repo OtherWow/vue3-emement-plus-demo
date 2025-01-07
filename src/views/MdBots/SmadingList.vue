@@ -1020,8 +1020,6 @@ const filter_run = (value, row) => {
 const mock_symbol = ref('')
 onMounted(() => {
 	get_strategy_page(page.value, size.value, form_data.value)
-	获取币安现货所有usdt交易对()
-	获取gate现货所有usdt交易对()
 	// intervalId.value = setInterval(() => {
 	//     if (dialogVisible.value) {
 	//         return;

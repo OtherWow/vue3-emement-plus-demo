@@ -74,55 +74,55 @@
 				</el-col>
 			</el-row>
 			<el-table id="monitor_table" :data="smading_infos_list" style="width: 100%" :fit="false" border highlight-current-row :summary-method="getSummaries" show-summary :height="monitor_table_height" :row-class-name="tableRowClassName" :cell-class-name="cellClassName" @filter-change="handleFilterChange" scrollbar-always-on show-overflow-tooltip ref="monitorTable" row-key="id">
-				<el-table-column :fixed="选择框_账号名 ? 'left' : false" prop="name" label="账号名" width="80" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column :fixed="选择框_账号名 ? 'left' : false" prop="交易所名称" label="交易所名称" width="80" show-overflow-tooltip align="center"></el-table-column>
 
-				<el-table-column :fixed="选择框_交易对 ? 'left' : false" prop="symbol" label="交易对" width="120" show-overflow-tooltip align="center" :filters="symbolFilters" filter-placement="bottom-end" column-key="symbol">
+				<el-table-column :fixed="选择框_交易对 ? 'left' : false" prop="交易对" label="交易对" width="120" show-overflow-tooltip align="center" :filters="symbolFilters" filter-placement="bottom-end" column-key="symbol">
 					<template #default="scope">
 						<el-tag type="info" effect="dark">{{ scope.row.symbol }}</el-tag>
 					</template>
 				</el-table-column>
 				<el-table-column type="index" width="55" label="序号" align="center" />
+				<el-table-column prop="策略名称" label="策略名称" width="200" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="交易所" label="交易所" width="110" show-overflow-tooltip align="center"></el-table-column>
 				<el-table-column prop="交易类型" label="交易类型" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="启动资金" label="启动资金" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="账户余额" label="账户余额" width="110" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="当前版本" label="当前版本" width="110" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="启动资金" label="启动资金" width="130" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="账户余额" label="账户余额" width="130" show-overflow-tooltip align="center"></el-table-column>
 				<el-table-column :fixed="选择框_运行时间 ? 'left' : false" prop="运行时间" label="运行时间" width="90" show-overflow-tooltip align="center"></el-table-column>
 				<el-table-column :fixed="选择框_每小时盈利 ? 'left' : false" prop="每小时盈利" label="每小时盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="当前权重" label="当前权重" width="90" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="最新价格" label="最新价格" width="130" show-overflow-tooltip align="center"></el-table-column>
 				<el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="止盈总利润" label="止盈总利润" width="100" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="总盈利" label="总盈利" width="100" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="总浮盈" label="总浮盈" width="100" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="运行状态" label="运行状态" width="100" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
 				<el-table-column prop="做空止盈次数" label="做空止盈次数" width="120" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="做空止盈总利润" label="做空止盈总利润" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
-				<el-table-column prop="做多止盈次数" label="做多止盈次数" width="120" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="做多止盈总利润" label="做多止盈总利润" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
-				<el-table-column prop="触发对冲单次数" label="触发对冲单次数" width="130" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="第几次对冲单" label="第几次对冲单" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="第几次补单" label="第几次补单" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="做空仓位数量" label="做空仓位数量" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="做空仓位价格" label="做空仓位价格" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="做空总盈利" label="做空总盈利" width="100" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
-				<el-table-column prop="做多仓位数量" label="做多仓位数量" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="做多仓位价格" label="做多仓位价格" width="110" show-overflow-tooltip align="center"></el-table-column>
-
-				<el-table-column prop="做多总盈利" label="做多总盈利" width="100" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
-
-				<el-table-column prop="仓位手续费" label="仓位手续费" width="100" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
-
-				<el-table-column prop="总浮盈(已扣手续费)" label="总浮盈(已扣手续费)" width="150" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
-
-				<el-table-column prop="当前版本" label="当前版本" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="最新价格" label="最新价格" width="90" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="做多本轮时间" label="做多本轮时间" width="70" show-overflow-tooltip align="center"></el-table-column>
-
-				<el-table-column prop="做多当前挂单数" label="做多当前挂单数" width="90" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="做多第几次补单" label="做多补单次数" width="70" show-overflow-tooltip align="center">
+				<el-table-column prop="做多手续费" label="做多手续费" width="120" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="做多总盈利" label="做多总盈利" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做多补单次数" label="做多补单次数" width="70" show-overflow-tooltip align="center">
 					<template #header="{ column }">
 						<div class="highlight-title">{{ column.label }}</div>
 					</template>
 				</el-table-column>
-				<el-table-column prop="做多仓位价值" label="做多仓位价值" width="100" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="做多仓位浮动盈亏" label="做多仓位浮动盈亏" width="100" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="做多仓位数量" label="做多仓位数量" width="120" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="做多仓位价格" label="做多仓位价格" width="120" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="做多持仓价值" label="做多持仓价值" width="120" show-overflow-tooltip align="center"></el-table-column>
+				<el-table-column prop="做多止盈总利润" label="做多止盈总利润" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做多仓位浮动盈亏" label="做多仓位浮动盈亏" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做多本轮时间" label="做多本轮时间" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做多运行状态" label="做多运行状态" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做多重挂止盈" label="做多重挂止盈" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做空止盈次数" label="做空止盈次数" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做空手续费" label="做空手续费" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做空总盈利" label="做空总盈利" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做空补单次数" label="做空补单次数" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做空仓位数量" label="做空仓位数量" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做空仓位价格" label="做空仓位价格" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做空持仓价值" label="做空持仓价值" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做空本轮时间" label="做空本轮时间" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做空运行状态" label="做空运行状态" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
+				<el-table-column prop="做空重挂止盈" label="做空重挂止盈" width="130" show-overflow-tooltip align="center" v-if="show_profit"></el-table-column>
 
-				<el-table-column prop="多仓暂停补单" label="多仓暂停补单" width="70" align="center"></el-table-column>
 				<el-table-column :fixed="选择框_多仓操作 ? 'right' : false" label="多仓操作" width="330" align="center">
 					<template #default="{ row, $index }">
 						<el-button type="success" size="small" @click="暂停补单(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.多仓暂停补单 === '否'">暂停补单</el-button>
@@ -134,16 +134,12 @@
 						<el-button type="success" size="small" @click="重挂止盈(row, 'LONG', $index)" style="margin-left: 0; margin-right: 0px">重挂止盈</el-button>
 					</template>
 				</el-table-column>
-				<el-table-column prop="做空本轮时间" label="做空本轮时间" width="70" show-overflow-tooltip align="center"></el-table-column>
 				<el-table-column prop="做空第几次补单" label="做空补单次数" width="70" show-overflow-tooltip align="center">
 					<template #header="{ column }">
 						<div class="highlight-title">{{ column.label }}</div>
 					</template>
 				</el-table-column>
 
-				<el-table-column prop="做空仓位价值" label="做空仓位价值" width="100" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="100" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="空仓暂停补单" label="空仓暂停补单" width="70" align="center"></el-table-column>
 				<el-table-column :fixed="选择框_空仓操作 ? 'right' : false" label="空仓操作" width="330" align="center">
 					<template #default="{ row, $index }">
 						<el-button type="danger" size="small" @click="暂停补单(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.空仓暂停补单 === '否'">暂停补单</el-button>
@@ -375,22 +371,19 @@ const updateHeight = () => {
 const monitorTable = ref(null)
 const 黑名单 = ref(false)
 onMounted(async () => {
-	await 获取多少usdt自动重开()
-	window.addEventListener('scroll', function () {
-		console.log('滚动事件被触发!')
-	})
+	// await 获取多少usdt自动重开()
 
-	if (localStorage.getItem('username') === '徐建煜' || localStorage.getItem('username') === '刘倩' || localStorage.getItem('username') === '徐馥蓉') {
-		黑名单.value = true
-	}
+	// if (localStorage.getItem('username') === '徐建煜' || localStorage.getItem('username') === '刘倩' || localStorage.getItem('username') === '徐馥蓉') {
+	// 	黑名单.value = true
+	// }
 
-	if (localStorage.getItem('username') === 'syb' || localStorage.getItem('username') === 'yyn' || localStorage.getItem('username') === 'yyn2') {
-		show_profit.value = true
-		突出显示的列.value.push('总手续费')
-		列名列表.value.push('总手续费')
-	} else {
-		show_profit.value = false
-	}
+	// if (localStorage.getItem('username') === 'syb' || localStorage.getItem('username') === 'yyn' || localStorage.getItem('username') === 'yyn2') {
+	// 	show_profit.value = true
+	// 	突出显示的列.value.push('总手续费')
+	// 	列名列表.value.push('总手续费')
+	// } else {
+	// 	show_profit.value = false
+	// }
 	更新突出显示的列()
 	updateHeight()
 	console.log('监控墙页面加载完成,开始连接websocket')
@@ -419,7 +412,7 @@ onBeforeUnmount(() => {
 let 计算总盈利 = 0
 let 计算仓位浮动盈亏 = 0
 const can_show = ref(true)
-const keys = ['name', 'symbol', 'strategy_id', 'exchange_id', '交易类型', '当前版本', '是否暂停', '是否停止', '多仓暂停补单', '空仓暂停补单', '当前权重', '启动资金', '账户余额', '每小时盈利', '运行时间', '最新价格', '止盈次数', '止盈总利润', '做空止盈次数', '做空止盈总利润', '做多止盈次数', '做多止盈总利润', '触发对冲单次数', '第几次补单', '做空第几次补单', '做多第几次补单', '第几次对冲单', '做空仓位数量', '做空仓位价格', '做空仓位价值', '做空仓位浮动盈亏', '做空总盈利', '做空本轮时间', '做多仓位数量', '做多仓位价格', '做多仓位价值', '做多仓位浮动盈亏', '做多总盈利', '做多本轮时间', '仓位手续费', '仓位浮动盈亏', '总浮盈(已扣手续费)', '总盈利', '总手续费', '禁止重开', '止损阈值', '做多当前挂单数']
+const keys = ['strategy_id', '策略名称', 'exchange_id', '交易所', '交易所名称', '交易对', '交易类型', '当前版本', '启动资金', '账户余额', '最新价格', '运行时间', '每小时盈利', '止盈次数', '总手续费', '总盈利', '总浮盈', '运行状态', '做多止盈次数', '做多手续费', '做多总盈利', '做多补单次数', '做多仓位数量', '做多仓位价格', '做多持仓价值', '做多仓位浮动盈亏', '做多本轮时间', '做多运行状态', '做多重挂止盈', '做空止盈次数', '做空手续费', '做空总盈利', '做空补单次数', '做空仓位数量', '做空仓位价格', '做空持仓价值', '做空仓位浮动盈亏', '做空本轮时间', '做空运行状态', '做空重挂止盈']
 
 // 定义函数，将二维数组转换为对象数组
 const websocket_数组转对象 = (array2d) => {
@@ -477,7 +470,7 @@ function connectToWebSocket() {
 		const array2d = JSON.parse(event.data)
 		// 调用函数，将二维数组转换为对象数组
 		const rawData = websocket_数组转对象(array2d)
-		// console.log('WebSocket 收到消息:', rawData, rawData.error, rawData.error == true)
+		console.log('WebSocket 收到消息:', rawData, rawData.error, rawData.error == true)
 		// 检查消息中是否有'error'字段
 		if (rawData.error) {
 			console.error('WebSocket error received:', rawData.error)
@@ -493,7 +486,6 @@ function connectToWebSocket() {
 			// 关闭WebSocket连接
 			ws.close()
 		} else {
-			const versionCheck = (version) => ['v1.0.24', 'v1.0.23', 'v1.0.22', 'v1.0.21', 'v1.0.20', 'v1.0.19', 'v1.0.18', 'v1.0.17'].some((v) => version.includes(v))
 			let 计算总盈利 = 0
 			let 计算仓位浮动盈亏 = 0
 			let names = new Set()
@@ -506,34 +498,30 @@ function connectToWebSocket() {
 			let max_short_add_times = 0
 			rawData.forEach((item) => {
 				const { 当前版本, 总盈利, 总手续费, 禁止重开, 仓位浮动盈亏, name, symbol, 交易类型, 做多第几次补单, 做空第几次补单 } = item
-				//版本不符合，新功能不展示
-				if (can_show.value && !versionCheck(当前版本)) {
-					can_show.value = false
-				}
 
-				// 数据过滤
-				if ((!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(symbol)) && 选中的交易所账号.value.includes(name)) {
-					// 计算总盈利
-					if (总盈利 !== undefined && 总手续费 !== undefined) {
-						item['总盈利'] = (总盈利 - 总手续费).toFixed(4)
-						if (禁止重开 !== '是') {
-							计算总盈利 += parseFloat(item['总盈利'])
-						}
-					}
+				// // 数据过滤
+				// if ((!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(symbol)) && 选中的交易所账号.value.includes(name)) {
+				// 	// 计算总盈利
+				// 	if (总盈利 !== undefined && 总手续费 !== undefined) {
+				// 		item['总盈利'] = (总盈利 - 总手续费).toFixed(4)
+				// 		if (禁止重开 !== '是') {
+				// 			计算总盈利 += parseFloat(item['总盈利'])
+				// 		}
+				// 	}
 
-					if (仓位浮动盈亏 !== undefined && 禁止重开 !== '是') {
-						计算仓位浮动盈亏 += parseFloat(仓位浮动盈亏)
-					}
-					//下面这2个是用于告警的
-					if (做多第几次补单 !== undefined) {
-						max_long_add_times = Math.max(max_long_add_times, 做多第几次补单)
-					}
-					if (做空第几次补单 !== undefined) {
-						max_short_add_times = Math.max(max_short_add_times, 做空第几次补单)
-					}
+				// 	if (仓位浮动盈亏 !== undefined && 禁止重开 !== '是') {
+				// 		计算仓位浮动盈亏 += parseFloat(仓位浮动盈亏)
+				// 	}
+				// 	//下面这2个是用于告警的
+				// 	if (做多第几次补单 !== undefined) {
+				// 		max_long_add_times = Math.max(max_long_add_times, 做多第几次补单)
+				// 	}
+				// 	if (做空第几次补单 !== undefined) {
+				// 		max_short_add_times = Math.max(max_short_add_times, 做空第几次补单)
+				// 	}
 
-					tempSmadingInfos.push(item)
-				}
+				// }
+				tempSmadingInfos.push(item)
 				// 构建用于过滤和排序的集合
 				names.add(name)
 				symbols.add(symbol)
@@ -543,43 +531,43 @@ function connectToWebSocket() {
 			smading_infos_list.value = tempSmadingInfos
 
 			//自动重开的逻辑
-			显示净盈利.value = (计算总盈利 + 计算仓位浮动盈亏).toFixed(2)
-			if (!黑名单.value && !自动重开中 && can_show.value && 编辑框净浮盈.value > 0 && 显示净盈利.value > 编辑框净浮盈.value) {
-				自动重开中 = true
-				console.log('计算总盈利 + 计算仓位浮动盈亏', 显示净盈利.value, '编辑框净浮盈.value', 编辑框净浮盈.value)
-				await 所有重新开始()
-				await 根据止损记录map重设止损()
-				// 等待2分钟 防止重复提交
-				setTimeout(() => {
-					自动重开中 = false
-				}, 20000)
-			}
+			// 显示净盈利.value = (计算总盈利 + 计算仓位浮动盈亏).toFixed(2)
+			// if (!黑名单.value && !自动重开中 && can_show.value && 编辑框净浮盈.value > 0 && 显示净盈利.value > 编辑框净浮盈.value) {
+			// 	自动重开中 = true
+			// 	console.log('计算总盈利 + 计算仓位浮动盈亏', 显示净盈利.value, '编辑框净浮盈.value', 编辑框净浮盈.value)
+			// 	await 所有重新开始()
+			// 	await 根据止损记录map重设止损()
+			// 	// 等待2分钟 防止重复提交
+			// 	setTimeout(() => {
+			// 		自动重开中 = false
+			// 	}, 20000)
+			// }
 
-			// 将Set转换为排序后的数组
-			const sortedNames = [...names].sort()
-			if (选中的交易所账号.value.length == 0) {
-				选中的交易所账号.value = [...sortedNames]
-			}
-			// 根据交易所的名字跟交易类型分配表格颜色
-			const sortedNameAndTypes = [...nameAndTypes].sort()
-			assignColorToName(sortedNameAndTypes)
+			// // 将Set转换为排序后的数组
+			// const sortedNames = [...names].sort()
+			// if (选中的交易所账号.value.length == 0) {
+			// 	选中的交易所账号.value = [...sortedNames]
+			// }
+			// // 根据交易所的名字跟交易类型分配表格颜色
+			// const sortedNameAndTypes = [...nameAndTypes].sort()
+			// assignColorToName(sortedNameAndTypes)
 
-			// 设置过滤器值
-			nameFilters.value = sortedNames.map((name) => ({ text: name, value: name }))
-			symbolFilters.value = [...symbols].map((symbol) => ({ text: symbol, value: symbol }))
+			// // 设置过滤器值
+			// nameFilters.value = sortedNames.map((name) => ({ text: name, value: name }))
+			// symbolFilters.value = [...symbols].map((symbol) => ({ text: symbol, value: symbol }))
 
-			//告警的逻辑
-			const max_add_times = Math.max(max_long_add_times, max_short_add_times)
-			if (is_playing.value) {
-				if (open_alarm.value && max_add_times >= alarm_num.value) {
-					start_alarm.value = true
-					show_alarm_stop.value = true
-				} else {
-					audioPlayer.value.pause() // 暂停音频
-					start_alarm.value = false
-					show_alarm_stop.value = false
-				}
-			}
+			// //告警的逻辑
+			// const max_add_times = Math.max(max_long_add_times, max_short_add_times)
+			// if (is_playing.value) {
+			// 	if (open_alarm.value && max_add_times >= alarm_num.value) {
+			// 		start_alarm.value = true
+			// 		show_alarm_stop.value = true
+			// 	} else {
+			// 		audioPlayer.value.pause() // 暂停音频
+			// 		start_alarm.value = false
+			// 		show_alarm_stop.value = false
+			// 	}
+			// }
 		}
 	}
 

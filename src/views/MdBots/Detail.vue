@@ -128,7 +128,7 @@
 					<el-card style="margin-left: 10px; margin-top: 10px" body-style="padding-top: 0">
 						<template #header>
 							<div class="card-header">
-								<span>已停止的马丁</span>
+								<span>未运行的马丁</span>
 							</div>
 						</template>
 
@@ -173,7 +173,7 @@
 		<template #footer>
 			<div class="dialog-footer">
 				<el-button @click="dialogVisible = false">取消</el-button>
-				<el-button type="primary" @click="启动马丁;">确认</el-button>
+				<el-button type="primary" @click="启动马丁()" :loading="start_md_loading">确认</el-button>
 			</div>
 		</template>
 	</el-dialog>
@@ -183,7 +183,7 @@
 import { api_get_binance_api_usdt_symbols } from '@/api/binance_api'
 import { api_get_binance_fapi_usdt_symbols } from '@/api/binance_fapi'
 import { api_get_exchanges_all_simple } from '@/api/exchange_infos_api'
-import { api_get_run_page, api_get_strategy_by_id, api_get_strategy_page, api_run_info_pause, api_run_info_run, api_run_info_start } from '@/api/smading_strategy_api'
+import { api_get_run_page, api_get_strategy_by_id, api_get_strategy_page, api_run_info_pause, api_run_info_run, api_run_info_start, api_run_info_stop } from '@/api/smading_strategy_api'
 import * as commonConst from '@/constants/CommonConstant'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -191,6 +191,7 @@ const drawer = ref(false)
 const dialogVisible = ref(false)
 const router = useRouter()
 
+const start_md_loading = ref(false)
 const detail = ref({})
 const binance_spot_usdt_symbols = ref([])
 const binance_futures_usdt_symbols = ref([])
@@ -287,8 +288,9 @@ const 恢复马丁 = async (data) => {
 	try {
 		const res = await api_run_info_run(data)
 		if (res.status === 200 && res.data.code === 200) {
+			// console.log('恢复马丁res', res)
 			ElMessage({
-				message: `恢复马丁成功: ${res.data.data}`,
+				message: `${JSON.stringify(res.data.data)}`,
 				type: 'success',
 				showClose: true,
 			})
@@ -307,6 +309,13 @@ const 恢复马丁 = async (data) => {
 			showClose: true,
 		})
 	}
+	// 等待1秒
+	await new Promise((resolve) => {
+		setTimeout(() => {
+			resolve()
+		}, 1000)
+	})
+	刷新()
 }
 
 const 单个暂停马丁 = async (row) => {
@@ -343,8 +352,9 @@ const 暂停马丁 = async (data) => {
 	try {
 		const res = await api_run_info_pause(data)
 		if (res.status === 200 && res.data.code === 200) {
+			// console.log('暂停马丁res', res)
 			ElMessage({
-				message: `暂停马丁成功: ${res.data.data}`,
+				message: `${JSON.stringify(res.data.data)}`,
 				type: 'success',
 				showClose: true,
 			})
@@ -363,6 +373,13 @@ const 暂停马丁 = async (data) => {
 			showClose: true,
 		})
 	}
+	// 等待1秒
+	await new Promise((resolve) => {
+		setTimeout(() => {
+			resolve()
+		}, 1000)
+	})
+	刷新()
 }
 
 const 单个停止马丁 = async (row) => {
@@ -389,10 +406,10 @@ const 批量停止马丁 = async (data) => {
 
 const 停止马丁 = async (data) => {
 	try {
-		const res = await api_run_info_start(data)
+		const res = await api_run_info_stop(data)
 		if (res.status === 200 && res.data.code === 200) {
 			ElMessage({
-				message: `停止马丁成功: ${res.data.data}`,
+				message: `${JSON.stringify(res.data.data)}`,
 				type: 'success',
 				showClose: true,
 			})
@@ -411,6 +428,13 @@ const 停止马丁 = async (data) => {
 			showClose: true,
 		})
 	}
+	// 等待1秒
+	await new Promise((resolve) => {
+		setTimeout(() => {
+			resolve()
+		}, 1000)
+	})
+	刷新()
 }
 
 const 确认启动马丁 = async () => {
@@ -442,11 +466,13 @@ const 确认启动马丁 = async () => {
 }
 
 const 启动马丁 = async () => {
+	start_md_loading.value = true
+	form_data.value.strategy_id = strategy_id
 	try {
 		const res = await api_run_info_start(form_data.value)
 		if (res.status === 200 && res.data.code === 200) {
 			ElMessage({
-				message: `启动马丁成功: ${res.data.data}`,
+				message: `${JSON.stringify(res.data.data)}`,
 				type: 'success',
 				showClose: true,
 			})
@@ -464,8 +490,17 @@ const 启动马丁 = async () => {
 			type: 'error',
 			showClose: true,
 		})
+	} finally {
+		start_md_loading.value = false
 	}
 	dialogVisible.value = false
+	// 等待1秒
+	await new Promise((resolve) => {
+		setTimeout(() => {
+			resolve()
+		}, 1000)
+	})
+	刷新()
 }
 
 const 刷新 = async () => {
