@@ -1,3 +1,17 @@
+/* html{
+  background-color: white !important;
+  filter: invert(1) contrast(0.95) !important;
+}
+iframe{
+  background-color: white !important;
+  filter: invert(1) contrast(0.95) !important;
+
+}
+
+img{
+
+  filter: invert(1) contrast(0.95) !important;
+} */
 :root {
     --font-primary: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   }

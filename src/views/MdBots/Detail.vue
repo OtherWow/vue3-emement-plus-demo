@@ -87,7 +87,7 @@
 										</el-col>
 										<el-col :xs="24" :sm="8" :md="8" :lg="6" :xl="6">
 											<el-button type="primary" @click="刷新()" style="margin-left: 20px">查询</el-button>
-											<el-button type="primary" @click="启动马丁()" style="margin-left: 20px">启动马丁</el-button>
+											<el-button type="primary" @click="确认启动马丁()" style="margin-left: 20px">启动马丁</el-button>
 										</el-col>
 									</el-row>
 								</el-form>
@@ -110,9 +110,12 @@
 							<el-col>
 								<el-table :data="run_table" style="width: 100%" show-header="false" :fit="true" size="small">
 									<el-table-column v-for="column in run_dto_columns" :key="column.prop" :prop="column.prop" :label="column.label" :width="column.width" show-overflow-tooltip align="center"></el-table-column>
-									<el-table-column label="操作" width="150" align="center" fixed="right">
+									<el-table-column label="操作" width="250" align="center" fixed="right">
 										<template #default="{ row }">
-											<el-button type="primary" size="small" @click="查看运行明细(row)" plain>查看运行明细</el-button>
+											<el-button type="success" size="small" @click="单个恢复马丁(row)" v-if="row.status == 2">恢复</el-button>
+											<el-button type="danger" size="small" @click="单个暂停马丁(row)" v-if="row.status != 2">暂停</el-button>
+											<el-button type="danger" size="small" @click="单个停止马丁(row)">停止</el-button>
+											<el-button type="primary" size="small" @click="查看运行明细(row)">查看运行明细</el-button>
 										</template>
 									</el-table-column>
 								</el-table>
@@ -135,7 +138,7 @@
 									<el-table-column v-for="column in run_dto_columns" :key="column.prop" :prop="column.prop" :label="column.label" :width="column.width" show-overflow-tooltip align="center"></el-table-column>
 									<el-table-column label="操作" width="150" align="center" fixed="right">
 										<template #default="{ row }">
-											<el-button type="primary" size="small" @click="查看运行明细(row)" plain>查看运行明细</el-button>
+											<el-button type="primary" size="small" @click="查看运行明细(row)">查看历史明细</el-button>
 										</template>
 									</el-table-column>
 								</el-table>
@@ -170,7 +173,7 @@
 		<template #footer>
 			<div class="dialog-footer">
 				<el-button @click="dialogVisible = false">取消</el-button>
-				<el-button type="primary" @click="dialogVisible = false">确认</el-button>
+				<el-button type="primary" @click="启动马丁;">确认</el-button>
 			</div>
 		</template>
 	</el-dialog>
@@ -180,7 +183,7 @@
 import { api_get_binance_api_usdt_symbols } from '@/api/binance_api'
 import { api_get_binance_fapi_usdt_symbols } from '@/api/binance_fapi'
 import { api_get_exchanges_all_simple } from '@/api/exchange_infos_api'
-import { api_get_run_page, api_get_strategy_by_id, api_get_strategy_page } from '@/api/smading_strategy_api'
+import { api_get_run_page, api_get_strategy_by_id, api_get_strategy_page, api_run_info_pause, api_run_info_run, api_run_info_start } from '@/api/smading_strategy_api'
 import * as commonConst from '@/constants/CommonConstant'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -258,7 +261,159 @@ const handleStopSizeChange = (newSize) => {
 	get_stop_page()
 }
 
-const 启动马丁 = async () => {
+const 单个恢复马丁 = async (row) => {
+	const data = {
+		exchange_id_list: [row.exchange_id],
+		run_id_list: [row.run_id],
+	}
+	恢复马丁(data)
+}
+
+const 批量恢复马丁 = async (data) => {
+	let exchange_id_list = []
+	let run_id_list = []
+	data.forEach((item) => {
+		exchange_id_list.push(item.exchange_id)
+		run_id_list.push(item.run_id)
+	})
+	const stop_data = {
+		exchange_id_list: exchange_id_list,
+		run_id_list: run_id_list,
+	}
+	恢复马丁(stop_data)
+}
+
+const 恢复马丁 = async (data) => {
+	try {
+		const res = await api_run_info_run(data)
+		if (res.status === 200 && res.data.code === 200) {
+			ElMessage({
+				message: `恢复马丁成功: ${res.data.data}`,
+				type: 'success',
+				showClose: true,
+			})
+			get_run_page()
+		} else {
+			ElMessage({
+				message: '恢复马丁失败：' + res.data.msg,
+				type: 'error',
+				showClose: true,
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '恢复马丁失败：' + error,
+			type: 'error',
+			showClose: true,
+		})
+	}
+}
+
+const 单个暂停马丁 = async (row) => {
+	const res = await ElMessageBox.confirm('确定要暂停么 ？', '提示', {
+		confirmButtonText: '确定',
+		cancelButtonText: '取消',
+		type: 'warning',
+	})
+	if (res !== 'confirm') {
+		return
+	}
+	const data = {
+		exchange_id_list: [row.exchange_id],
+		run_id_list: [row.run_id],
+	}
+	暂停马丁(data)
+}
+
+const 批量暂停马丁 = async (data) => {
+	let exchange_id_list = []
+	let run_id_list = []
+	data.forEach((item) => {
+		exchange_id_list.push(item.exchange_id)
+		run_id_list.push(item.run_id)
+	})
+	const stop_data = {
+		exchange_id_list: exchange_id_list,
+		run_id_list: run_id_list,
+	}
+	暂停马丁(stop_data)
+}
+
+const 暂停马丁 = async (data) => {
+	try {
+		const res = await api_run_info_pause(data)
+		if (res.status === 200 && res.data.code === 200) {
+			ElMessage({
+				message: `暂停马丁成功: ${res.data.data}`,
+				type: 'success',
+				showClose: true,
+			})
+			get_run_page()
+		} else {
+			ElMessage({
+				message: '暂停马丁失败：' + res.data.msg,
+				type: 'error',
+				showClose: true,
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '暂停马丁失败：' + error,
+			type: 'error',
+			showClose: true,
+		})
+	}
+}
+
+const 单个停止马丁 = async (row) => {
+	const data = {
+		exchange_id_list: [row.exchange_id],
+		run_id_list: [row.run_id],
+	}
+	停止马丁(data)
+}
+
+const 批量停止马丁 = async (data) => {
+	let exchange_id_list = []
+	let run_id_list = []
+	data.forEach((item) => {
+		exchange_id_list.push(item.exchange_id)
+		run_id_list.push(item.run_id)
+	})
+	const stop_data = {
+		exchange_id_list: exchange_id_list,
+		run_id_list: run_id_list,
+	}
+	停止马丁(stop_data)
+}
+
+const 停止马丁 = async (data) => {
+	try {
+		const res = await api_run_info_start(data)
+		if (res.status === 200 && res.data.code === 200) {
+			ElMessage({
+				message: `停止马丁成功: ${res.data.data}`,
+				type: 'success',
+				showClose: true,
+			})
+			get_run_page()
+		} else {
+			ElMessage({
+				message: '停止马丁失败：' + res.data.msg,
+				type: 'error',
+				showClose: true,
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '停止马丁失败：' + error,
+			type: 'error',
+			showClose: true,
+		})
+	}
+}
+
+const 确认启动马丁 = async () => {
 	if (form_data.value.exchange_id_list.length === 0) {
 		ElMessage({
 			message: '请选择需要运行的账号',
@@ -284,36 +439,40 @@ const 启动马丁 = async () => {
 		return
 	}
 	dialogVisible.value = true
-	// try {
-	//     const res = await api_start_martin(form_data.value)
-	//     if (res.status === 200 && res.data.code === 200) {
-	//         ElMessage({
-	//             message: '启动马丁成功',
-	//             type: 'success',
-	//             showClose: true,
-	//         })
-	//         get_run_page()
-	//     } else {
-	//         ElMessage({
-	//             message: '启动马丁失败：' + res.data.msg,
-	//             type: 'error',
-	//             showClose: true,
-	//         })
-	//     }
-	// } catch (error) {
-	//     ElMessage({
-	//         message: '启动马丁失败：' + error,
-	//         type: 'error',
-	//         showClose: true,
-	//     })
-	// }
+}
+
+const 启动马丁 = async () => {
+	try {
+		const res = await api_run_info_start(form_data.value)
+		if (res.status === 200 && res.data.code === 200) {
+			ElMessage({
+				message: `启动马丁成功: ${res.data.data}`,
+				type: 'success',
+				showClose: true,
+			})
+			get_run_page()
+		} else {
+			ElMessage({
+				message: '启动马丁失败：' + res.data.msg,
+				type: 'error',
+				showClose: true,
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '启动马丁失败：' + error,
+			type: 'error',
+			showClose: true,
+		})
+	}
+	dialogVisible.value = false
 }
 
 const 刷新 = async () => {
 	get_run_page()
 	get_stop_page()
 	ElMessage({
-		message: '刷新成功',
+		message: '查询成功',
 		type: 'success',
 		showClose: true,
 	})
@@ -442,9 +601,7 @@ const 获取币安usdt交易对 = async () => {
 }
 
 const get_stop_page = async () => {
-	form_data.value.query_not_run = true
-	// form_data删除status
-	delete form_data.value['status']
+	form_data.value.status_list = [-1, 0]
 	try {
 		const res = await api_get_run_page(stop_page.value, stop_size.value, form_data.value)
 		if (res.status === 200 && res.data.code === 200) {
@@ -468,9 +625,7 @@ const get_stop_page = async () => {
 	}
 }
 const get_run_page = async () => {
-	form_data.value.status = 1
-	// form_data删除status
-	delete form_data.value['query_not_run']
+	form_data.value.status_list = [1, 2]
 	try {
 		const res = await api_get_run_page(run_page.value, run_size.value, form_data.value)
 		if (res.status === 200 && res.data.code === 200) {
@@ -500,6 +655,7 @@ const 组装运行列表 = (data) => {
 	ret.push({ prop: 'exchange_name', label: '账号', width: '60' })
 	ret.push({ prop: 'trade_type_name', label: '交易类型', width: '70' })
 	ret.push({ prop: 'symbol', label: '交易对', width: '120' })
+	ret.push({ prop: 'run_time', label: '运行时长', width: '120' })
 	if (data.position_side === 'BOTH') {
 		ret.push({ prop: 'stop_profit_num', label: '总止盈次数', width: '90' })
 		ret.push({ prop: 'total_stop_profit', label: '总止盈利润', width: '100' })
@@ -626,20 +782,6 @@ const 组装展示明细表格 = (data) => {
 	}
 
 	detail_table.value = ret
-}
-
-const getTagType_position_side = (position_side) => {
-	if (position_side === 'LONG') return 'success'
-	if (position_side === 'SHORT') return 'danger'
-	if (position_side === 'BOTH') return 'warning' // 或其他 ElementUI tag 的类型
-	return '' // 默认值
-}
-
-const getTagLabel_position_side = (position_side) => {
-	if (position_side === 'LONG') return '做多'
-	if (position_side === 'SHORT') return '做空'
-	if (position_side === 'BOTH') return '双向' // 您可以根据需要更改这里的文本
-	return '' // 默认值
 }
 </script>
 

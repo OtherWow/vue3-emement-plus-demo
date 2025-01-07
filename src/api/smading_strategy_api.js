@@ -31,6 +31,22 @@ export const api_get_run_page = async (page,size,form_data) => {
     return await http.post(`/${model_url}/run/page?page=${page}&size=${size}`, form_data);
 };
 
+//获取双马丁策略run列表
+export const api_run_info_start = async (form_data) => {
+    return await http.post(`/${model_url}/run_info/start`, form_data);
+};
+
+export const api_run_info_stop = async (form_data) => {
+    return await http.post(`/${model_url}/run_info/stop`, form_data);
+};
+
+export const api_run_info_run = async (form_data) => {
+    return await http.post(`/${model_url}/run_info/run`, form_data);
+};
+
+export const api_run_info_pause = async (form_data) => {
+    return await http.post(`/${model_url}/run_info/pause`, form_data);
+};
 
 //启动指定id的双马丁策略
 export const api_启动指定id的双马丁策略 = async (data) => {
