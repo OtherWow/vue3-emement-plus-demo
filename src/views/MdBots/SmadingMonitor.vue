@@ -1,22 +1,59 @@
 <template>
 	<el-container>
-		<el-main>
-			<el-row :gutter="20" style="margin-bottom: 20px">
-				<!-- <el-col :span="4">
+		<el-main style="padding: 5px">
+			<el-card body-style="padding-bottom: 0px;padding-top: 0px;" style="margin-bottom: 10px">
+				<el-row :gutter="20" style="margin-top: 20px">
+					<!-- <el-col :span="4">
                     <el-button type="primary" @click="manualReconnect()">重新连接websocket服务器</el-button>
 
                 </el-col> -->
-				<el-col :xs="24" :sm="12" :md="5" :lg="4" :xl="3" style="margin-bottom: 10px">
-					<el-select v-model="选中的交易所账号" @change="更新监控的交易所账号()" clearable placeholder="选择要监控的交易所账号" style="width: 100%" multiple filterable collapse-tags collapse-tags-tooltip>
-						<el-option v-for="item in nameFilters" :key="item.value" :label="item.text" :value="item.value" />
-					</el-select>
-				</el-col>
-				<el-col :xs="24" :sm="12" :md="5" :lg="4" :xl="3" style="margin-bottom: 10px">
-					<el-select v-model="突出显示的列" @change="更新突出显示的列()" clearable placeholder="选择要突出显示的列" style="width: 100%" multiple filterable collapse-tags collapse-tags-tooltip>
-						<el-option v-for="item in 列名列表" :key="item" :label="item" :value="item" />
-					</el-select>
-				</el-col>
-				<!-- <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6"  style="margin-left: 20px">
+					<el-col :xs="24" :sm="12" :md="7" :lg="3" :xl="3" style="margin-bottom: 20px">
+						<el-select v-model="选中的交易所账号" @change="更新监控的交易所账号()" clearable placeholder="选择要监控的交易所账号" style="width: 100%" multiple filterable collapse-tags collapse-tags-tooltip>
+							<el-option v-for="item in nameFilters" :key="item.value" :label="item.text" :value="item.value" />
+						</el-select>
+					</el-col>
+					<el-col :xs="24" :sm="12" :md="7" :lg="4" :xl="4" style="margin-bottom: 20px">
+						<el-select v-model="突出显示的列" @change="更新突出显示的列()" clearable placeholder="选择要突出显示的列" style="width: 100%" multiple filterable collapse-tags collapse-tags-tooltip>
+							<el-option v-for="item in 列名列表" :key="item" :label="item" :value="item" />
+						</el-select>
+					</el-col>
+
+					<el-col :xs="24" :sm="24" :md="10" :lg="6" :xl="6" style="margin-bottom: 20px">
+						<el-input v-model="编辑框净浮盈" placeholder="" @change="净浮盈改变()" style="width: 380px">
+							<template #prepend>
+								净盈利
+								<el-text tag="b" :type="显示净盈利 > 0 ? 'success' : 'danger'">
+									{{ 显示净盈利 }}
+								</el-text>
+								满
+							</template>
+							<template #append>
+								USDT 自动重开
+								<el-tooltip placement="top" effect="dark" class="box-item">
+									<template #content>
+										净盈利=总盈利+仓位浮动盈亏 (不包含已被禁止重开的币种)
+										<br />
+										自动重开是指当前运行的策略停止后重新开启,这样被套住的币种就自动解套了
+									</template>
+									<el-icon :span="12" size="20" style="margin-left: 2px; margin-top: 0px">
+										<QuestionFilled />
+									</el-icon>
+								</el-tooltip>
+							</template>
+						</el-input>
+					</el-col>
+
+					<el-col :xs="24" :sm="24" :md="24" :lg="11" :xl="11" style="margin-bottom: 20px">
+						<el-button-group>
+							<el-button type="success" @click="所有市价平仓('LONG')">所有多仓市价平仓</el-button>
+							<el-button type="danger" @click="所有市价平仓('SHORT')">所有空仓市价平仓</el-button>
+							<el-button type="primary" @click="所有暂停()">所有暂停</el-button>
+							<el-button type="primary" @click="所有停止()">所有停止</el-button>
+							<el-button type="warning" @click="dialogVisible = true">监控墙功能说明</el-button>
+						</el-button-group>
+					</el-col>
+
+					<!-- <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="6"  style="margin-left: 20px">
 					<el-checkbox v-model="open_alarm" label="开启告警" @change="checkAudioSelected" />
 					<el-input v-model="alarm_num" placeholder="第几单开启告警" clearable style="width: 120px; margin-bottom: 3px; margin-left: 5px" />
 					 播放音频文件按钮
@@ -39,117 +76,97 @@
 					音频播放器 
 					<audio ref="audioPlayer" :src="audioSrc"></audio>
 				</el-col> -->
-				<el-col :xs="24" :sm="24" :md="14" :lg="12" :xl="8" style="margin-bottom: 10px">
-					<el-button-group>
-						<el-button type="success" @click="所有市价平仓('LONG')">所有多仓市价平仓</el-button>
-						<el-button type="danger" @click="所有市价平仓('SHORT')">所有空仓市价平仓</el-button>
-						<el-button type="primary" @click="所有暂停()">所有暂停</el-button>
-						<el-button type="primary" @click="所有停止()">所有停止</el-button>
-					</el-button-group>
-				</el-col>
+				</el-row>
+			</el-card>
+			<el-card>
+				<template #header>
+					<div class="card-header">
+						<el-text style="font-weight: bold; font-size: 16px" type="danger">使用前请点击右上角【监控墙功能说明】仔细阅读！！！！！</el-text>
+					</div>
+				</template>
+				<el-table id="monitor_table" :data="smading_infos_list" style="width: 100%" :fit="true" border highlight-current-row :summary-method="getSummaries" show-summary :height="monitor_table_height" :row-class-name="tableRowClassName" :cell-class-name="cellClassName" @filter-change="handleFilterChange" scrollbar-always-on show-overflow-tooltip ref="monitorTable" size="small" row-key="id">
+					<el-table-column :fixed="选择框_序号 ? 'left' : false" type="index" width="55" label="序号" align="center" />
+					<el-table-column :fixed="选择框_账号名 ? 'left' : false" prop="name" label="账号名" width="80" show-overflow-tooltip align="center"></el-table-column>
 
-				<!-- <el-col :span="5" style="margin-left: 20px" v-if="!黑名单 && can_show">
-					<el-input v-model="编辑框净浮盈" placeholder="" @change="净浮盈改变()" style="width: 380px">
-						<template #prepend>
-							净盈利
-							<el-text tag="b" :type="显示净盈利 > 0 ? 'success' : 'danger'">
-								{{ 显示净盈利 }}
-							</el-text>
-							满
+					<el-table-column :fixed="选择框_交易对 ? 'left' : false" prop="symbol" label="交易对" width="120" show-overflow-tooltip align="center" :filters="symbolFilters" filter-placement="bottom-end" column-key="symbol">
+						<template #default="scope">
+							<el-tag type="info" effect="dark">{{ scope.row.symbol }}</el-tag>
 						</template>
-						<template #append>
-							USDT 自动重开
-							<el-tooltip placement="top" effect="dark" class="box-item">
-								<template #content>
-									净盈利=总盈利+仓位浮动盈亏 (不包含已被禁止重开的币种)
-									<br />
-									自动重开是指当前运行的策略停止后重新开启,这样被套住的币种就自动解套了
-								</template>
-								<el-icon :span="12" size="20" style="margin-left: 2px; margin-top: 0px">
-									<QuestionFilled />
-								</el-icon>
-							</el-tooltip>
+					</el-table-column>
+
+					<el-table-column :fixed="选择框_每小时盈利 ? 'left' : false" prop="每小时盈利" label="每小时盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="最新价格" label="最新价格" width="130" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="做多止盈次数" label="做多止盈次数" width="60" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<!-- <el-table-column prop="做多手续费" label="做多手续费" width="120" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column> -->
+					<el-table-column prop="做多总盈利" label="做多总盈利" width="90" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<el-table-column prop="做多仓位数量" label="做多仓位数量" width="120" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<el-table-column prop="做多仓位价格" label="做多仓位价格" width="120" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<el-table-column prop="做多持仓价值" label="做多持仓价值" width="100" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<el-table-column prop="做多仓位浮动盈亏" label="做多仓位浮动盈亏" width="90" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<el-table-column prop="做多补单次数" label="做多补单次数" width="60" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #header="{ column }">
+							<div class="highlight-title">{{ column.label }}</div>
 						</template>
-					</el-input>
-				</el-col>-->
-			</el-row>
-			<el-table id="monitor_table" :data="smading_infos_list" style="width: 100%" :fit="true" border highlight-current-row :summary-method="getSummaries" show-summary :height="monitor_table_height" :row-class-name="tableRowClassName" :cell-class-name="cellClassName" @filter-change="handleFilterChange" scrollbar-always-on show-overflow-tooltip ref="monitorTable" size="small" row-key="id">
-				<el-table-column :fixed="选择框_序号 ? 'left' : false" type="index" width="55" label="序号" align="center" />
-				<el-table-column :fixed="选择框_账号名 ? 'left' : false" prop="name" label="账号名" width="80" show-overflow-tooltip align="center"></el-table-column>
-
-				<el-table-column :fixed="选择框_交易对 ? 'left' : false" prop="symbol" label="交易对" width="120" show-overflow-tooltip align="center" :filters="symbolFilters" filter-placement="bottom-end" column-key="symbol">
-					<template #default="scope">
-						<el-tag type="info" effect="dark">{{ scope.row.symbol }}</el-tag>
-					</template>
-				</el-table-column>
-
-				<el-table-column :fixed="选择框_每小时盈利 ? 'left' : false" prop="每小时盈利" label="每小时盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="最新价格" label="最新价格" width="130" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="做多止盈次数" label="做多止盈次数" width="60" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-				<!-- <el-table-column prop="做多手续费" label="做多手续费" width="120" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column> -->
-				<el-table-column prop="做多总盈利" label="做多总盈利" width="90" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-				<el-table-column prop="做多补单次数" label="做多补单次数" width="60" show-overflow-tooltip align="center" v-if="can_show_long">
-					<template #header="{ column }">
-						<div class="highlight-title">{{ column.label }}</div>
-					</template>
-				</el-table-column>
-				<el-table-column prop="做多仓位数量" label="做多仓位数量" width="120" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-				<el-table-column prop="做多仓位价格" label="做多仓位价格" width="120" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-				<el-table-column prop="做多持仓价值" label="做多持仓价值" width="100" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-				<el-table-column prop="做多仓位浮动盈亏" label="做多仓位浮动盈亏" width="90" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-				<el-table-column prop="做多本轮时间" label="做多本轮时间" width="130" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-				<el-table-column prop="做多运行状态" label="做多运行状态" width="60" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-				<el-table-column prop="做多重挂止盈" label="做多重挂止盈" width="60" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-				<el-table-column :fixed="选择框_多仓操作 ? 'right' : false" label="多仓操作" width="210" align="center" v-if="can_show_long">
-					<template #default="{ row, $index }">
-						<!-- <el-button type="success" size="small" @click="暂停补单(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.多仓暂停补单 === '否'">暂停补单</el-button>
+					</el-table-column>
+					<el-table-column prop="做多本轮时间" label="做多本轮时间" width="90" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<el-table-column prop="做多运行状态" label="做多运行状态" width="60" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<el-table-column prop="做多重挂止盈" label="做多重挂止盈" width="60" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<el-table-column :fixed="选择框_多仓操作 ? 'right' : false" label="多仓操作" width="490" align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<!-- <el-button type="success" size="small" @click="暂停补单(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.多仓暂停补单 === '否'">暂停补单</el-button>
 						<el-input v-model="long_cover_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 30px; margin-right: 3px" v-if="row.多仓暂停补单 === '是'" />
 						<el-button type="success" size="small" @click="恢复补单(row, 'LONG', $index)" style="margin-left: 0; margin-right: 3px" v-if="row.多仓暂停补单 === '是'">恢复补单</el-button> -->
 
-						<el-button type="success" size="small" @click="撤单平仓(row, 'LONG')" style="margin-left: 0; margin-right: 3px">撤单平仓</el-button>
-						<el-input v-model="long_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 0px" />
-						<el-button type="success" size="small" @click="重挂止盈(row, 'LONG', $index)" style="margin-left: 0; margin-right: 0px">重挂止盈</el-button>
-					</template>
-				</el-table-column>
+							<el-input v-model="long_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 0px" />
+							<el-button type="success" size="small" @click="重挂止盈(row, 'LONG', $index)" style="margin-left: 0; margin-right: 3px">重挂止盈</el-button>
+							<el-button type="success" size="small" @click="撤单平仓(row, 'LONG')" style="margin-left: 0; margin-right: 3px">撤单平仓</el-button>
+							<el-button type="success" size="small" @click="撤单平仓(row, 'LONG')" style="margin-left: 0; margin-right: 3px">一键清仓</el-button>
+							<el-button type="success" size="small" @click="仓位重启(row, 'LONG')" style="margin-left: 0; margin-right: 3px">多仓重启</el-button>
+							<el-button type="danger" size="small" @click="暂停(row)" v-if="row.做多运行状态 === '运行中'" style="margin-left: 0; margin-right: 3px">暂停</el-button>
+							<el-button type="success" size="small" @click="恢复(row)" v-if="row.做多运行状态 === '已暂停'" style="margin-left: 0; margin-right: 3px">恢复</el-button>
+							<el-button type="danger" size="small" @click="停止(row)" v-if="row.做多运行状态 === '运行中'" style="margin-left: 0; margin-right: 3px">停止</el-button>
+							<el-button type="success" size="small" @click="启动(row)" v-if="row.做多运行状态 === '已停止'" style="margin-left: 0; margin-right: 0px">启动</el-button>
+						</template>
+					</el-table-column>
 
-				<el-table-column prop="做空止盈次数" label="做空止盈次数" width="60" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-				<!-- <el-table-column prop="做空手续费" label="做空手续费" width="120" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column> -->
-				<el-table-column prop="做空总盈利" label="做空总盈利" width="90" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-				<el-table-column prop="做空补单次数" label="做空补单次数" width="60" show-overflow-tooltip align="center" v-if="can_show_short">
-					<template #header="{ column }">
-						<div class="highlight-title">{{ column.label }}</div>
-					</template>
-				</el-table-column>
-				<el-table-column prop="做空仓位数量" label="做空仓位数量" width="120" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-				<el-table-column prop="做空仓位价格" label="做空仓位价格" width="120" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-				<el-table-column prop="做空持仓价值" label="做空持仓价值" width="100" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-				<el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="90" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-				<el-table-column prop="做空本轮时间" label="做空本轮时间" width="130" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-				<el-table-column prop="做空运行状态" label="做空运行状态" width="60" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-				<el-table-column prop="做空重挂止盈" label="做空重挂止盈" width="60" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-				<el-table-column :fixed="选择框_空仓操作 ? 'right' : false" label="空仓操作" width="210" align="center" v-if="can_show_short">
-					<template #default="{ row, $index }">
-						<!-- <el-button type="danger" size="small" @click="暂停补单(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.空仓暂停补单 === '否'">暂停补单</el-button>
+					<el-table-column prop="做空止盈次数" label="做空止盈次数" width="60" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
+					<!-- <el-table-column prop="做空手续费" label="做空手续费" width="120" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column> -->
+					<el-table-column prop="做空总盈利" label="做空总盈利" width="90" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
+					<el-table-column prop="做空仓位数量" label="做空仓位数量" width="120" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
+					<el-table-column prop="做空仓位价格" label="做空仓位价格" width="120" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
+					<el-table-column prop="做空持仓价值" label="做空持仓价值" width="100" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
+					<el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="90" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
+					<el-table-column prop="做空补单次数" label="做空补单次数" width="60" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #header="{ column }">
+							<div class="highlight-title">{{ column.label }}</div>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做空本轮时间" label="做空本轮时间" width="90" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
+					<el-table-column prop="做空运行状态" label="做空运行状态" width="60" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
+					<el-table-column prop="做空重挂止盈" label="做空重挂止盈" width="60" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
+					<el-table-column :fixed="选择框_空仓操作 ? 'right' : false" label="空仓操作" width="210" align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<!-- <el-button type="danger" size="small" @click="暂停补单(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.空仓暂停补单 === '否'">暂停补单</el-button>
 						<el-input v-model="short_cover_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 30px; margin-right: 3px" v-if="row.空仓暂停补单 === '是'" />
 						<el-button type="danger" size="small" @click="恢复补单(row, 'SHORT', $index)" style="margin-left: 0; margin-right: 3px" v-if="row.空仓暂停补单 === '是'">恢复补单</el-button> -->
 
-						<el-button type="danger" size="small" @click="撤单平仓(row, 'SHORT')" style="margin-left: 0; margin-right: 3px">撤单平仓</el-button>
-						<el-input v-model="short_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 45px; margin-right: 3px; margin-left: 0px" />
-						<el-button type="danger" size="small" @click="重挂止盈(row, 'SHORT', $index)" style="margin-left: 0; margin-right: 0px">重挂止盈</el-button>
-					</template>
-				</el-table-column>
+							<el-button type="danger" size="small" @click="撤单平仓(row, 'SHORT')" style="margin-left: 0; margin-right: 3px">撤单平仓</el-button>
+							<el-input v-model="short_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 45px; margin-right: 3px; margin-left: 0px" />
+							<el-button type="danger" size="small" @click="重挂止盈(row, 'SHORT', $index)" style="margin-left: 0; margin-right: 0px">重挂止盈</el-button>
+						</template>
+					</el-table-column>
 
-				<el-table-column prop="策略名称" label="策略名称" width="200" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="交易所" label="交易所" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="交易类型" label="交易类型" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="当前版本" label="当前版本" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="启动资金" label="启动资金" width="130" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="账户余额" label="账户余额" width="130" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column :fixed="选择框_运行时间 ? 'left' : false" prop="运行时间" label="运行时间" width="90" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center" v-if="can_show_all"></el-table-column>
-				<el-table-column prop="运行状态" label="运行状态" width="100" show-overflow-tooltip align="center" v-if="can_show_all"></el-table-column>
+					<el-table-column prop="策略名称" label="策略名称" width="200" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="交易所" label="交易所" width="110" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="交易类型" label="交易类型" width="110" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="当前版本" label="当前版本" width="110" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="启动资金" label="启动资金" width="130" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="账户余额" label="账户余额" width="130" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column :fixed="选择框_运行时间 ? 'left' : false" prop="运行时间" label="运行时间" width="90" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center" v-if="can_show_all"></el-table-column>
+					<el-table-column prop="运行状态" label="运行状态" width="100" show-overflow-tooltip align="center" v-if="can_show_all"></el-table-column>
 
-				<!-- <el-table-column prop="禁止重开" label="禁止重开" width="130" show-overflow-tooltip align="center">
+					<!-- <el-table-column prop="禁止重开" label="禁止重开" width="130" show-overflow-tooltip align="center">
 					<template #default="{ row, $index }">
 						<el-text :tag="row.禁止重开 === '是' ? 'b' : undefined" :type="row.禁止重开 === '是' ? 'danger' : undefined">
 							{{ row.禁止重开 }}
@@ -157,36 +174,81 @@
 						</el-text>
 					</template>
 				</el-table-column> -->
-				<!-- <el-table-column prop="止损阈值" label="止损阈值" width="60" show-overflow-tooltip align="center"></el-table-column> -->
+					<!-- <el-table-column prop="止损阈值" label="止损阈值" width="60" show-overflow-tooltip align="center"></el-table-column> -->
 
-				<el-table-column :fixed="选择框_需要确认的操作 ? 'right' : false" label="需要确认的操作" width="450" align="center">
-					<template #default="{ row, $index }">
-						<!-- <el-input v-model="stop_loss_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 3px" />
+					<el-table-column :fixed="选择框_需要确认的操作 ? 'right' : false" label="需要确认的操作" width="450" align="center">
+						<template #default="{ row, $index }">
+							<!-- <el-input v-model="stop_loss_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 3px" />
 						<el-button type="danger" size="small" @click="设置止损(row, $index)" style="margin-left: 0; margin-right: 0px">设置止损</el-button> -->
-						<el-button type="success" size="small" @click="仓位重启(row, 'LONG')">多仓重启</el-button>
-						<el-button type="danger" size="small" @click="仓位重启(row, 'SHORT')">空仓重启</el-button>
-						<el-button type="danger" size="small" @click="暂停(row)" v-if="row.是否暂停 === '否'">暂停</el-button>
-						<el-button type="success" size="small" @click="恢复(row)" v-if="row.是否暂停 === '是'">恢复</el-button>
-						<el-button type="danger" size="small" @click="停止(row)" v-if="row.是否停止 === '否'">停止</el-button>
-						<el-button type="success" size="small" @click="启动(row)" v-if="row.是否停止 === '是'">启动</el-button>
-						<!-- <el-button type="danger" size="small" @click="重新启动(row)">重新启动</el-button> -->
-						<!-- <el-button type="danger" size="small" @click="切换成对冲双马丁(row)">切换成对冲双马丁</el-button> -->
-					</template>
-				</el-table-column>
-				<el-table-column :fixed="选择框_总仓位浮动盈亏 ? 'right' : false" prop="总仓位浮动盈亏" label="总仓位浮动盈亏" width="110" show-overflow-tooltip align="center"></el-table-column>
-				<el-table-column :fixed="选择框_总手续费 ? 'right' : false" prop="总手续费" label="总手续费" width="85" show-overflow-tooltip align="center" v-if="false"></el-table-column>
-				<el-table-column :fixed="选择框_总盈利 ? 'right' : false" prop="总盈利" label="总盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
-			</el-table>
+
+							<el-button type="danger" size="small" @click="仓位重启(row, 'SHORT')">空仓重启</el-button>
+							<!-- <el-button type="danger" size="small" @click="重新启动(row)">重新启动</el-button> -->
+							<!-- <el-button type="danger" size="small" @click="切换成对冲双马丁(row)">切换成对冲双马丁</el-button> -->
+						</template>
+					</el-table-column>
+					<el-table-column :fixed="选择框_总仓位浮动盈亏 ? 'right' : false" prop="总仓位浮动盈亏" label="总仓位浮动盈亏" width="110" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column :fixed="选择框_总手续费 ? 'right' : false" prop="总手续费" label="总手续费" width="85" show-overflow-tooltip align="center" v-if="false"></el-table-column>
+					<el-table-column :fixed="选择框_总盈利 ? 'right' : false" prop="总盈利" label="总盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
+				</el-table>
+			</el-card>
 		</el-main>
 	</el-container>
+	<el-dialog v-model="dialogVisible" width="800" top="15vh" :show-close="false">
+		<el-card style="margin-left: 10px; margin-right: 10px">
+			<template #header>
+				<div class="card-header">
+					<span style="font-weight: bold; font-size: 16px">监控墙功能说明</span>
+				</div>
+			</template>
+			<el-row style="margin-left: 10px; margin-bottom: 10px">
+				<el-text style="font-weight: bold" type="danger">重挂止盈:</el-text>
+				<el-text style="margin-left: 20px; margin-top: 5px">重挂止盈左边有一个编辑框，在框内输入数字后点击重挂止盈，即可把当前行币种的止盈改成编辑框中的数字，直到本轮结束。</el-text>
+				<el-text style="margin-left: 20px">例如: 设置-2，然后点击重挂止盈后，这轮的止盈就是亏2u，后续吃进补单挂的止盈也是亏2u。当仓位比较重时亏点跑了，或者看行情比较好希望多赚点都可以使用此功能。当本轮结束后会自动恢复策略预设的止盈。</el-text>
+			</el-row>
+			<el-row style="margin-left: 10px; margin-bottom: 10px">
+				<el-text style="font-weight: bold" type="danger">撤单平仓:</el-text>
+				<el-text style="margin-left: 20px; margin-top: 5px">撤销本轮挂的补单，并以市价平掉本轮创建的仓位。注意这里的仓位不是该币种的全部仓位！！</el-text>
+			</el-row>
+			<el-row style="margin-left: 10px; margin-bottom: 10px">
+				<el-text style="font-weight: bold" type="danger">一键清仓:</el-text>
+				<el-text style="margin-left: 20px; margin-top: 5px">撤销该币种当前持仓方向(做多或者做空)的全部挂单，并以市价平掉该币种当前持仓方向上的全部仓位。</el-text>
+				<el-text style="margin-left: 20px">例如: 点击的是做多的一键清仓。那么该币种的做多方向上的仓位会被清仓，且做多方向上的所有挂单会被撤销。</el-text>
+			</el-row>
+			<el-row style="margin-left: 10px; margin-bottom: 10px">
+				<el-text style="font-weight: bold" type="danger">多仓重启:</el-text>
+				<el-text style="margin-left: 20px; margin-top: 5px">多仓重启=撤销平仓+重新启动 当通过撤销平仓、一键清仓、停止或者手动在交易所平仓了之后，希望重新开启策略就可以点击此按钮。</el-text>
+			</el-row>
+			<el-row style="margin-left: 10px; margin-bottom: 10px">
+				<el-text style="font-weight: bold" type="danger">暂停:</el-text>
+				<el-text style="margin-left: 20px; margin-top: 5px">暂停的意思是暂停开启新的马丁，不是暂停挂单！！！！点击暂停后，运行状态变更为【已暂停】。此时还会继续补单，挂止盈单，直到本轮解套止盈后，不会开启新的马丁。</el-text>
+				<el-text style="margin-left: 20px">适用场景: 这个币不想挂了，但是又不想割肉，就可以点暂停，等马丁解套后再关闭该币种。</el-text>
+			</el-row>
+			<el-row style="margin-left: 10px; margin-bottom: 10px">
+				<el-text style="font-weight: bold" type="danger">停止:</el-text>
+				<el-text style="margin-left: 20px; margin-top: 5px">点击停止后，运行状态变更为【已停止】。后台程序会立刻停止对该币种的控制。不再监控补单、止盈单。注意：停止后再点启动，是开启一个新的马丁，无法继续之前停止的马丁！！！！</el-text>
+			</el-row>
+			<el-row style="margin-left: 10px; margin-bottom: 10px">
+				<el-text style="font-weight: bold" type="danger">净盈利xx满xx USDT自动重开:</el-text>
+				<el-text style="margin-left: 20px; margin-top: 5px">默认9999,在编辑框设置了之后，当净盈利大于编辑框中的内容时，会把监控墙上的所有币种，撤销平仓，然后开启新的马丁。</el-text>
+				<el-text style="margin-left: 20px">功能说明: 马丁的好处就在于解套之后抗打击能力可以完全恢复，所以适时重开，可以把一些被套住的马丁重新释放，使得策略更加抗打击。</el-text>
+			</el-row>
+		</el-card>
+		<template #footer>
+			<div class="dialog-footer" style="margin-right: 10px">
+				<el-button type="primary" @click="dialogVisible = false">确认</el-button>
+			</div>
+		</template>
+	</el-dialog>
 </template>
 
 <script setup>
-import { api_仓位重启, api_停止, api_切换成对冲双马丁, api_启动, api_市价平仓, api_恢复, api_暂停, api_监控墙_恢复补单, api_监控墙_所有停止, api_监控墙_所有市价平仓, api_监控墙_所有暂停, api_监控墙_所有重新开始, api_监控墙_暂停补单, api_监控墙_更新多少usdt自动重开, api_监控墙_禁止重开, api_监控墙_获取多少usdt自动重开, api_监控墙_设置止损, api_重挂止盈, api_重新启动 } from '@/api/smading_strategy_api'
+import { api_仓位重启, api_停止, api_启动, api_市价平仓, api_恢复, api_暂停, api_监控墙_恢复补单, api_监控墙_所有停止, api_监控墙_所有市价平仓, api_监控墙_所有暂停, api_监控墙_所有重新开始, api_监控墙_暂停补单, api_监控墙_更新多少usdt自动重开, api_监控墙_禁止重开, api_监控墙_获取多少usdt自动重开, api_监控墙_设置止损, api_重挂止盈, api_重新启动 } from '@/api/smading_strategy_api'
 import router from '@/router' // 确保你的路由实例已经导入
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 // import { useMonitorStore } from '@/store/monitor';
 // const monitorStore = useMonitorStore()
+const dialogVisible = ref(false)
+
 const can_show_long = ref(false)
 const can_show_short = ref(false)
 const can_show_all = ref(false)
@@ -366,7 +428,7 @@ let ws = null
 const monitor_table_height = ref(0)
 const updateHeight = () => {
 	if (!document.getElementById('monitor_table')) return
-	monitor_table_height.value = window.innerHeight - 255
+	monitor_table_height.value = window.innerHeight - 355
 	// console.log(window.innerHeight)
 }
 const monitorTable = ref(null)
@@ -501,30 +563,26 @@ function connectToWebSocket() {
 			let max_long_add_times = 0
 			let max_short_add_times = 0
 			rawData.forEach((item) => {
-				const { 当前版本, 总盈利, 总手续费, 禁止重开, 仓位浮动盈亏, name, symbol, 交易类型, 做多补单次数, 做空补单次数 } = item
+				const { 总盈利, 总仓位浮动盈亏, name, symbol, 交易类型, 做多补单次数, 做空补单次数 } = item
 
 				// // 数据过滤
-				// if ((!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(symbol)) && 选中的交易所账号.value.includes(name)) {
-				// 	// 计算总盈利
-				// 	if (总盈利 !== undefined && 总手续费 !== undefined) {
-				// 		item['总盈利'] = (总盈利 - 总手续费).toFixed(4)
-				// 		if (禁止重开 !== '是') {
-				// 			计算总盈利 += parseFloat(item['总盈利'])
-				// 		}
-				// 	}
+				if ((!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(symbol)) && 选中的交易所账号.value.includes(name)) {
+					// 计算总盈利
+					if (总盈利 !== undefined) {
+						计算总盈利 += parseFloat(总盈利)
+					}
 
-				// 	if (仓位浮动盈亏 !== undefined && 禁止重开 !== '是') {
-				// 		计算仓位浮动盈亏 += parseFloat(仓位浮动盈亏)
-				// 	}
-				// 	//下面这2个是用于告警的
-				// 	if (做多第几次补单 !== undefined) {
-				// 		max_long_add_times = Math.max(max_long_add_times, 做多第几次补单)
-				// 	}
-				// 	if (做空第几次补单 !== undefined) {
-				// 		max_short_add_times = Math.max(max_short_add_times, 做空第几次补单)
-				// 	}
-
-				// }
+					if (总仓位浮动盈亏 !== undefined) {
+						计算仓位浮动盈亏 += parseFloat(总仓位浮动盈亏)
+					}
+					// 	//下面这2个是用于告警的
+					// 	if (做多第几次补单 !== undefined) {
+					// 		max_long_add_times = Math.max(max_long_add_times, 做多第几次补单)
+					// 	}
+					// 	if (做空第几次补单 !== undefined) {
+					// 		max_short_add_times = Math.max(max_short_add_times, 做空第几次补单)
+					// 	}
+				}
 				tempSmadingInfos.push(item)
 				// 构建用于过滤和排序的集合
 				names.add(name)
@@ -542,7 +600,7 @@ function connectToWebSocket() {
 			smading_infos_list.value = tempSmadingInfos
 
 			//自动重开的逻辑
-			// 显示净盈利.value = (计算总盈利 + 计算仓位浮动盈亏).toFixed(2)
+			显示净盈利.value = (计算总盈利 + 计算仓位浮动盈亏).toFixed(2)
 			// if (!黑名单.value && !自动重开中 && can_show.value && 编辑框净浮盈.value > 0 && 显示净盈利.value > 编辑框净浮盈.value) {
 			// 	自动重开中 = true
 			// 	console.log('计算总盈利 + 计算仓位浮动盈亏', 显示净盈利.value, '编辑框净浮盈.value', 编辑框净浮盈.value)
@@ -1285,51 +1343,16 @@ const 重新启动 = async (row) => {
 	}
 }
 
-const 切换成对冲双马丁 = async (row) => {
-	// 先弹一个提示框确定是否重新启动
-	const res = await ElMessageBox.confirm('确定要切换成对冲双马丁吗？切换成对冲双马丁会平掉所有仓位！', '提示', {
-		confirmButtonText: '确定',
-		cancelButtonText: '取消',
-		type: 'warning',
-	})
-	if (res !== 'confirm') {
-		return
-	}
-	// console.log(row, position_side);
-	try {
-		const res = await api_切换成对冲双马丁(row.symbol, row.strategy_id, row.exchange_id)
-		if (res.status === 200 && res.data.code === 200) {
-			ElMessage({
-				message: '切换成对冲双马丁成功',
-				type: 'success',
-			})
-		} else {
-			ElMessage({
-				message: '切换成对冲双马丁失败：' + res.data.msg,
-				type: 'error',
-			})
-		}
-	} catch (error) {
-		ElMessage({
-			message: '切换成对冲双马丁失败：' + error,
-			type: 'error',
-		})
-	}
-}
-
 // ------------------------------------------------------------------------------------------------------------表格统计相关功能开始----------------------------------------------------------------------------------------------------
 const columnsToSummarize = {
-	启动资金: 1,
-	账户余额: 1,
 	止盈次数: 0,
 	每小时盈利: 3,
 	做空止盈次数: 0,
 	做多止盈次数: 0,
-	做多止盈总利润: 2,
-	做空止盈总利润: 2,
+	做多持仓价值: 2,
+	做空持仓价值: 2,
 	仓位手续费: 4,
-	仓位浮动盈亏: 4,
-	'总浮盈(已扣手续费)': 4,
+	总仓位浮动盈亏: 4,
 	止盈总利润: 4,
 	做多仓位价值: 1,
 	做空仓位价值: 1,
@@ -1389,40 +1412,19 @@ const tableRowClassName = ({ row }) => {
 }
 
 const cellClassName = ({ row, rowIndex, column, columnIndex }) => {
-	if (column.property === '第几次补单') {
-		if (row['第几次补单'] >= 10) {
+	if (column.property === '做空补单次数') {
+		if (row['做空补单次数'] >= 10) {
 			return 'highlight-cell'
 		}
 		return 'bold-cell'
 	}
-	if (column.property === '做空第几次补单') {
-		if (row['做空第几次补单'] >= 10) {
+	if (column.property === '做多补单次数') {
+		if (row['做多补单次数'] >= 10) {
 			return 'highlight-cell'
 		}
 		return 'bold-cell'
 	}
-	if (column.property === '做多第几次补单') {
-		if (row['做多第几次补单'] >= 10) {
-			return 'highlight-cell'
-		}
-		return 'bold-cell'
-	}
-	if (column.property === '是否暂停' && row['是否暂停'] == '是') {
-		return 'highlight-cell'
-	}
-	if (column.property === '禁止重开' && row['禁止重开'] == '是') {
-		return 'highlight-cell'
-	}
-	if (column.property === '是否暂停' && row['是否暂停'] == '是') {
-		return 'highlight-cell'
-	}
-	if (column.property === '多仓暂停补单' && row['多仓暂停补单'] == '是') {
-		return 'highlight-cell'
-	}
-	if (column.property === '空仓暂停补单' && row['空仓暂停补单'] == '是') {
-		return 'highlight-cell'
-	}
-	if (column.property === '仓位浮动盈亏' && row['仓位浮动盈亏'] <= -10) {
+	if (column.property === '总仓位浮动盈亏' && row['总仓位浮动盈亏'] <= -10) {
 		return 'highlight-cell'
 	}
 	return ''

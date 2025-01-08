@@ -1232,7 +1232,7 @@ function current_strategy_init() {
 		long_cover_1st_pos_val: null, // 补单首单价值
 		long_act_order_num: null, // 活跃订单数量
 		long_cover_order_num: null, // 补单次数
-		long_bdcz: null, // 波动参照
+		long_bdcz: 1, // 波动参照
 		long_bdbd: null, // 补单波动
 		long_cover_value_mult: null, // 补单倍数
 		long_accel_cover: null, // 加速补单百分比
@@ -1243,17 +1243,19 @@ function current_strategy_init() {
 		long_dj_open: false, //是否开启叠加补单
 		long_dj_cover_1st_pos_val: null, // 叠加补单首单价值
 		long_dj_cover_order_num: null, // 叠加补单次数
-		long_dj_bdcz: null, // 叠加波动参照
+		long_dj_bdcz: 1, // 叠加波动参照
 		long_dj_bdbd: null, // 叠加补单波动
+		long_dj_take_profit_type: 'price',
 		long_dj_cover_value_mult: null, // 叠加补单倍数
 		long_dj_accel_cover: null, // 叠加加速补单百分比
+		long_stop_loss: false, // 叠加加速补单百分比
 
 		// 做空
 		short_1st_pos_val: null, // 首单价值
 		short_cover_1st_pos_val: null, // 补单首单价值
 		short_act_order_num: null, // 活跃订单数量
 		short_cover_order_num: null, // 补单次数
-		short_bdcz: null, // 波动参照
+		short_bdcz: 1, // 波动参照
 		short_bdbd: null, // 补单波动
 		short_cover_value_mult: null, // 补单倍数
 		short_accel_cover: null, // 加速补单百分比
@@ -1264,55 +1266,13 @@ function current_strategy_init() {
 		short_dj_open: false, //是否开启叠加补单
 		short_dj_cover_1st_pos_val: null, // 叠加补单首单价值
 		short_dj_cover_order_num: null, // 叠加补单次数
-		short_dj_bdcz: null, // 叠加波动参照
+		short_dj_bdcz: 1, // 叠加波动参照
 		short_dj_bdbd: null, // 叠加补单波动
+		short_dj_take_profit_type: 'price',
 		short_dj_cover_value_mult: null, // 叠加补单倍数
 		short_dj_accel_cover: null, // 叠加加速补单百分比
+		short_stop_loss: false, // 叠加加速补单百分比
 		//------------------------------------横盘重挂止盈
-		open_hp_order_reset_take_profit: false, //是否开启横盘重挂止盈
-		when_trigger_hg_order_reset_take_profit: null, //本轮开始几分钟后触发横盘重挂止盈
-		when_hg_repull_take_profit: null, //第几单后横盘重挂止盈
-		hg_repull_take_profit_num: null, //横盘重挂止盈大小
-		when_trigger_hg_order_reset_take_profit1: null, //本轮开始几分钟后触发横盘重挂止盈
-		when_hg_repull_take_profit1: null, //第几单后横盘重挂止盈
-		hg_repull_take_profit_num1: null, //横盘重挂止盈大小
-		when_trigger_hg_order_reset_take_profit2: null, //本轮开始几分钟后触发横盘重挂止盈
-		when_hg_repull_take_profit2: null, //第几单后横盘重挂止盈
-		hg_repull_take_profit_num2: null, //横盘重挂止盈大小
-		//------------------------------------防瀑布功能
-		open_prevent_falls: false, //是否开启防瀑布功能
-		falls_second_num: null, //防瀑布功能-几秒内
-		falls_cover_num: null, //防瀑布功能-补单多少次
-		open_falls_tigger_pause: false, //防瀑布功能-触发后暂停补单
-		open_falls_tigger_wx_alarm: false, //防瀑布功能-触发后微信告警
-		cover_order_pause_num: null, //补到多少单暂停补单
-
-		open_hedge_mading: false, // 是否开启对冲马丁
-		tigger_hedge_mading_num: null, // 对冲马丁第几单触发
-		hedge_mading_cover_pos_value_1st: null, // 对冲马丁首单价值
-		open_tigger_hedge_mading_stop_cover: false, // 是否开启对冲马丁触发后停止补单
-		tigger_hedge_mading_cover_num: null, // 对冲马丁第几单触发补单
-		hedge_mading_pos_value_1st: null, // 对冲马丁补单首单价值
-		hedge_mading_cover_mult: null, // 对冲马丁补单倍数
-		open_take_profit: false, // 是否开启止盈
-		take_profit_type: 'price', // 止盈类型
-		take_profit_price: null, // 止盈价格
-		take_profit_percent: null, // 止盈百分比
-		open_float_take_profit: false, // 是否开启浮动止盈
-		float_take_profit_price: null, // 浮动止盈价格
-		open_float_take_profit_back: false, // 是否开启浮动止盈回撤
-		float_take_profit_back_price: null, // 浮动止盈回撤价格
-		open_stop_profit: false, // 是否开启止损
-		cover_stop_num: null, // 补到多少单停止
-		cover_alarm_num: null, // 补到多少单告警
-		stop_profit_wait_time: 0, //止损等待时间
-		after_stop_profit_auto_pause: false, // 止损后自动暂停
-		before_stop_profit_wait_time: 0, //止损前等待时间
-		open_stop_profit_switch_hedge_mading: false, // 打开止损后自动切换到对冲马丁策略
-		take_profit_together: false, // 同时止盈
-		when_take_profit: null, // 第几单开始止盈
-		when_repull_take_profit: null, // 第几单后重挂止盈
-		repull_take_profit_num: null, // 重挂止盈大小
 		open_high_order_reset_take_profit: false, // 高单重置止盈
 	}
 }
@@ -1328,11 +1288,6 @@ function addStrategy() {
 	dialogTitle.value = '新增马丁策略'
 	// 清空current_strategy
 	current_strategy_init()
-	exchange_info.value = {
-		id: '',
-		exchange_name: '',
-	}
-	exchange_type.value = ''
 	dialogVisible.value = true
 }
 
