@@ -207,7 +207,7 @@
 			</el-row>
 			<el-row style="margin-left: 10px; margin-bottom: 10px">
 				<el-text style="font-weight: bold" type="danger">撤单平仓:</el-text>
-				<el-text style="margin-left: 20px; margin-top: 5px">撤销本轮挂的补单，并以市价平掉本轮创建的仓位。注意这里的仓位不是该币种的全部仓位！！</el-text>
+				<el-text style="margin-left: 20px; margin-top: 5px">撤销本轮挂的补单，止盈单。并以市价平掉本轮创建的仓位。注意这里的仓位不是该币种的全部仓位！！</el-text>
 			</el-row>
 			<el-row style="margin-left: 10px; margin-bottom: 10px">
 				<el-text style="font-weight: bold" type="danger">一键清仓:</el-text>

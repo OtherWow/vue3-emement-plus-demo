@@ -596,7 +596,7 @@
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.short_take_profit_type === 'percent' || current_strategy.short_take_profit_type === 'mix_min' || current_strategy.short_take_profit_type === 'mix_max'">
 										<el-form-item label="止盈百分比" required>
-											<el-input type="number" v-model.number="current_strategy.short_take_profit_price">
+											<el-input type="number" v-model.number="current_strategy.short_take_profit_percent">
 												<template #append>%</template>
 											</el-input>
 										</el-form-item>
@@ -769,7 +769,7 @@
 									</el-col>
 									<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" v-if="current_strategy.short_dj_take_profit_type === 'percent' || current_strategy.short_dj_take_profit_type === 'mix_min' || current_strategy.short_dj_take_profit_type === 'mix_max'">
 										<el-form-item label="止盈百分比" required>
-											<el-input type="number" v-model.number="current_strategy.short_dj_take_profit_price">
+											<el-input type="number" v-model.number="current_strategy.short_dj_take_profit_percent">
 												<template #append>%</template>
 											</el-input>
 										</el-form-item>
@@ -974,7 +974,7 @@
 import { api_获取现货所有usdt交易对 } from '@/api/binance_api'
 import { 查询当前用户的所有交易所信息 } from '@/api/exchange_infos_api'
 import { api_芝麻现货交易对列表, api_获取交易对列表 } from '@/api/funding_rate_strategy_api'
-import { api_get_strategy_page, api_strategy_mock, api_update_strategy, api_停止指定id的双马丁策略, api_删除指定ids的交易对双马丁策略, api_删除指定id的交易对双马丁策略, api_删除指定id的双马丁策略, api_启动指定id的双马丁策略, api_复制交易对信息, api_恢复指定id的双马丁策略, api_新增双马丁策略, api_暂停指定id的双马丁策略 } from '@/api/smading_strategy_api'
+import { api_add_strategy, api_ban_strategy, api_delete_strategy, api_get_strategy_page, api_strategy_mock, api_update_strategy, api_停止指定id的双马丁策略, api_删除指定ids的交易对双马丁策略, api_删除指定id的交易对双马丁策略, api_启动指定id的双马丁策略, api_复制交易对信息, api_恢复指定id的双马丁策略, api_暂停指定id的双马丁策略 } from '@/api/smading_strategy_api'
 import * as commonConst from '@/constants/CommonConstant'
 import { useMdBotsDetailStore } from '@/store/MdBots_Detail'
 import { ElMessage } from 'element-plus'
@@ -1503,19 +1503,16 @@ const handleSizeChange = (newSize) => {
 
 const 禁用策略 = async (row, tag) => {
 	current_strategy.value = row
-	current_strategy.value.is_deleted = tag
 	try {
-		const res = await api_update_strategy(current_strategy.value.id, current_strategy.value)
+		const res = await api_ban_strategy(current_strategy.value.strategy_id)
 		// console.log("res", res);
 		if (res.status === 200 && res.data.code === 200) {
 			// console.log(res.data.data);
-
-			await getStartegyList(strategy_is_deleted.value)
 			ElMessage({
 				message: '更新双马丁策略成功',
 				type: 'success',
 			})
-			dialogVisible.value = false
+			get_strategy_page()
 		} else {
 			ElMessage({
 				message: '更新双马丁策略失败：' + res.data.msg,
@@ -1609,8 +1606,7 @@ const submitStrategy = async () => {
 			// console.log("res", res);
 			if (res.status === 200 && res.data.code === 200) {
 				// console.log(res.data.data);
-
-				await get_strategy_page(strategy_is_deleted.value)
+				await get_strategy_page()
 				ElMessage({
 					message: '更新双马丁策略成功',
 					type: 'success',
@@ -1630,11 +1626,11 @@ const submitStrategy = async () => {
 		}
 	} else {
 		try {
-			const res = await api_新增双马丁策略(current_strategy.value)
+			const res = await api_add_strategy(current_strategy.value)
 			// console.log("res", res);
 			if (res.status === 200 && res.data.code === 200) {
 				// console.log(res.data.data);
-				await getStartegyList(strategy_is_deleted.value)
+				await get_strategy_page()
 				ElMessage({
 					message: '新增双马丁策略成功',
 					type: 'success',
@@ -1658,11 +1654,11 @@ const submitStrategy = async () => {
 // 删除策略的处理函数
 const deleteStrategy = async (row) => {
 	try {
-		const res = await api_删除指定id的双马丁策略(row.id)
+		const res = await api_delete_strategy(row.strategy_id)
 		// console.log("res", res);
 		if (res.status === 200 && res.data.code === 200) {
 			// console.log(res.data.data);
-			await getStartegyList(strategy_is_deleted.value)
+			get_strategy_page()
 			ElMessage({
 				message: '删除双马丁策略成功',
 				type: 'success',

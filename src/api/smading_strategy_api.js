@@ -14,6 +14,27 @@ export const api_update_strategy = async (data) => {
     return response;
 };
 
+
+//更新指定id的双马丁策略
+export const api_add_strategy = async (data) => {
+    const response = await http.post(`/${model_url}/strategy/add`, data);
+    return response;
+};
+
+
+//更新指定id的双马丁策略
+export const api_delete_strategy = async (strategy_id) => {
+    const response = await http.post(`/${model_url}/strategy/delete/${strategy_id}`, data);
+    return response;
+};
+
+
+//更新指定id的双马丁策略
+export const api_ban_strategy = async (strategy_id) => {
+    const response = await http.post(`/${model_url}/strategy/ban/${strategy_id}`, data);
+    return response;
+};
+
 //api_模拟数据
 export const api_strategy_mock = async (data) => {
     const response = await http.post(`/${model_url}/strategy/mock`, data);

@@ -80,8 +80,8 @@
 												<el-select v-model="form_data.symbol_list" clearable multiple filterable allow-create placeholder="支持多选 现货交易对" v-if="form_data.trade_type === 'spot'">
 													<el-option v-for="item in binance_spot_usdt_symbols" :key="item" :label="item" :value="item" />
 												</el-select>
-												<el-select v-model="form_data.symbol_list" clearable multiple filterable allow-create placeholder="支持多选 合约交易对" v-if="form_data.trade_type === 'futures'">
-													<el-option v-for="item in binance_futures_usdt_symbols" :key="item" :label="item" :value="item" />
+												<el-select v-model="form_data.symbol_list" clearable multiple filterable allow-create placeholder="支持多选 合约交易对" v-if="form_data.trade_type === 'features'">
+													<el-option v-for="item in binance_features_usdt_symbols" :key="item" :label="item" :value="item" />
 												</el-select>
 											</el-form-item>
 										</el-col>
@@ -194,13 +194,13 @@ const router = useRouter()
 const start_md_loading = ref(false)
 const detail = ref({})
 const binance_spot_usdt_symbols = ref([])
-const binance_futures_usdt_symbols = ref([])
+const binance_features_usdt_symbols = ref([])
 const statistics_table = ref([])
 const detail_table = ref([])
 const exchange_options = ref([])
 const trade_type_options = ref([
 	{ value: 'spot', label: '现货' },
-	{ value: 'futures', label: '合约' },
+	{ value: 'features', label: '合约' },
 ])
 const exchange_dict = ref({})
 const run_dto_columns = ref([])
@@ -618,7 +618,7 @@ const 获取币安usdt交易对 = async () => {
 	try {
 		const res = await api_get_binance_fapi_usdt_symbols()
 		if (res.status === 200 && res.data.code === 200) {
-			binance_futures_usdt_symbols.value = res.data.data
+			binance_features_usdt_symbols.value = res.data.data
 		} else {
 			ElMessage({
 				message: '查询币安现货usdt交易对失败：' + res.data.msg,
@@ -637,6 +637,8 @@ const 获取币安usdt交易对 = async () => {
 
 const get_stop_page = async () => {
 	form_data.value.status_list = [-1, 0]
+	form_data.value.strategy_id = strategy_id
+	console.log('form_data', form_data)
 	try {
 		const res = await api_get_run_page(stop_page.value, stop_size.value, form_data.value)
 		if (res.status === 200 && res.data.code === 200) {
@@ -661,6 +663,7 @@ const get_stop_page = async () => {
 }
 const get_run_page = async () => {
 	form_data.value.status_list = [1, 2]
+	form_data.value.strategy_id = strategy_id
 	try {
 		const res = await api_get_run_page(run_page.value, run_size.value, form_data.value)
 		if (res.status === 200 && res.data.code === 200) {
