@@ -1506,17 +1506,17 @@ const getSummaries = (param) => {
 			sums[index] = '总计'
 			return
 		}
-		if (index === 5) {
-			sums[5] = (Number(sums[4]) - Number(sums[3])).toFixed(1)
-			// console.log(sums[4], sums[3], sums[2]);
-			return
-		}
-		if (index === 6) {
-			// 取这一列的最大值
-			const values = data.map((item) => item[column.property])
-			sums[index] = Math.max(...values)
-			return
-		}
+		// if (index === 5) {
+		// 	sums[5] = (Number(sums[4]) - Number(sums[3])).toFixed(1)
+		// 	// console.log(sums[4], sums[3], sums[2]);
+		// 	return
+		// }
+		// if (index === 6) {
+		// 	// 取这一列的最大值
+		// 	const values = data.map((item) => item[column.property])
+		// 	sums[index] = Math.max(...values)
+		// 	return
+		// }
 		// if
 		const decimalPlaces = columnsToSummarize[column.property]
 		if (decimalPlaces !== undefined) {
