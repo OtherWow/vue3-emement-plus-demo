@@ -221,19 +221,19 @@ const stop_size = ref(10)
 const stop_total = ref(0)
 const strategy_id = router.currentRoute.value.query.strategy_id // 从 URL 的 query 参数中获取 id
 
-onMounted(() => {
+onMounted(async () => {
 	if (!strategy_id) {
 		// 如果没有 ID，可能是非法访问，跳转回列表页
 		router.push({ name: commonConst.PATH_MD_BOTS_LIST }) // 假设列表页的路由名称为 'listPage'
 	} else {
 		// 根据 ID 加载数据
-		get_strategy_by_id(strategy_id)
+		await get_strategy_by_id(strategy_id)
 	}
-	获取币安usdt交易对()
-	get_strategy_page()
-	get_exchanges_all_simple()
-	get_run_page()
-	get_stop_page()
+	await 获取币安usdt交易对()
+	await get_strategy_page()
+	await get_exchanges_all_simple()
+	await get_run_page()
+	await get_stop_page()
 })
 
 // 监听当前页码改变事件
@@ -576,7 +576,15 @@ const get_strategy_by_id = async (strategy_id) => {
 		if (res.status === 200 && res.data.code === 200) {
 			const data = res.data.data
 			detail.value = data
-
+			if (data.position_side === 'LONG') {
+				form_data.value.trade_type = 'spot'
+				if (data.name.includes('合约')) {
+					form_data.value.trade_type = 'features'
+				}
+			} else {
+				form_data.value.trade_type = 'features'
+				trade_type_options.value = [{ value: 'features', label: '合约' }]
+			}
 			组装运行列表(data)
 			组装展示明细表格(data)
 		} else {

@@ -96,63 +96,167 @@
 
 					<el-table-column :fixed="选择框_每小时盈利 ? 'left' : false" prop="每小时盈利" label="每小时盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column prop="最新价格" label="最新价格" width="130" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="做多止盈次数" label="做多止盈次数" width="60" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<el-table-column prop="做多止盈次数" label="做多止盈次数" width="60" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多止盈次数 : '' }}</el-text>
+						</template>
+					</el-table-column>
 					<!-- <el-table-column prop="做多手续费" label="做多手续费" width="120" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column> -->
-					<el-table-column prop="做多总盈利" label="做多总盈利" width="90" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-					<el-table-column prop="做多仓位数量" label="做多仓位数量" width="120" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-					<el-table-column prop="做多仓位价格" label="做多仓位价格" width="120" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-					<el-table-column prop="做多持仓价值" label="做多持仓价值" width="100" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-					<el-table-column prop="做多仓位浮动盈亏" label="做多仓位浮动盈亏" width="90" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<el-table-column prop="做多总盈利" label="做多总盈利" width="90" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多总盈利 : '' }}</el-text>
+						</template>
+					</el-table-column>
 					<el-table-column prop="做多补单次数" label="做多补单次数" width="60" show-overflow-tooltip align="center" v-if="can_show_long">
 						<template #header="{ column }">
 							<div class="highlight-title">{{ column.label }}</div>
 						</template>
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多补单次数 : '' }}</el-text>
+						</template>
 					</el-table-column>
-					<el-table-column prop="做多本轮时间" label="做多本轮时间" width="90" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-					<el-table-column prop="做多运行状态" label="做多运行状态" width="60" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
-					<el-table-column prop="做多重挂止盈" label="做多重挂止盈" width="60" show-overflow-tooltip align="center" v-if="can_show_long"></el-table-column>
+					<el-table-column prop="做多挂单数量" label="做多挂单数量" width="60" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多挂单数量 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做多止盈单数量" label="做多止盈单数量" width="120" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多止盈单数量 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做多仓位数量" label="做多仓位数量" width="120" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多仓位数量 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做多仓位价格" label="做多仓位价格" width="120" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多仓位价格 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做多持仓价值" label="做多持仓价值" width="100" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多持仓价值 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做多仓位浮动盈亏" label="做多仓位浮动盈亏" width="90" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多仓位浮动盈亏 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做多本轮时间" label="做多本轮时间" width="90" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多本轮时间 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做多运行状态" label="做多运行状态" width="60" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多运行状态 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做多重挂止盈" label="做多重挂止盈" width="60" show-overflow-tooltip align="center" v-if="can_show_long">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.long_show_button ? row.做多重挂止盈 : '' }}</el-text>
+						</template>
+					</el-table-column>
 					<el-table-column :fixed="选择框_多仓操作 ? 'right' : false" label="多仓操作" width="490" align="center" v-if="can_show_long">
+						<template #header="{ column }">
+							<div class="success-title">{{ column.label }}</div>
+						</template>
 						<template #default="{ row, $index }">
 							<!-- <el-button type="success" size="small" @click="暂停补单(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.多仓暂停补单 === '否'">暂停补单</el-button>
 						<el-input v-model="long_cover_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 30px; margin-right: 3px" v-if="row.多仓暂停补单 === '是'" />
 						<el-button type="success" size="small" @click="恢复补单(row, 'LONG', $index)" style="margin-left: 0; margin-right: 3px" v-if="row.多仓暂停补单 === '是'">恢复补单</el-button> -->
 
-							<el-input v-model="long_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 0px" />
-							<el-button type="success" size="small" @click="重挂止盈(row, 'LONG', $index)" style="margin-left: 0; margin-right: 3px">重挂止盈</el-button>
-							<el-button type="success" size="small" @click="撤单平仓(row, 'LONG')" style="margin-left: 0; margin-right: 3px">撤单平仓</el-button>
-							<el-button type="success" size="small" @click="撤单平仓(row, 'LONG')" style="margin-left: 0; margin-right: 3px">一键清仓</el-button>
-							<el-button type="success" size="small" @click="仓位重启(row, 'LONG')" style="margin-left: 0; margin-right: 3px">多仓重启</el-button>
-							<el-button type="danger" size="small" @click="暂停(row)" v-if="row.做多运行状态 === '运行中'" style="margin-left: 0; margin-right: 3px">暂停</el-button>
-							<el-button type="success" size="small" @click="恢复(row)" v-if="row.做多运行状态 === '已暂停'" style="margin-left: 0; margin-right: 3px">恢复</el-button>
-							<el-button type="danger" size="small" @click="停止(row)" v-if="row.做多运行状态 === '运行中'" style="margin-left: 0; margin-right: 3px">停止</el-button>
-							<el-button type="success" size="small" @click="启动(row)" v-if="row.做多运行状态 === '已停止'" style="margin-left: 0; margin-right: 0px">启动</el-button>
+							<el-input v-model="long_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 0px" v-if="row.long_show_button" />
+							<el-button type="primary" size="small" @click="重挂止盈(row, 'LONG', $index)" style="margin-left: 0; margin-right: 3px" v-if="row.long_show_button">重挂止盈</el-button>
+							<el-button type="primary" size="small" @click="撤单平仓(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.long_show_button">撤单平仓</el-button>
+							<el-button type="primary" size="small" @click="一键清仓(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.long_show_button">一键清仓</el-button>
+							<el-button type="primary" size="small" @click="仓位重启(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.long_show_button">多仓重启</el-button>
+							<el-button type="danger" size="small" @click="单个暂停(row, 'LONG')" v-if="row.做多运行状态 === '运行中' && row.long_show_button" style="margin-left: 0; margin-right: 3px">暂停</el-button>
+							<el-button type="success" size="small" @click="单个恢复(row, 'LONG')" v-if="row.做多运行状态 === '暂停中' && row.long_show_button" style="margin-left: 0; margin-right: 3px">恢复</el-button>
+							<el-button type="danger" size="small" @click="单个停止(row, 'LONG')" v-if="row.做多运行状态 === '运行中' && row.long_show_button" style="margin-left: 0; margin-right: 3px">停止</el-button>
 						</template>
 					</el-table-column>
 
-					<el-table-column prop="做空止盈次数" label="做空止盈次数" width="60" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
+					<el-table-column prop="做空止盈次数" label="做空止盈次数" width="60" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.short_show_button ? row.做空止盈次数 : '' }}</el-text>
+						</template>
+					</el-table-column>
 					<!-- <el-table-column prop="做空手续费" label="做空手续费" width="120" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column> -->
-					<el-table-column prop="做空总盈利" label="做空总盈利" width="90" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-					<el-table-column prop="做空仓位数量" label="做空仓位数量" width="120" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-					<el-table-column prop="做空仓位价格" label="做空仓位价格" width="120" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-					<el-table-column prop="做空持仓价值" label="做空持仓价值" width="100" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-					<el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="90" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
+					<el-table-column prop="做空总盈利" label="做空总盈利" width="90" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.short_show_button ? row.做空总盈利 : '' }}</el-text>
+						</template>
+					</el-table-column>
 					<el-table-column prop="做空补单次数" label="做空补单次数" width="60" show-overflow-tooltip align="center" v-if="can_show_short">
 						<template #header="{ column }">
 							<div class="highlight-title">{{ column.label }}</div>
 						</template>
-					</el-table-column>
-					<el-table-column prop="做空本轮时间" label="做空本轮时间" width="90" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-					<el-table-column prop="做空运行状态" label="做空运行状态" width="60" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-					<el-table-column prop="做空重挂止盈" label="做空重挂止盈" width="60" show-overflow-tooltip align="center" v-if="can_show_short"></el-table-column>
-					<el-table-column :fixed="选择框_空仓操作 ? 'right' : false" label="空仓操作" width="210" align="center" v-if="can_show_short">
 						<template #default="{ row, $index }">
-							<!-- <el-button type="danger" size="small" @click="暂停补单(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.空仓暂停补单 === '否'">暂停补单</el-button>
-						<el-input v-model="short_cover_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 30px; margin-right: 3px" v-if="row.空仓暂停补单 === '是'" />
-						<el-button type="danger" size="small" @click="恢复补单(row, 'SHORT', $index)" style="margin-left: 0; margin-right: 3px" v-if="row.空仓暂停补单 === '是'">恢复补单</el-button> -->
-
-							<el-button type="danger" size="small" @click="撤单平仓(row, 'SHORT')" style="margin-left: 0; margin-right: 3px">撤单平仓</el-button>
-							<el-input v-model="short_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 45px; margin-right: 3px; margin-left: 0px" />
-							<el-button type="danger" size="small" @click="重挂止盈(row, 'SHORT', $index)" style="margin-left: 0; margin-right: 0px">重挂止盈</el-button>
+							<el-text size="small">{{ row.short_show_button ? row.做空补单次数 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做空挂单数量" label="做空挂单数量" width="60" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.short_show_button ? row.做空挂单数量 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做空止盈单数量" label="做空止盈单数量" width="120" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.short_show_button ? row.做空止盈单数量 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做空仓位数量" label="做空仓位数量" width="120" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.short_show_button ? row.做空仓位数量 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做空仓位价格" label="做空仓位价格" width="120" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.short_show_button ? row.做空仓位价格 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做空持仓价值" label="做空持仓价值" width="100" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.short_show_button ? row.做空持仓价值 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="90" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.short_show_button ? row.做空仓位浮动盈亏 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做空本轮时间" label="做空本轮时间" width="90" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.short_show_button ? row.做空本轮时间 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做空运行状态" label="做空运行状态" width="60" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.short_show_button ? row.做空运行状态 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column prop="做空重挂止盈" label="做空重挂止盈" width="60" show-overflow-tooltip align="center" v-if="can_show_short">
+						<template #default="{ row, $index }">
+							<el-text size="small">{{ row.short_show_button ? row.做空重挂止盈 : '' }}</el-text>
+						</template>
+					</el-table-column>
+					<el-table-column :fixed="选择框_空仓操作 ? 'right' : false" label="空仓操作" width="490" align="center" v-if="can_show_short">
+						<template #header="{ column }">
+							<div class="danger-title">{{ column.label }}</div>
+						</template>
+						<template #default="{ row, $index }">
+							<el-input v-model="short_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 0px" v-if="row.short_show_button" />
+							<el-button type="primary" size="small" @click="重挂止盈(row, 'SHORT', $index)" style="margin-left: 0; margin-right: 3px" v-if="row.short_show_button">重挂止盈</el-button>
+							<el-button type="primary" size="small" @click="撤单平仓(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.short_show_button">撤单平仓</el-button>
+							<el-button type="primary" size="small" @click="一键清仓(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.short_show_button">一键清仓</el-button>
+							<el-button type="primary" size="small" @click="仓位重启(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.short_show_button">空仓重启</el-button>
+							<el-button type="danger" size="small" @click="单个暂停(row, 'SHORT')" v-if="row.做多运行状态 === '运行中' && row.short_show_button" style="margin-left: 0; margin-right: 3px">暂停</el-button>
+							<el-button type="success" size="small" @click="单个恢复(row, 'SHORT')" v-if="row.做多运行状态 === '暂停中' && row.short_show_button" style="margin-left: 0; margin-right: 3px">恢复</el-button>
+							<el-button type="danger" size="small" @click="单个停止(row, 'SHORT')" v-if="row.做多运行状态 === '运行中' && row.short_show_button" style="margin-left: 0; margin-right: 3px">停止</el-button>
 						</template>
 					</el-table-column>
 
@@ -176,16 +280,6 @@
 				</el-table-column> -->
 					<!-- <el-table-column prop="止损阈值" label="止损阈值" width="60" show-overflow-tooltip align="center"></el-table-column> -->
 
-					<el-table-column :fixed="选择框_需要确认的操作 ? 'right' : false" label="需要确认的操作" width="450" align="center">
-						<template #default="{ row, $index }">
-							<!-- <el-input v-model="stop_loss_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 3px" />
-						<el-button type="danger" size="small" @click="设置止损(row, $index)" style="margin-left: 0; margin-right: 0px">设置止损</el-button> -->
-
-							<el-button type="danger" size="small" @click="仓位重启(row, 'SHORT')">空仓重启</el-button>
-							<!-- <el-button type="danger" size="small" @click="重新启动(row)">重新启动</el-button> -->
-							<!-- <el-button type="danger" size="small" @click="切换成对冲双马丁(row)">切换成对冲双马丁</el-button> -->
-						</template>
-					</el-table-column>
 					<el-table-column :fixed="选择框_总仓位浮动盈亏 ? 'right' : false" prop="总仓位浮动盈亏" label="总仓位浮动盈亏" width="110" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column :fixed="选择框_总手续费 ? 'right' : false" prop="总手续费" label="总手续费" width="85" show-overflow-tooltip align="center" v-if="false"></el-table-column>
 					<el-table-column :fixed="选择框_总盈利 ? 'right' : false" prop="总盈利" label="总盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
@@ -242,7 +336,6 @@
 </template>
 
 <script setup>
-import { api_仓位重启, api_停止, api_启动, api_市价平仓, api_恢复, api_暂停, api_监控墙_恢复补单, api_监控墙_所有停止, api_监控墙_所有市价平仓, api_监控墙_所有暂停, api_监控墙_所有重新开始, api_监控墙_暂停补单, api_监控墙_更新多少usdt自动重开, api_监控墙_禁止重开, api_监控墙_获取多少usdt自动重开, api_监控墙_设置止损, api_重挂止盈, api_重新启动 } from '@/api/smading_strategy_api'
 import router from '@/router' // 确保你的路由实例已经导入
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 // import { useMonitorStore } from '@/store/monitor';
@@ -476,7 +569,7 @@ onBeforeUnmount(() => {
 let 计算总盈利 = 0
 let 计算仓位浮动盈亏 = 0
 const can_show = ref(true)
-const keys = ['strategy_id', '策略名称', 'exchange_id', '交易所', 'name', 'symbol', '交易类型', '当前版本', '启动资金', '账户余额', '最新价格', '运行时间', '每小时盈利', '止盈次数', '总手续费', '总盈利', '总仓位浮动盈亏', '运行状态', '做多止盈次数', '做多手续费', '做多总盈利', '做多补单次数', '做多仓位数量', '做多仓位价格', '做多持仓价值', '做多仓位浮动盈亏', '做多本轮时间', '做多运行状态', '做多重挂止盈', '做空止盈次数', '做空手续费', '做空总盈利', '做空补单次数', '做空仓位数量', '做空仓位价格', '做空持仓价值', '做空仓位浮动盈亏', '做空本轮时间', '做空运行状态', '做空重挂止盈']
+const keys = ['run_id', 'strategy_id', '策略名称', 'exchange_id', '交易所', 'name', 'symbol', '交易类型', '持仓方向', '当前版本', '启动资金', '账户余额', '最新价格', '运行时间', '每小时盈利', '止盈次数', '总手续费', '总盈利', '总仓位浮动盈亏', '运行状态', '做多止盈次数', '做多手续费', '做多总盈利', '做多补单次数', '做多挂单数量', '做多止盈单数量', '做多仓位数量', '做多仓位价格', '做多持仓价值', '做多仓位浮动盈亏', '做多本轮时间', '做多运行状态', '做多重挂止盈', '做空止盈次数', '做空手续费', '做空总盈利', '做空补单次数', '做空挂单数量', '做空止盈单数量', '做空仓位数量', '做空仓位价格', '做空持仓价值', '做空仓位浮动盈亏', '做空本轮时间', '做空运行状态', '做空重挂止盈']
 
 // 定义函数，将二维数组转换为对象数组
 const websocket_数组转对象 = (array2d) => {
@@ -563,7 +656,7 @@ function connectToWebSocket() {
 			let max_long_add_times = 0
 			let max_short_add_times = 0
 			rawData.forEach((item) => {
-				const { 总盈利, 总仓位浮动盈亏, name, symbol, 交易类型, 做多补单次数, 做空补单次数 } = item
+				const { 总盈利, 总仓位浮动盈亏, name, symbol, 交易类型, 做多补单次数, 做空补单次数, 做多止盈次数, 做空止盈次数, 策略名称 } = item
 
 				// // 数据过滤
 				if ((!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(symbol)) && 选中的交易所账号.value.includes(name)) {
@@ -583,18 +676,27 @@ function connectToWebSocket() {
 					// 		max_short_add_times = Math.max(max_short_add_times, 做空第几次补单)
 					// 	}
 				}
-				tempSmadingInfos.push(item)
 				// 构建用于过滤和排序的集合
 				names.add(name)
 				symbols.add(symbol)
-				if (做多补单次数 > 0) {
+				if (做多补单次数 > 0 || 做多止盈次数 > 0) {
 					position_side_set.add('LONG')
 				}
-				if (做空补单次数 > 0) {
+				if (做空补单次数 > 0 || 做空止盈次数 > 0) {
 					position_side_set.add('SHORT')
 				}
+				item.long_show_button = true
+				item.short_show_button = true
+				if (做多补单次数 === 0 && 做多止盈次数 === 0) {
+					item.long_show_button = false
+				}
+				if (做空补单次数 === 0 && 做空止盈次数 === 0) {
+					item.short_show_button = false
+				}
 
-				nameAndTypes.add(`${name}|${交易类型}`)
+				nameAndTypes.add(`${name}|${策略名称}`)
+
+				tempSmadingInfos.push(item)
 			})
 			//表格数据赋值
 			smading_infos_list.value = tempSmadingInfos
@@ -920,7 +1022,31 @@ const 恢复补单 = async (row, position_side, index) => {
 	}
 }
 
-const 暂停 = async (row) => {
+const 全部暂停 = async () => {
+	const res = await ElMessageBox.confirm('确定要暂停 所有马丁 吗？如暂停，等解套后则不继续开单！', '提示', {
+		confirmButtonText: '确定',
+		cancelButtonText: '取消',
+		type: 'warning',
+	})
+	if (res !== 'confirm') {
+		return
+	}
+	// console.log(row, position_side);
+
+	let exchange_id_list = []
+	let run_id_list = []
+	smading_infos_list.value.forEach((item) => {
+		exchange_id_list.push(item.exchange_id)
+		run_id_list.push(item.run_id)
+	})
+	data = {
+		exchange_id_list: exchange_id_list,
+		run_id_list: run_id_list,
+	}
+	await 暂停(data)
+}
+
+const 单个暂停 = async (row, position_side) => {
 	// 先弹一个提示框确定是否暂停
 	const res = await ElMessageBox.confirm('确定要暂停吗？如暂停，等解套后则不继续开单！', '提示', {
 		confirmButtonText: '确定',
@@ -931,8 +1057,17 @@ const 暂停 = async (row) => {
 		return
 	}
 	// console.log(row, position_side);
+	const data = {
+		exchange_id_list: [row.exchange_id],
+		run_id_list: [row.run_id],
+		position_side: position_side,
+	}
+	await 暂停(data)
+}
+
+const 暂停 = async (data) => {
 	try {
-		const res = await api_暂停(row.symbol, row.strategy_id, row.exchange_id)
+		const res = await api_run_info_pause(data)
 		if (res.status === 200 && res.data.code === 200) {
 			ElMessage({
 				message: '暂停成功',
@@ -952,10 +1087,33 @@ const 暂停 = async (row) => {
 	}
 }
 
-const 恢复 = async (row) => {
+const 全部恢复 = async () => {
+	let exchange_id_list = []
+	let run_id_list = []
+	smading_infos_list.value.forEach((item) => {
+		exchange_id_list.push(item.exchange_id)
+		run_id_list.push(item.run_id)
+	})
+	data = {
+		exchange_id_list: exchange_id_list,
+		run_id_list: run_id_list,
+	}
+	await 恢复(data)
+}
+
+const 单个恢复 = async (row, position_side) => {
+	const data = {
+		exchange_id_list: [row.exchange_id],
+		run_id_list: [row.run_id],
+		position_side: position_side,
+	}
+	await 恢复(data)
+}
+
+const 恢复 = async (data) => {
 	// console.log(row, position_side);
 	try {
-		const res = await api_恢复(row.symbol, row.strategy_id, row.exchange_id)
+		const res = await api_run_info_run(data)
 		if (res.status === 200 && res.data.code === 200) {
 			ElMessage({
 				message: '恢复成功',
@@ -1035,86 +1193,6 @@ const 所有市价平仓 = async (position_side) => {
 	} catch (error) {
 		ElMessage({
 			message: `${仓位名称} 所有市价平仓失败：` + error,
-			type: 'error',
-		})
-	}
-}
-
-const 所有暂停 = async () => {
-	// 先弹一个提示框确定是否暂停
-	const res = await ElMessageBox.confirm('确定要暂停所有币种么吗？如暂停，等解套后则不继续开单！', '提示', {
-		confirmButtonText: '确定',
-		cancelButtonText: '取消',
-		type: 'warning',
-	})
-	if (res !== 'confirm') {
-		return
-	}
-	let obj_list = []
-	smading_infos_list.value.forEach((item) => {
-		let obj = {
-			symbol: item.symbol,
-			strategy_id: item.strategy_id,
-			exchange_id: item.exchange_id,
-		}
-		obj_list.push(obj)
-	})
-	try {
-		const res = await api_监控墙_所有暂停(obj_list)
-		if (res.status === 200 && res.data.code === 200) {
-			ElMessage({
-				message: '暂停成功',
-				type: 'success',
-			})
-		} else {
-			ElMessage({
-				message: '暂停失败：' + res.data.msg,
-				type: 'error',
-			})
-		}
-	} catch (error) {
-		ElMessage({
-			message: '暂停失败：' + error,
-			type: 'error',
-		})
-	}
-}
-
-const 所有停止 = async () => {
-	// 先弹一个提示框确定是否停止
-	const res = await ElMessageBox.confirm('确定要停止所有币种么吗？建议点击顺序 暂停=>多空仓位市价平仓=>停止 ！', '提示', {
-		confirmButtonText: '确定',
-		cancelButtonText: '取消',
-		type: 'warning',
-	})
-	if (res !== 'confirm') {
-		return
-	}
-	let obj_list = []
-	smading_infos_list.value.forEach((item) => {
-		let obj = {
-			symbol: item.symbol,
-			strategy_id: item.strategy_id,
-			exchange_id: item.exchange_id,
-		}
-		obj_list.push(obj)
-	})
-	try {
-		const res = await api_监控墙_所有停止(obj_list)
-		if (res.status === 200 && res.data.code === 200) {
-			ElMessage({
-				message: '停止成功',
-				type: 'success',
-			})
-		} else {
-			ElMessage({
-				message: '停止失败：' + res.data.msg,
-				type: 'error',
-			})
-		}
-	} catch (error) {
-		ElMessage({
-			message: '停止失败：' + error,
 			type: 'error',
 		})
 	}
@@ -1247,7 +1325,31 @@ const 禁止重开 = async (row) => {
 	}
 }
 
-const 停止 = async (row) => {
+const 全部停止 = async () => {
+	// 先弹一个提示框确定是否停止
+	const res = await ElMessageBox.confirm('确定要停止所有马丁吗？建议点击顺序 全部暂停=>多空仓位全部市价平仓=>全部停止 ！', '提示', {
+		confirmButtonText: '确定',
+		cancelButtonText: '取消',
+		type: 'warning',
+	})
+	if (res !== 'confirm') {
+		return
+	}
+
+	let exchange_id_list = []
+	let run_id_list = []
+	smading_infos_list.value.forEach((item) => {
+		exchange_id_list.push(item.exchange_id)
+		run_id_list.push(item.run_id)
+	})
+	data = {
+		exchange_id_list: exchange_id_list,
+		run_id_list: run_id_list,
+	}
+	await 停止(data)
+}
+
+const 单个停止 = async (row, position_side) => {
 	// 先弹一个提示框确定是否停止
 	const res = await ElMessageBox.confirm('确定要停止吗？建议点击顺序 暂停=>多空仓位市价平仓=>停止 ！', '提示', {
 		confirmButtonText: '确定',
@@ -1257,9 +1359,17 @@ const 停止 = async (row) => {
 	if (res !== 'confirm') {
 		return
 	}
-	// console.log(row, position_side);
+	const data = {
+		exchange_id_list: [row.exchange_id],
+		run_id_list: [row.run_id],
+		position_side: position_side,
+	}
+	await 停止(data)
+}
+
+const 停止 = async (data) => {
 	try {
-		const res = await api_停止(row.symbol, row.strategy_id, row.exchange_id)
+		const res = await api_run_info_stop(data)
 		if (res.status === 200 && res.data.code === 200) {
 			ElMessage({
 				message: '停止成功',
@@ -1279,9 +1389,9 @@ const 停止 = async (row) => {
 	}
 }
 
-const 启动 = async (row) => {
-	// 先弹一个提示框确定是否启动
-	const res = await ElMessageBox.confirm('确定要启动吗？启动会对当前币种进行平仓撤单操作 ！', '提示', {
+const 单个启动 = async (row, position_side) => {
+	// 先弹一个提示框确定是否停止
+	const res = await ElMessageBox.confirm('确定要启动吗？启动会运行新的马丁不是延续本次马丁 ！', '提示', {
 		confirmButtonText: '确定',
 		cancelButtonText: '取消',
 		type: 'warning',
@@ -1289,9 +1399,18 @@ const 启动 = async (row) => {
 	if (res !== 'confirm') {
 		return
 	}
-	// console.log(row, position_side);
+	const data = {
+		exchange_id_list: [row.exchange_id],
+		symbols_list: [row.symbol],
+		trade_type: row.交易类型 === '合约' ? 'features' : 'spot',
+		strategy_id: row.strategy_id,
+	}
+	await 停止(data)
+}
+
+const 启动 = async (data) => {
 	try {
-		const res = await api_启动(row.symbol, row.strategy_id, row.exchange_id)
+		const res = await api_run_info_start(data)
 		if (res.status === 200 && res.data.code === 200) {
 			ElMessage({
 				message: '启动成功',
@@ -1435,6 +1554,16 @@ const cellClassName = ({ row, rowIndex, column, columnIndex }) => {
 <style>
 .el-table .highlight-title {
 	background-color: #406be4;
+	color: rgb(255, 255, 255);
+}
+
+.el-table .success-title {
+	background-color: rgb(103, 194, 58);
+	color: rgb(255, 255, 255);
+}
+
+.el-table .danger-title {
+	background-color: #ec2929;
 	color: rgb(255, 255, 255);
 }
 

@@ -54,18 +54,30 @@
 					<el-table-column type="index" width="55" label="序号" align="center" />
 
 					<el-table-column prop="name" label="策略名称" :min-width="300" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="username" label="创建人" width="130" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column label="运行中" width="70" show-overflow-tooltip align="center">
+						<template #default="{ row }">
+							<el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">
+								{{ row.is_run ? '是' : '否' }}
+							</el-tag>
+						</template>
+					</el-table-column>
+					<el-table-column label="操作" width="320" align="center">
+						<template #default="{ row }">
+							<el-button type="primary" size="small" @click="editStrategy(row)" plain>编辑策略</el-button>
+							<el-button type="primary" size="small" @click="viewDetail(row)" plain>查看策略明细</el-button>
+							<el-button type="primary" size="small" @click="策略盈亏分析(row)" plain>策略盈亏分析</el-button>
+						</template>
+					</el-table-column>
 					<el-table-column label="持仓方向" width="90" show-overflow-tooltip align="center">
 						<template #default="{ row }">
-							<el-tag :type="getTagType(row.position_side)" effect="dark">
-								{{ getTagLabel(row.position_side) }}
-							</el-tag>
+							{{ getTagLabel(row.position_side) }}
 						</template>
 					</el-table-column>
 					<el-table-column prop="all_count" label="总数量" width="130" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column prop="all_profit" label="总盈利(USDT)" width="130" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column prop="running_count" label="运行中数量" width="100" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column prop="running_profit" label="运行中盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="username" label="创建人" width="130" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column prop="create_time" label="创建时间" width="180" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column prop="update_time" label="修改时间" width="180" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column label="是否共享" width="110" show-overflow-tooltip align="center">
@@ -99,19 +111,6 @@
 							<el-button type="danger" size="small" @click="禁用策略(row, true)" v-if="!row.is_ban" plain>禁用</el-button>
 							<el-button type="success" size="small" @click="禁用策略(row, false)" v-if="row.is_ban" plain>启用</el-button>
 							<el-button type="danger" size="small" @click="deleteStrategy(row)" plain>删除</el-button>
-						</template>
-					</el-table-column>
-					<el-table-column label="运行中" width="90" show-overflow-tooltip align="center" fixed="right">
-						<template #default="{ row }">
-							<el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">
-								{{ row.is_run ? '是' : '否' }}
-							</el-tag>
-						</template>
-					</el-table-column>
-					<el-table-column label="操作" width="220" align="center" fixed="right">
-						<template #default="{ row }">
-							<el-button type="primary" size="small" @click="editStrategy(row)" plain>编辑策略</el-button>
-							<el-button type="primary" size="small" @click="viewDetail(row)" plain>查看策略明细</el-button>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -965,6 +964,52 @@
 						<el-button type="primary" @click="mockDialogVisible = false">关闭</el-button>
 					</div>
 				</el-dialog>
+
+				<el-dialog v-model="盈亏分析展示标识" width="85%" title="策略盈亏分析" :before-close="mockHandleClose" :close-on-click-modal="false" @open="onDialogOpen">
+					<el-row :gutter="30" style="margin-left: 10px; margin-right: 10px">
+						<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+							<el-card id="left_card">
+								<template #header>
+									<el-text class="mx-1" type="success" size="large" tag="b">策略盈亏日历</el-text>
+								</template>
+								<el-calendar :model-value="currentDate" ref="calendar">
+									<template #date-cell="{ data }">
+										<p :class="data.isSelected ? 'is-selected' : ''">
+											{{ data.day.split('-').slice(1).join('-') }}
+											{{ data.isSelected ? '✔️' : '' }}
+										</p>
+										<p style="margin-top: 10px">
+											<!-- 检查当前日期是否有 net_profit 数据 -->
+											<template v-if="profitLossMap[data.day] !== undefined">
+												<el-tag :type="profitLossMap[data.day] >= 0 ? 'success' : 'danger'" size="mini">{{ profitLossMap[data.day] >= 0 ? '+' : '' }}{{ profitLossMap[data.day].toFixed(2) }}</el-tag>
+											</template>
+										</p>
+									</template>
+									<template #header="{ date }">
+										<span>{{ date }}</span>
+										<el-button-group>
+											<el-button size="small" @click="selectDate('prev-month')">上个月</el-button>
+											<el-button size="small" @click="selectDate('today')">今天</el-button>
+											<el-button size="small" @click="selectDate('next-month')">下个月</el-button>
+										</el-button-group>
+									</template>
+								</el-calendar>
+							</el-card>
+						</el-col>
+						<el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+							<el-card>
+								<template #header>
+									<el-text class="mx-1" type="success" size="large" tag="b">策略盈亏趋势</el-text>
+								</template>
+								<div id="id_盈亏分析柱状图" style="width: 100%; margin-top: 5px" :style="{ height: cardHeight + 'px' }"></div>
+							</el-card>
+						</el-col>
+					</el-row>
+
+					<div slot="footer" class="dialog-footer" style="margin-top: 20px">
+						<el-button type="primary" @click="盈亏分析展示标识 = false">关闭</el-button>
+					</div>
+				</el-dialog>
 			</el-main>
 		</el-container>
 	</div>
@@ -974,18 +1019,25 @@
 import { api_获取现货所有usdt交易对 } from '@/api/binance_api'
 import { 查询当前用户的所有交易所信息 } from '@/api/exchange_infos_api'
 import { api_芝麻现货交易对列表, api_获取交易对列表 } from '@/api/funding_rate_strategy_api'
-import { api_add_strategy, api_ban_strategy, api_delete_strategy, api_get_strategy_page, api_strategy_mock, api_update_strategy, api_停止指定id的双马丁策略, api_删除指定ids的交易对双马丁策略, api_删除指定id的交易对双马丁策略, api_启动指定id的双马丁策略, api_复制交易对信息, api_恢复指定id的双马丁策略, api_暂停指定id的双马丁策略 } from '@/api/smading_strategy_api'
+import { api_add_strategy, api_ban_strategy, api_delete_strategy, api_get_strategy_page, api_profit_loss_daily, api_strategy_mock, api_update_strategy, api_停止指定id的双马丁策略, api_删除指定ids的交易对双马丁策略, api_删除指定id的交易对双马丁策略, api_启动指定id的双马丁策略, api_复制交易对信息, api_恢复指定id的双马丁策略, api_暂停指定id的双马丁策略 } from '@/api/smading_strategy_api'
 import * as commonConst from '@/constants/CommonConstant'
 import { useMdBotsDetailStore } from '@/store/MdBots_Detail'
+import dayjs from 'dayjs'
+import isBetween from 'dayjs/plugin/isBetween'
+import isoWeek from 'dayjs/plugin/isoWeek'
+import weekday from 'dayjs/plugin/weekday'
 import { ElMessage } from 'element-plus'
-import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
+dayjs.extend(weekday)
+dayjs.extend(isoWeek)
+dayjs.extend(isBetween)
 
 // 分页参数
 const page = ref(1)
 const size = ref(10)
 const total = ref(0)
-
 // 表单数据
 const form_data = ref({
 	name: null,
@@ -1043,6 +1095,147 @@ const getTagLabel = (position_side) => {
 	if (position_side === 'BOTH') return '双向' // 您可以根据需要更改这里的文本
 	return '' // 默认值
 }
+// ========================================================================盈亏分析 开始==========================================================================
+const cardHeight = ref(0)
+const updateCardHeight = async () => {
+	if (!document.getElementById('left_card')) return
+	cardHeight.value = document.getElementById('left_card').offsetHeight - 100
+	console.log('Card Height:', cardHeight.value)
+}
+const profitLossMap = computed(() => {
+	const map = {}
+	profitLossData.value.forEach((item) => {
+		// 将日期格式化为 'YYYY-MM-DD' 以匹配日历的日期格式
+		const dateKey = dayjs(item.date).format('YYYY-MM-DD')
+		// 将 net_profit 转换为数字类型
+		map[dateKey] = parseFloat(item.net_profit)
+		x_data.push(dateKey)
+		y_data.push(map[dateKey].toFixed(0))
+	})
+	return map
+})
+// 定义盈亏分析需要的数据
+const calendar = ref(null)
+const 盈亏分析展示标识 = ref(false)
+const currentDate = ref(new Date())
+const visibleStartDate = ref(null)
+const visibleEndDate = ref(null)
+const profitLossData = ref([])
+
+const 策略盈亏分析 = async (row) => {
+	// console.log(row)
+	current_strategy.value = { ...row }
+	盈亏分析展示标识.value = true
+}
+const $echarts = inject('$echarts')
+
+let x_data = []
+let y_data = []
+// 打开对话框时的处理
+const onDialogOpen = async () => {
+	await calculateVisibleDateRange()
+	await fetchProfitLossData()
+	await updateCardHeight()
+	// =================================柱状图
+	var chart_盈亏分析柱状图 = $echarts.init(document.getElementById('id_盈亏分析柱状图'))
+	chart_盈亏分析柱状图.setOption({
+		tooltip: {
+			trigger: 'axis',
+			axisPointer: {
+				type: 'shadow',
+			},
+		},
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '3%',
+			containLabel: true,
+		},
+		xAxis: [
+			{
+				type: 'category',
+				data: x_data,
+				name: '日期',
+				axisTick: {
+					alignWithLabel: true,
+				},
+			},
+		],
+		yAxis: [
+			{
+				type: 'value',
+			},
+		],
+		series: [
+			{
+				name: '盈亏',
+				type: 'bar',
+				barWidth: '60%',
+				label: {
+					show: true,
+					position: 'top',
+				},
+				data: y_data,
+			},
+		],
+	})
+}
+
+// 计算当前日历视图的可见日期范围
+const calculateVisibleDateRange = async () => {
+	const current = dayjs(currentDate.value)
+	const startOfMonth = current.startOf('month')
+	const endOfMonth = current.endOf('month')
+
+	// 假设一周从周日开始
+	const weekStart = startOfMonth.startOf('week')
+	const weekEnd = endOfMonth.endOf('week')
+
+	visibleStartDate.value = weekStart.format('YYYY-MM-DD')
+	visibleEndDate.value = weekEnd.format('YYYY-MM-DD')
+	// endDate 需要加一天
+	visibleEndDate.value = dayjs(visibleEndDate.value).add(1, 'day').format('YYYY-MM-DD')
+
+	// console.log('Visible Start Date:', visibleStartDate.value)
+	// console.log('Visible End Date:', visibleEndDate.value)
+}
+// 请求后台获取盈亏数据
+const fetchProfitLossData = async () => {
+	if (visibleStartDate.value && visibleEndDate.value) {
+		try {
+			const response = await api_profit_loss_daily({
+				start_date: visibleStartDate.value,
+				end_date: visibleEndDate.value,
+				strategy_id: current_strategy.value.strategy_id,
+			})
+			profitLossData.value = response.data.data
+			console.log('Profit and Loss Data:', profitLossData.value)
+			// 根据返回的数据更新 UI 或进行其他操作
+		} catch (error) {
+			console.error('Error fetching profit and loss data:', error)
+			// 你可以使用 Element Plus 的消息提示
+			// ElMessage.error('获取盈亏数据失败');
+		}
+		console.log('Profit and Loss Data:', profitLossData.value)
+	}
+}
+
+// 监听月份变化事件
+const selectDate = (val) => {
+	if (!calendar.value) return
+	calendar.value.selectDate(val)
+	if (val === 'prev-month') {
+		currentDate.value = dayjs(currentDate.value).subtract(1, 'month').toDate()
+	} else if (val === 'next-month') {
+		currentDate.value = dayjs(currentDate.value).add(1, 'month').toDate()
+	} else if (val === 'today') {
+		currentDate.value = new Date()
+	}
+	calculateVisibleDateRange()
+	fetchProfitLossData()
+}
+
+// ========================================================================盈亏分析 结束==========================================================================
 
 //刷新时也保持展开状态
 const expandedRowKeys = ref([])
@@ -1654,8 +1847,9 @@ const submitStrategy = async () => {
 // 删除策略的处理函数
 const deleteStrategy = async (row) => {
 	try {
+		console.log(row)
 		const res = await api_delete_strategy(row.strategy_id)
-		// console.log("res", res);
+		console.log('res', res)
 		if (res.status === 200 && res.data.code === 200) {
 			// console.log(res.data.data);
 			get_strategy_page()
@@ -2036,5 +2230,9 @@ const 关闭策略明细弹窗 = async () => {
 
 	max-height: 80vh !important;
 	overflow-y: auto !important;
+}
+
+.is-selected {
+	color: #1989fa;
 }
 </style>
