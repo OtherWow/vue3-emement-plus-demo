@@ -122,7 +122,7 @@
 					</el-table-column>
 					<el-table-column prop="做多止盈单数量" label="做多止盈单数量" width="120" show-overflow-tooltip align="center" v-if="can_show_long">
 						<template #default="{ row, $index }">
-							<el-text size="small">{{ row.long_show_button ? row.做多止盈单数量 : '' }}</el-text>
+							<el-text size="small" :class="row.做多止盈单数量 != Math.abs(row.做多仓位数量) ? 'highlight-cell' : ''">{{ row.long_show_button ? row.做多止盈单数量 : '' }}</el-text>
 						</template>
 					</el-table-column>
 					<el-table-column prop="做多仓位数量" label="做多仓位数量" width="120" show-overflow-tooltip align="center" v-if="can_show_long">
@@ -137,7 +137,7 @@
 					</el-table-column>
 					<el-table-column prop="做多持仓价值" label="做多持仓价值" width="100" show-overflow-tooltip align="center" v-if="can_show_long">
 						<template #default="{ row, $index }">
-							<el-text size="small">{{ row.long_show_button ? row.做多持仓价值 : '' }}</el-text>
+							<el-text size="small" :class="row.做多持仓价值 >= 1000 ? 'highlight-cell' : 'bold-cell'">{{ row.long_show_button ? row.做多持仓价值 : '' }}</el-text>
 						</template>
 					</el-table-column>
 					<el-table-column prop="做多仓位浮动盈亏" label="做多仓位浮动盈亏" width="90" show-overflow-tooltip align="center" v-if="can_show_long">
@@ -206,7 +206,7 @@
 					</el-table-column>
 					<el-table-column prop="做空止盈单数量" label="做空止盈单数量" width="120" show-overflow-tooltip align="center" v-if="can_show_short">
 						<template #default="{ row, $index }">
-							<el-text size="small">{{ row.short_show_button ? row.做空止盈单数量 : '' }}</el-text>
+							<el-text size="small" :class="row.做空止盈单数量 != Math.abs(row.做空仓位数量) ? 'highlight-cell' : ''">{{ row.short_show_button ? row.做空止盈单数量 : '' }}</el-text>
 						</template>
 					</el-table-column>
 					<el-table-column prop="做空仓位数量" label="做空仓位数量" width="120" show-overflow-tooltip align="center" v-if="can_show_short">
@@ -221,7 +221,7 @@
 					</el-table-column>
 					<el-table-column prop="做空持仓价值" label="做空持仓价值" width="100" show-overflow-tooltip align="center" v-if="can_show_short">
 						<template #default="{ row, $index }">
-							<el-text size="small">{{ row.short_show_button ? row.做空持仓价值 : '' }}</el-text>
+							<el-text size="small" :class="row.做空持仓价值 <= -1000 ? 'highlight-cell' : 'bold-cell'">{{ row.short_show_button ? row.做空持仓价值 : '' }}</el-text>
 						</template>
 					</el-table-column>
 					<el-table-column prop="做空仓位浮动盈亏" label="做空仓位浮动盈亏" width="90" show-overflow-tooltip align="center" v-if="can_show_short">
