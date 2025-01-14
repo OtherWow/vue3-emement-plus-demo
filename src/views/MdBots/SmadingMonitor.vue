@@ -47,8 +47,8 @@
 						<el-button-group>
 							<el-button type="success" @click="所有市价平仓('LONG')">所有多仓市价平仓</el-button>
 							<el-button type="danger" @click="所有市价平仓('SHORT')">所有空仓市价平仓</el-button>
-							<el-button type="primary" @click="所有暂停()">所有暂停</el-button>
-							<el-button type="primary" @click="所有停止()">所有停止</el-button>
+							<el-button type="primary" @click="全部暂停()">所有暂停</el-button>
+							<el-button type="primary" @click="全部停止()">所有停止</el-button>
 							<el-button type="warning" @click="dialogVisible = true">监控墙功能说明</el-button>
 						</el-button-group>
 					</el-col>
@@ -112,7 +112,7 @@
 							<div class="highlight-title">{{ column.label }}</div>
 						</template>
 						<template #default="{ row, $index }">
-							<el-text size="small">{{ row.long_show_button ? row.做多补单次数 : '' }}</el-text>
+							<el-text size="small" :class="row.做多补单次数 >= 10 ? 'highlight-cell' : 'bold-cell'">{{ row.long_show_button ? row.做多补单次数 : '' }}</el-text>
 						</template>
 					</el-table-column>
 					<el-table-column prop="做多挂单数量" label="做多挂单数量" width="60" show-overflow-tooltip align="center" v-if="can_show_long">
@@ -169,14 +169,14 @@
 						<el-input v-model="long_cover_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 30px; margin-right: 3px" v-if="row.多仓暂停补单 === '是'" />
 						<el-button type="success" size="small" @click="恢复补单(row, 'LONG', $index)" style="margin-left: 0; margin-right: 3px" v-if="row.多仓暂停补单 === '是'">恢复补单</el-button> -->
 
-							<el-input v-model="long_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 0px" v-if="row.long_show_button" />
-							<el-button type="primary" size="small" @click="重挂止盈(row, 'LONG', $index)" style="margin-left: 0; margin-right: 3px" v-if="row.long_show_button">重挂止盈</el-button>
-							<el-button type="primary" size="small" @click="撤单平仓(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.long_show_button">撤单平仓</el-button>
-							<el-button type="primary" size="small" @click="一键清仓(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.long_show_button">一键清仓</el-button>
-							<el-button type="primary" size="small" @click="仓位重启(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.long_show_button">多仓重启</el-button>
+							<el-input v-model="long_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 0px" v-if="row.做多运行状态 != '已停止' && row.long_show_button" />
+							<el-button type="primary" size="small" @click="重挂止盈(row, 'LONG', $index)" style="margin-left: 0; margin-right: 3px" v-if="row.做多运行状态 != '已停止' && row.long_show_button">重挂止盈</el-button>
+							<el-button type="primary" size="small" @click="撤单平仓(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.做多运行状态 != '已停止' && row.long_show_button">撤单平仓</el-button>
+							<el-button type="primary" size="small" @click="一键清仓(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.做多运行状态 != '已停止' && row.long_show_button">一键清仓</el-button>
+							<el-button type="primary" size="small" @click="仓位重启(row, 'LONG')" style="margin-left: 0; margin-right: 3px" v-if="row.做多运行状态 != '已停止' && row.long_show_button">多仓重启</el-button>
 							<el-button type="danger" size="small" @click="单个暂停(row, 'LONG')" v-if="row.做多运行状态 === '运行中' && row.long_show_button" style="margin-left: 0; margin-right: 3px">暂停</el-button>
 							<el-button type="success" size="small" @click="单个恢复(row, 'LONG')" v-if="row.做多运行状态 === '暂停中' && row.long_show_button" style="margin-left: 0; margin-right: 3px">恢复</el-button>
-							<el-button type="danger" size="small" @click="单个停止(row, 'LONG')" v-if="row.做多运行状态 === '运行中' && row.long_show_button" style="margin-left: 0; margin-right: 3px">停止</el-button>
+							<el-button type="danger" size="small" @click="单个停止(row, 'LONG')" v-if="row.做多运行状态 != '已停止' && row.long_show_button" style="margin-left: 0; margin-right: 3px">停止</el-button>
 						</template>
 					</el-table-column>
 
@@ -196,7 +196,7 @@
 							<div class="highlight-title">{{ column.label }}</div>
 						</template>
 						<template #default="{ row, $index }">
-							<el-text size="small">{{ row.short_show_button ? row.做空补单次数 : '' }}</el-text>
+							<el-text size="small" :class="row.做空补单次数 >= 10 ? 'highlight-cell' : 'bold-cell'">{{ row.short_show_button ? row.做空补单次数 : '' }}</el-text>
 						</template>
 					</el-table-column>
 					<el-table-column prop="做空挂单数量" label="做空挂单数量" width="60" show-overflow-tooltip align="center" v-if="can_show_short">
@@ -249,14 +249,14 @@
 							<div class="danger-title">{{ column.label }}</div>
 						</template>
 						<template #default="{ row, $index }">
-							<el-input v-model="short_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 0px" v-if="row.short_show_button" />
-							<el-button type="primary" size="small" @click="重挂止盈(row, 'SHORT', $index)" style="margin-left: 0; margin-right: 3px" v-if="row.short_show_button">重挂止盈</el-button>
-							<el-button type="primary" size="small" @click="撤单平仓(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.short_show_button">撤单平仓</el-button>
-							<el-button type="primary" size="small" @click="一键清仓(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.short_show_button">一键清仓</el-button>
-							<el-button type="primary" size="small" @click="仓位重启(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.short_show_button">空仓重启</el-button>
-							<el-button type="danger" size="small" @click="单个暂停(row, 'SHORT')" v-if="row.做多运行状态 === '运行中' && row.short_show_button" style="margin-left: 0; margin-right: 3px">暂停</el-button>
-							<el-button type="success" size="small" @click="单个恢复(row, 'SHORT')" v-if="row.做多运行状态 === '暂停中' && row.short_show_button" style="margin-left: 0; margin-right: 3px">恢复</el-button>
-							<el-button type="danger" size="small" @click="单个停止(row, 'SHORT')" v-if="row.做多运行状态 === '运行中' && row.short_show_button" style="margin-left: 0; margin-right: 3px">停止</el-button>
+							<el-input v-model="short_inputValues[$index]" class="w-50 m-2" size="small" placeholder="" style="width: 40px; margin-right: 3px; margin-left: 0px" v-if="row.做空运行状态 != '已停止' && row.short_show_button" />
+							<el-button type="primary" size="small" @click="重挂止盈(row, 'SHORT', $index)" style="margin-left: 0; margin-right: 3px" v-if="row.做空运行状态 != '已停止' && row.short_show_button">重挂止盈</el-button>
+							<el-button type="primary" size="small" @click="撤单平仓(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.做空运行状态 != '已停止' && row.short_show_button">撤单平仓</el-button>
+							<el-button type="primary" size="small" @click="一键清仓(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.做空运行状态 != '已停止' && row.short_show_button">一键清仓</el-button>
+							<el-button type="primary" size="small" @click="仓位重启(row, 'SHORT')" style="margin-left: 0; margin-right: 3px" v-if="row.做空运行状态 != '已停止' && row.short_show_button">空仓重启</el-button>
+							<el-button type="danger" size="small" @click="单个暂停(row, 'SHORT')" v-if="row.做空运行状态 === '运行中' && row.short_show_button" style="margin-left: 0; margin-right: 3px">暂停</el-button>
+							<el-button type="success" size="small" @click="单个恢复(row, 'SHORT')" v-if="row.做空运行状态 === '暂停中' && row.short_show_button" style="margin-left: 0; margin-right: 3px">恢复</el-button>
+							<el-button type="danger" size="small" @click="单个停止(row, 'SHORT')" v-if="row.做空运行状态 != '已停止' && row.short_show_button" style="margin-left: 0; margin-right: 3px">停止</el-button>
 						</template>
 					</el-table-column>
 
@@ -336,6 +336,7 @@
 </template>
 
 <script setup>
+import { api_run_info_pause, api_run_info_run, api_run_info_start, api_run_info_stop } from '@/api/smading_strategy_api'
 import router from '@/router' // 确保你的路由实例已经导入
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 // import { useMonitorStore } from '@/store/monitor';
@@ -573,6 +574,8 @@ const keys = ['run_id', 'strategy_id', '策略名称', 'exchange_id', '交易所
 
 // 定义函数，将二维数组转换为对象数组
 const websocket_数组转对象 = (array2d) => {
+	// 如果是对象类型则直接返回
+	if (typeof array2d === 'object' && !Array.isArray(array2d)) return array2d
 	if (!array2d.length) return []
 	return array2d.map((array) => {
 		// 判断类型如果是对象则直接返回，如果是数组就进行下面的处理
@@ -625,13 +628,14 @@ function connectToWebSocket() {
 	}
 
 	ws.onmessage = async (event) => {
+		// console.log('WebSocket  收到消息 event:', event)
 		const array2d = JSON.parse(event.data)
 		// 调用函数，将二维数组转换为对象数组
 		const rawData = websocket_数组转对象(array2d)
-		console.log('WebSocket 收到消息:', rawData, rawData.error, rawData.error == true)
+		// console.log('WebSocket 收到消息:', rawData, rawData.error, rawData.error == true)
 		// 检查消息中是否有'error'字段
 		if (rawData.error) {
-			console.error('WebSocket error received:', rawData.error)
+			// console.error('WebSocket error received:', rawData.error)
 			// 根据错误处理，例如：如果token无效或过期，可能需要重新登录
 			if (rawData.code === 401) {
 				reconnectScheduled = true
@@ -656,7 +660,7 @@ function connectToWebSocket() {
 			let max_long_add_times = 0
 			let max_short_add_times = 0
 			rawData.forEach((item) => {
-				const { 总盈利, 总仓位浮动盈亏, name, symbol, 交易类型, 做多补单次数, 做空补单次数, 做多止盈次数, 做空止盈次数, 策略名称 } = item
+				const { 总盈利, 总仓位浮动盈亏, name, symbol, 交易类型, 做多补单次数, 做空补单次数, 做多止盈次数, 做空止盈次数, 策略名称, strategy_id } = item
 
 				// // 数据过滤
 				if ((!currentSymbolFilters.value.length || currentSymbolFilters.value.includes(symbol)) && 选中的交易所账号.value.includes(name)) {
@@ -694,7 +698,7 @@ function connectToWebSocket() {
 					item.short_show_button = false
 				}
 
-				nameAndTypes.add(`${name}|${策略名称}`)
+				nameAndTypes.add(`${name}|${strategy_id}`)
 
 				tempSmadingInfos.push(item)
 			})
@@ -787,6 +791,7 @@ function assignColorToName(names) {
 
 		color_list_copy.push(color)
 	}
+	// console.log('name_color_map', name_color_map)
 }
 
 // ------------------------------------------------------------------------------------------------------------websocket相关功能结束----------------------------------------------------------------------------------------------------
@@ -1039,7 +1044,7 @@ const 全部暂停 = async () => {
 		exchange_id_list.push(item.exchange_id)
 		run_id_list.push(item.run_id)
 	})
-	data = {
+	const data = {
 		exchange_id_list: exchange_id_list,
 		run_id_list: run_id_list,
 	}
@@ -1094,7 +1099,7 @@ const 全部恢复 = async () => {
 		exchange_id_list.push(item.exchange_id)
 		run_id_list.push(item.run_id)
 	})
-	data = {
+	const data = {
 		exchange_id_list: exchange_id_list,
 		run_id_list: run_id_list,
 	}
@@ -1342,7 +1347,7 @@ const 全部停止 = async () => {
 		exchange_id_list.push(item.exchange_id)
 		run_id_list.push(item.run_id)
 	})
-	data = {
+	const data = {
 		exchange_id_list: exchange_id_list,
 		run_id_list: run_id_list,
 	}
@@ -1527,7 +1532,7 @@ const getSummaries = (param) => {
 
 const tableRowClassName = ({ row }) => {
 	// console.log(row.name, name_color_map[row.name], name_color_map);
-	return name_color_map[row.name + '|' + row.交易类型]
+	return name_color_map[row.name + '|' + row.strategy_id]
 }
 
 const cellClassName = ({ row, rowIndex, column, columnIndex }) => {

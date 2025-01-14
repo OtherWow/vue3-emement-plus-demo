@@ -981,7 +981,7 @@
 										<p style="margin-top: 10px">
 											<!-- 检查当前日期是否有 net_profit 数据 -->
 											<template v-if="profitLossMap[data.day] !== undefined">
-												<el-tag :type="profitLossMap[data.day] >= 0 ? 'success' : 'danger'" size="mini">{{ profitLossMap[data.day] >= 0 ? '+' : '' }}{{ profitLossMap[data.day].toFixed(2) }}</el-tag>
+												<el-tag :type="profitLossMap[data.day] >= 0 ? 'success' : 'danger'" size="small">{{ profitLossMap[data.day] >= 0 ? '+' : '' }}{{ profitLossMap[data.day].toFixed(2) }}</el-tag>
 											</template>
 										</p>
 									</template>
@@ -1109,8 +1109,6 @@ const profitLossMap = computed(() => {
 		const dateKey = dayjs(item.date).format('YYYY-MM-DD')
 		// 将 net_profit 转换为数字类型
 		map[dateKey] = parseFloat(item.net_profit)
-		x_data.push(dateKey)
-		y_data.push(map[dateKey].toFixed(0))
 	})
 	return map
 })
@@ -1137,7 +1135,14 @@ const onDialogOpen = async () => {
 	await fetchProfitLossData()
 	await updateCardHeight()
 	// =================================柱状图
+	await 刷新柱状图()
+}
+
+const 刷新柱状图 = async () => {
 	var chart_盈亏分析柱状图 = $echarts.init(document.getElementById('id_盈亏分析柱状图'))
+	// 清空之前的图标
+	chart_盈亏分析柱状图.clear()
+	console.log('x_data:', x_data, 'y_data:', y_data)
 	chart_盈亏分析柱状图.setOption({
 		tooltip: {
 			trigger: 'axis',
@@ -1195,6 +1200,14 @@ const calculateVisibleDateRange = async () => {
 	visibleEndDate.value = weekEnd.format('YYYY-MM-DD')
 	// endDate 需要加一天
 	visibleEndDate.value = dayjs(visibleEndDate.value).add(1, 'day').format('YYYY-MM-DD')
+	x_data = []
+	// 把visibleStartDate visibleEndDate日期转换为数组
+	let start = dayjs(visibleStartDate.value)
+	let end = dayjs(visibleEndDate.value)
+	while (start.isBefore(end)) {
+		x_data.push(start.format('YYYY-MM-DD'))
+		start = start.add(1, 'day')
+	}
 
 	// console.log('Visible Start Date:', visibleStartDate.value)
 	// console.log('Visible End Date:', visibleEndDate.value)
@@ -1209,7 +1222,22 @@ const fetchProfitLossData = async () => {
 				strategy_id: current_strategy.value.strategy_id,
 			})
 			profitLossData.value = response.data.data
-			console.log('Profit and Loss Data:', profitLossData.value)
+			const map = {}
+			profitLossData.value.forEach((item) => {
+				// 将日期格式化为 'YYYY-MM-DD' 以匹配日历的日期格式
+				const dateKey = dayjs(item.date).format('YYYY-MM-DD')
+				// 将 net_profit 转换为数字类型
+				map[dateKey] = parseFloat(item.net_profit)
+			})
+			y_data = []
+			x_data.forEach((item) => {
+				if (map[item] !== undefined) {
+					y_data.push(map[item].toFixed(0))
+				} else {
+					y_data.push('')
+				}
+			})
+			console.log('y_data:', y_data)
 			// 根据返回的数据更新 UI 或进行其他操作
 		} catch (error) {
 			console.error('Error fetching profit and loss data:', error)
@@ -1221,7 +1249,7 @@ const fetchProfitLossData = async () => {
 }
 
 // 监听月份变化事件
-const selectDate = (val) => {
+const selectDate = async (val) => {
 	if (!calendar.value) return
 	calendar.value.selectDate(val)
 	if (val === 'prev-month') {
@@ -1231,8 +1259,9 @@ const selectDate = (val) => {
 	} else if (val === 'today') {
 		currentDate.value = new Date()
 	}
-	calculateVisibleDateRange()
-	fetchProfitLossData()
+	await calculateVisibleDateRange()
+	await fetchProfitLossData()
+	await 刷新柱状图()
 }
 
 // ========================================================================盈亏分析 结束==========================================================================
