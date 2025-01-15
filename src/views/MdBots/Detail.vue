@@ -62,6 +62,9 @@
 										<el-col :xs="24" :sm="8" :md="8" :lg="6" :xl="6">
 											<el-form-item label="账号">
 												<el-select v-model="form_data.exchange_id_list" multiple filterable clearable placeholder="支持多选">
+													<template #header>
+														<el-text type="primary" style="margin-left: 10px">交易所 | 交易所账号</el-text>
+													</template>
 													<el-option v-for="item in exchange_options" :key="item.value" :label="item.label" :value="item.value" />
 												</el-select>
 											</el-form-item>
@@ -263,25 +266,14 @@ const handleStopSizeChange = (newSize) => {
 }
 
 const 单个恢复马丁 = async (row) => {
-	const data = {
-		exchange_id_list: [row.exchange_id],
-		run_id_list: [row.run_id],
-	}
+	const data = [
+		{
+			exchange_id: row.exchange_id,
+			run_id_list: [row.run_id],
+			sync: true,
+		},
+	]
 	恢复马丁(data)
-}
-
-const 批量恢复马丁 = async (data) => {
-	let exchange_id_list = []
-	let run_id_list = []
-	data.forEach((item) => {
-		exchange_id_list.push(item.exchange_id)
-		run_id_list.push(item.run_id)
-	})
-	const stop_data = {
-		exchange_id_list: exchange_id_list,
-		run_id_list: run_id_list,
-	}
-	恢复马丁(stop_data)
 }
 
 const 恢复马丁 = async (data) => {
@@ -327,25 +319,14 @@ const 单个暂停马丁 = async (row) => {
 	if (res !== 'confirm') {
 		return
 	}
-	const data = {
-		exchange_id_list: [row.exchange_id],
-		run_id_list: [row.run_id],
-	}
+	const data = [
+		{
+			exchange_id: row.exchange_id,
+			run_id_list: [row.run_id],
+			sync: true,
+		},
+	]
 	暂停马丁(data)
-}
-
-const 批量暂停马丁 = async (data) => {
-	let exchange_id_list = []
-	let run_id_list = []
-	data.forEach((item) => {
-		exchange_id_list.push(item.exchange_id)
-		run_id_list.push(item.run_id)
-	})
-	const stop_data = {
-		exchange_id_list: exchange_id_list,
-		run_id_list: run_id_list,
-	}
-	暂停马丁(stop_data)
 }
 
 const 暂停马丁 = async (data) => {
@@ -384,24 +365,11 @@ const 暂停马丁 = async (data) => {
 
 const 单个停止马丁 = async (row) => {
 	const data = {
-		exchange_id_list: [row.exchange_id],
+		exchange_id: row.exchange_id,
 		run_id_list: [row.run_id],
+		sync: true,
 	}
 	停止马丁(data)
-}
-
-const 批量停止马丁 = async (data) => {
-	let exchange_id_list = []
-	let run_id_list = []
-	data.forEach((item) => {
-		exchange_id_list.push(item.exchange_id)
-		run_id_list.push(item.run_id)
-	})
-	const stop_data = {
-		exchange_id_list: exchange_id_list,
-		run_id_list: run_id_list,
-	}
-	停止马丁(stop_data)
 }
 
 const 停止马丁 = async (data) => {
@@ -523,7 +491,7 @@ const get_exchanges_all_simple = async () => {
 			exchange_options.value = res.data.data.map((item) => {
 				return {
 					value: item.id,
-					label: `${item.exchange_type}  \u00A0\u00A0  ${item.exchange_name}`,
+					label: `${item.exchange_type}  \u00A0|\u00A0  ${item.exchange_name}`,
 				}
 			})
 			exchange_dict.value = res.data.data.reduce((acc, cur) => {

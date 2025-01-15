@@ -45,11 +45,8 @@
 
 					<el-col :xs="24" :sm="24" :md="24" :lg="11" :xl="11" style="margin-bottom: 20px">
 						<el-button-group>
-							<el-button type="success" @click="所有市价平仓('LONG')">所有多仓市价平仓</el-button>
-							<el-button type="danger" @click="所有市价平仓('SHORT')">所有空仓市价平仓</el-button>
-							<el-button type="primary" @click="全部暂停()">所有暂停</el-button>
-							<el-button type="primary" @click="全部停止()">所有停止</el-button>
-							<el-button type="warning" @click="dialogVisible = true">监控墙功能说明</el-button>
+							<el-button type="primary" @click="展示操作面板 = true">打开操作面板</el-button>
+							<el-button type="primary" @click="dialogVisible = true">打开监控墙功能说明</el-button>
 						</el-button-group>
 					</el-col>
 
@@ -285,7 +282,102 @@
 			</el-card>
 		</el-main>
 	</el-container>
-	<el-dialog v-model="dialogVisible" width="800" top="15vh" :show-close="false">
+
+	<el-dialog v-model="展示操作面板" width="80%" top="15vh" title="操作面板">
+		<el-card style="margin-left: 10px; margin-right: 10px">
+			<template #header>
+				<div class="card-header">
+					<span style="font-weight: bold; font-size: 16px">操作分区</span>
+				</div>
+			</template>
+			<el-row style="margin-left: 10px; margin-bottom: 10px">
+				<el-col :xs="12" :sm="12" :md="8" :lg="8" :xl="8">
+					<el-button-group>
+						<el-button type="success" @click="全部撤单平仓('LONG')">全部做多仓位 撤单平仓</el-button>
+						<el-button type="success" @click="全部一键清仓('LONG')">全部做多仓位 一键清仓</el-button>
+					</el-button-group>
+				</el-col>
+				<el-col :xs="12" :sm="12" :md="8" :lg="8" :xl="8">
+					<el-button-group>
+						<el-button type="danger" @click="全部撤单平仓('SHORT')">全部做空仓位 撤单平仓</el-button>
+						<el-button type="danger" @click="全部一键清仓('SHORT')">全部做空仓位 一键清仓</el-button>
+					</el-button-group>
+				</el-col>
+				<el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+					<el-button-group>
+						<el-button type="danger" @click="全部暂停()">全部暂停</el-button>
+						<el-button type="success" @click="全部恢复()">全部恢复</el-button>
+						<el-button type="danger" @click="全部停止()">全部停止</el-button>
+					</el-button-group>
+				</el-col>
+			</el-row>
+		</el-card>
+
+		<el-card style="margin-left: 10px; margin-right: 10px; margin-top: 20px">
+			<template #header>
+				<div class="card-header">
+					<span style="font-weight: bold; font-size: 16px">快速启动</span>
+				</div>
+			</template>
+			<el-row>
+				<el-col :span="24">
+					<el-form :model="form_data" label-width="auto">
+						<el-row :gutter="20" style="margin-top: 15px">
+							<el-col :xs="24" :sm="8" :md="8" :lg="6" :xl="8">
+								<el-form-item label="策略">
+									<el-select v-model="form_data.strategy_id" filterable clearable placeholder="请选择">
+										<template #header>
+											<el-text type="primary" style="margin-left: 10px">持仓方向 | 策略名称 | 总盈利 | 运行中数量 | 运行中盈利</el-text>
+										</template>
+										<el-option v-for="item in strategy_options" :key="item.value" :label="item.label" :value="item.value" />
+									</el-select>
+								</el-form-item>
+							</el-col>
+							<el-col :xs="24" :sm="8" :md="8" :lg="6" :xl="5">
+								<el-form-item label="账号">
+									<el-select v-model="form_data.exchange_id_list" multiple filterable clearable placeholder="支持多选">
+										<template #header>
+											<el-text type="primary" style="margin-left: 10px">交易所 | 交易所账号</el-text>
+										</template>
+										<el-option v-for="item in exchange_options" :key="item.value" :label="item.label" :value="item.value" />
+									</el-select>
+								</el-form-item>
+							</el-col>
+
+							<el-col :xs="24" :sm="8" :md="8" :lg="6" :xl="3">
+								<el-form-item label="交易类型">
+									<el-select v-model="form_data.trade_type" placeholder="请选择">
+										<el-option v-for="item in trade_type_options" :key="item.value" :label="item.label" :value="item.value" />
+									</el-select>
+								</el-form-item>
+							</el-col>
+
+							<el-col :xs="24" :sm="8" :md="8" :lg="6" :xl="5">
+								<el-form-item label="交易对">
+									<el-select v-model="form_data.symbol_list" clearable multiple filterable allow-create placeholder="支持多选 现货交易对" v-if="form_data.trade_type === 'spot'">
+										<el-option v-for="item in binance_spot_usdt_symbols" :key="item" :label="item" :value="item" />
+									</el-select>
+									<el-select v-model="form_data.symbol_list" clearable multiple filterable allow-create placeholder="支持多选 合约交易对" v-if="form_data.trade_type === 'features'">
+										<el-option v-for="item in binance_features_usdt_symbols" :key="item" :label="item" :value="item" />
+									</el-select>
+								</el-form-item>
+							</el-col>
+							<el-col :xs="24" :sm="8" :md="8" :lg="6" :xl="3">
+								<el-button type="primary" @click="确认启动马丁()" style="margin-left: 20px">启动马丁</el-button>
+							</el-col>
+						</el-row>
+					</el-form>
+				</el-col>
+			</el-row>
+		</el-card>
+		<template #footer>
+			<div class="dialog-footer" style="margin-right: 10px">
+				<el-button type="primary" @click="展示操作面板 = false">确认</el-button>
+			</div>
+		</template>
+	</el-dialog>
+
+	<el-dialog v-model="dialogVisible" width="60%" top="15vh">
 		<el-card style="margin-left: 10px; margin-right: 10px">
 			<template #header>
 				<div class="card-header">
@@ -331,16 +423,43 @@
 			</div>
 		</template>
 	</el-dialog>
+
+	<el-dialog v-model="dialogVisiblemd" title="重要提示" width="500" :before-close="handleClose" top="15vh">
+		<span>确认参数无误后，点击确认按钮即可开启马丁。</span>
+		<br />
+		<el-text class="mx-1" type="danger" style="font-weight: bolder">请勿多次点击确认按钮，多次点击会开启多个马丁！！</el-text>
+		<template #footer>
+			<div class="dialog-footer">
+				<el-button @click="dialogVisiblemd = false">取消</el-button>
+				<el-button type="primary" @click="启动马丁()" :loading="start_md_loading">确认</el-button>
+			</div>
+		</template>
+	</el-dialog>
 </template>
 
 <script setup>
-import { api_run_info_pause, api_run_info_run, api_run_info_start, api_run_info_stop, api_撤单平仓, api_重挂止盈 } from '@/api/smading_strategy_api'
+import { api_get_binance_api_usdt_symbols } from '@/api/binance_api'
+import { api_get_binance_fapi_usdt_symbols } from '@/api/binance_fapi'
+import { api_get_exchanges_all_simple } from '@/api/exchange_infos_api'
+import { api_batch_撤单平仓, api_get_strategy_page, api_run_info_pause, api_run_info_run, api_run_info_start, api_run_info_stop, api_一键清仓, api_仓位重启, api_撤单平仓, api_重挂止盈 } from '@/api/smading_strategy_api'
 import router from '@/router' // 确保你的路由实例已经导入
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-// import { useMonitorStore } from '@/store/monitor';
-// const monitorStore = useMonitorStore()
-const dialogVisible = ref(false)
 
+const form_data = ref({
+	trade_type: 'spot',
+})
+const trade_type_options = ref([
+	{ value: 'spot', label: '现货' },
+	{ value: 'features', label: '合约' },
+])
+const binance_spot_usdt_symbols = ref([])
+const binance_features_usdt_symbols = ref([])
+const start_md_loading = ref(false)
+const exchange_options = ref([]) // 交易所下拉框
+const strategy_options = ref([]) // 策略下拉框
+const dialogVisiblemd = ref(false)
+const dialogVisible = ref(false)
+const 展示操作面板 = ref(false)
 const can_show_long = ref(false)
 const can_show_short = ref(false)
 const can_show_all = ref(false)
@@ -545,10 +664,15 @@ onMounted(async () => {
 	console.log('监控墙页面加载完成,开始连接websocket')
 	connectToWebSocket()
 	window.addEventListener('resize', updateHeight)
-	setTimeout(() => {
-		const scrollArea = monitorTable.value?.$el.querySelector('.el-table__body-wrapper')
-		monitorTable.value.setScrollLeft(scrollArea.clientWidth + 400)
-	}, 300)
+	// 快速启动需要的数据
+	get_strategy_page()
+	get_exchanges_all_simple()
+	获取币安usdt交易对()
+	// 设置表格的滚动条位置
+	// setTimeout(() => {
+	// 	const scrollArea = monitorTable.value?.$el.querySelector('.el-table__body-wrapper')
+	// 	monitorTable.value.setScrollLeft(scrollArea.clientWidth + 400)
+	// }, 300)
 })
 
 onBeforeUnmount(() => {
@@ -898,10 +1022,102 @@ const 重挂止盈 = async (row, position_side, index) => {
 	}
 }
 
+const 全部撤单平仓 = async (position_side) => {
+	// console.log(row, position_side);
+	const 持仓方向 = position_side == 'LONG' ? '做多' : '做空'
+	const res = await ElMessageBox.confirm(`确定要对监控墙上所有马丁的 ${持仓方向} 仓位执行撤单平仓吗？如确定，则会把监控墙上所有马丁的 ${持仓方向} 的马丁的仓位平仓并撤销此马丁的挂单！`, '提示', {
+		confirmButtonText: '确定',
+		cancelButtonText: '取消',
+		type: 'warning',
+	})
+	if (res !== 'confirm') {
+		return
+	}
+	try {
+		let data_list = []
+		smading_infos_list.value.forEach((item) => {
+			const data = {
+				run_id: item.run_id,
+				position_side: position_side,
+				exchange_id: item.exchange_id,
+			}
+			data_list.push(data)
+		})
+
+		const res = await api_batch_撤单平仓(data_list)
+		// console.log("res", res);
+		if (res.status === 200 && res.data.code === 200) {
+			ElMessage({
+				message: 持仓方向 + res.data.data.msg,
+				type: 'success',
+			})
+		} else {
+			ElMessage({
+				message: '全部' + 持仓方向 + '仓位 撤单平仓失败：' + res.data.msg,
+				type: 'error',
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '全部' + 持仓方向 + '仓位 撤单平仓失败：' + error,
+			type: 'error',
+		})
+	}
+}
+
+const 全部一键清仓 = async (position_side) => {
+	// console.log(row, position_side);
+	const 持仓方向 = position_side == 'LONG' ? '做多' : '做空'
+	const res = await ElMessageBox.confirm(`确定要对监控墙上所有马丁的 ${持仓方向} 仓位执行一键清仓吗？如确定，则会把监控墙上所有马丁的 ${持仓方向} 仓位全部清仓并撤销所有挂单！`, '提示', {
+		confirmButtonText: '确定',
+		cancelButtonText: '取消',
+		type: 'warning',
+	})
+	if (res !== 'confirm') {
+		return
+	}
+	try {
+		let data_list = []
+		smading_infos_list.value.forEach((item) => {
+			const data = {
+				run_id: item.run_id,
+				position_side: position_side,
+				exchange_id: item.exchange_id,
+			}
+			data_list.push(data)
+		})
+		const res = await api_batch_一键清仓(data_list)
+		// console.log("res", res);
+		if (res.status === 200 && res.data.code === 200) {
+			ElMessage({
+				message: 持仓方向 + res.data.data.msg,
+				type: 'success',
+			})
+		} else {
+			ElMessage({
+				message: '全部' + 持仓方向 + '仓位 一键清仓失败：' + res.data.msg,
+				type: 'error',
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '全部' + 持仓方向 + '仓位 一键清仓失败：' + error,
+			type: 'error',
+		})
+	}
+}
 const 撤单平仓 = async (row, position_side) => {
 	// console.log(row, position_side);
+	const 持仓方向 = position_side == 'LONG' ? '做多' : '做空'
+	const res = await ElMessageBox.confirm(`确定要对${row.symbol} ${持仓方向} 仓位执行撤单平仓吗？如确定，则会把${row.symbol} ${持仓方向} 当前马丁的仓位平仓并撤销当前马丁的挂单！`, '提示', {
+		confirmButtonText: '确定',
+		cancelButtonText: '取消',
+		type: 'warning',
+	})
+	if (res !== 'confirm') {
+		return
+	}
 	try {
-		const 持仓方向 = position_side == 'LONG' ? '做多' : '做空'
 		const data = {
 			run_id: row.run_id,
 			position_side: position_side,
@@ -928,6 +1144,44 @@ const 撤单平仓 = async (row, position_side) => {
 	}
 }
 
+const 一键清仓 = async (row, position_side) => {
+	// console.log(row, position_side);
+	const 持仓方向 = position_side == 'LONG' ? '做多' : '做空'
+	const res = await ElMessageBox.confirm(`确定要对${row.symbol} ${持仓方向} 仓位执行一键清仓吗？如确定，则会把${row.symbol} ${持仓方向} 仓位全部清仓并撤销所有挂单！`, '提示', {
+		confirmButtonText: '确定',
+		cancelButtonText: '取消',
+		type: 'warning',
+	})
+	if (res !== 'confirm') {
+		return
+	}
+	try {
+		const data = {
+			run_id: row.run_id,
+			position_side: position_side,
+			exchange_id: row.exchange_id,
+		}
+		const res = await api_一键清仓(data)
+		// console.log("res", res);
+		if (res.status === 200 && res.data.code === 200) {
+			ElMessage({
+				message: 持仓方向 + '一键清仓成功',
+				type: 'success',
+			})
+		} else {
+			ElMessage({
+				message: 持仓方向 + '一键清仓失败：' + res.data.msg,
+				type: 'error',
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: 持仓方向 + '一键清仓失败：' + error,
+			type: 'error',
+		})
+	}
+}
+
 const 仓位重启 = async (row, position_side) => {
 	let 仓位名称 = ''
 	if (position_side == 'LONG') {
@@ -936,7 +1190,7 @@ const 仓位重启 = async (row, position_side) => {
 		仓位名称 = '做空'
 	}
 	// 先弹一个提示框确定是否暂停
-	const res = await ElMessageBox.confirm(`确定要重启 ${仓位名称} 仓位吗？如确定，则会平掉 ${仓位名称} 仓位重新开始！`, '提示', {
+	const res = await ElMessageBox.confirm(`确定要重启 ${仓位名称} 仓位吗？如确定，则会对 ${仓位名称} 仓位进行撤单平仓 然后重新开始！`, '提示', {
 		confirmButtonText: '确定',
 		cancelButtonText: '取消',
 		type: 'warning',
@@ -944,9 +1198,13 @@ const 仓位重启 = async (row, position_side) => {
 	if (res !== 'confirm') {
 		return
 	}
-	console.log(row, position_side)
+	const data = {
+		run_id: row.run_id,
+		position_side: position_side,
+		exchange_id: row.exchange_id,
+	}
 	try {
-		const res = await api_仓位重启(row.symbol, row.strategy_id, position_side, row.exchange_id)
+		const res = await api_仓位重启(data)
 		// console.log("res", res);
 		if (res.status === 200 && res.data.code === 200) {
 			ElMessage({
@@ -1048,16 +1306,24 @@ const 全部暂停 = async () => {
 	}
 	// console.log(row, position_side);
 
-	let exchange_id_list = []
-	let run_id_list = []
+	// 使用 Map 对象替代临时对象，减少 hasOwnProperty 的检查开销
+	const tempMap = new Map()
+
+	// 根据 exchange_id 分组
 	smading_infos_list.value.forEach((item) => {
-		exchange_id_list.push(item.exchange_id)
-		run_id_list.push(item.run_id)
+		if (tempMap.has(item.exchange_id)) {
+			tempMap.get(item.exchange_id).run_id_list.push(item.run_id)
+		} else {
+			tempMap.set(item.exchange_id, {
+				exchange_id: item.exchange_id,
+				run_id_list: [item.run_id],
+				position_side: item.position_side,
+			})
+		}
 	})
-	const data = {
-		exchange_id_list: exchange_id_list,
-		run_id_list: run_id_list,
-	}
+
+	// 将 Map 转换为数组
+	const data = Array.from(tempMap.values())
 	await 暂停(data)
 }
 
@@ -1072,11 +1338,13 @@ const 单个暂停 = async (row, position_side) => {
 		return
 	}
 	// console.log(row, position_side);
-	const data = {
-		exchange_id_list: [row.exchange_id],
-		run_id_list: [row.run_id],
-		position_side: position_side,
-	}
+	const data = [
+		{
+			exchange_id: row.exchange_id,
+			run_id_list: [row.run_id],
+			position_side: position_side,
+		},
+	]
 	await 暂停(data)
 }
 
@@ -1103,25 +1371,34 @@ const 暂停 = async (data) => {
 }
 
 const 全部恢复 = async () => {
-	let exchange_id_list = []
-	let run_id_list = []
+	// 使用 Map 对象替代临时对象，减少 hasOwnProperty 的检查开销
+	const tempMap = new Map()
+
+	// 根据 exchange_id 分组
 	smading_infos_list.value.forEach((item) => {
-		exchange_id_list.push(item.exchange_id)
-		run_id_list.push(item.run_id)
+		if (tempMap.has(item.exchange_id)) {
+			tempMap.get(item.exchange_id).run_id_list.push(item.run_id)
+		} else {
+			tempMap.set(item.exchange_id, {
+				exchange_id: item.exchange_id,
+				run_id_list: [item.run_id],
+			})
+		}
 	})
-	const data = {
-		exchange_id_list: exchange_id_list,
-		run_id_list: run_id_list,
-	}
+
+	// 将 Map 转换为数组
+	const data = Array.from(tempMap.values())
 	await 恢复(data)
 }
 
 const 单个恢复 = async (row, position_side) => {
-	const data = {
-		exchange_id_list: [row.exchange_id],
-		run_id_list: [row.run_id],
-		position_side: position_side,
-	}
+	const data = [
+		{
+			exchange_id: row.exchange_id,
+			run_id_list: [row.run_id],
+			position_side: position_side,
+		},
+	]
 	await 恢复(data)
 }
 
@@ -1143,71 +1420,6 @@ const 恢复 = async (data) => {
 	} catch (error) {
 		ElMessage({
 			message: '恢复失败：' + error,
-			type: 'error',
-		})
-	}
-}
-
-const 所有市价平仓 = async (position_side) => {
-	let 仓位名称 = ''
-	if (position_side == 'LONG') {
-		仓位名称 = '做多'
-	} else {
-		仓位名称 = '做空'
-	}
-	// 先弹一个提示框确定是否暂停
-	const res = await ElMessageBox.confirm(`确定要平掉所有币种的 ${仓位名称} 仓位吗？如确定，则会已市价平掉所有 ${仓位名称} 仓位！`, '提示', {
-		confirmButtonText: '确定',
-		cancelButtonText: '取消',
-		type: 'warning',
-	})
-	if (res !== 'confirm') {
-		return
-	}
-
-	let obj_list = []
-	smading_infos_list.value.forEach((item) => {
-		if (item.hasOwnProperty('做多仓位数量') && item.hasOwnProperty('做空仓位数量')) {
-			if (position_side == 'LONG') {
-				if (item['做多仓位数量'] > 0) {
-					let obj = {
-						symbol: item.symbol,
-						strategy_id: item.strategy_id,
-						position_side: position_side,
-						exchange_id: item.exchange_id,
-					}
-					obj_list.push(obj)
-				}
-			} else {
-				if (item['做空仓位数量'] > 0) {
-					let obj = {
-						symbol: item.symbol,
-						strategy_id: item.strategy_id,
-						position_side: position_side,
-						exchange_id: item.exchange_id,
-					}
-					obj_list.push(obj)
-				}
-			}
-		}
-	})
-	try {
-		const res = await api_监控墙_所有市价平仓(obj_list)
-		// console.log("res", res);
-		if (res.status === 200 && res.data.code === 200) {
-			ElMessage({
-				message: `${仓位名称} 所有市价平仓成功`,
-				type: 'success',
-			})
-		} else {
-			ElMessage({
-				message: `${仓位名称} 所有市价平仓失败：` + res.data.msg,
-				type: 'error',
-			})
-		}
-	} catch (error) {
-		ElMessage({
-			message: `${仓位名称} 所有市价平仓失败：` + error,
 			type: 'error',
 		})
 	}
@@ -1342,7 +1554,7 @@ const 禁止重开 = async (row) => {
 
 const 全部停止 = async () => {
 	// 先弹一个提示框确定是否停止
-	const res = await ElMessageBox.confirm('确定要停止所有马丁吗？建议点击顺序 全部暂停=>多空仓位全部市价平仓=>全部停止 ！', '提示', {
+	const res = await ElMessageBox.confirm('确定要停止所有马丁吗？建议点击顺序 全部暂停=>多空仓位全部撤单平仓=>全部停止 ！', '提示', {
 		confirmButtonText: '确定',
 		cancelButtonText: '取消',
 		type: 'warning',
@@ -1351,22 +1563,29 @@ const 全部停止 = async () => {
 		return
 	}
 
-	let exchange_id_list = []
-	let run_id_list = []
+	// 使用 Map 对象替代临时对象，减少 hasOwnProperty 的检查开销
+	const tempMap = new Map()
+
+	// 根据 exchange_id 分组
 	smading_infos_list.value.forEach((item) => {
-		exchange_id_list.push(item.exchange_id)
-		run_id_list.push(item.run_id)
+		if (tempMap.has(item.exchange_id)) {
+			tempMap.get(item.exchange_id).run_id_list.push(item.run_id)
+		} else {
+			tempMap.set(item.exchange_id, {
+				exchange_id: item.exchange_id,
+				run_id_list: [item.run_id],
+			})
+		}
 	})
-	const data = {
-		exchange_id_list: exchange_id_list,
-		run_id_list: run_id_list,
-	}
+
+	// 将 Map 转换为数组
+	const data = Array.from(tempMap.values())
 	await 停止(data)
 }
 
 const 单个停止 = async (row, position_side) => {
 	// 先弹一个提示框确定是否停止
-	const res = await ElMessageBox.confirm('确定要停止吗？建议点击顺序 暂停=>多空仓位市价平仓=>停止 ！', '提示', {
+	const res = await ElMessageBox.confirm('确定要停止吗？建议点击顺序 暂停=>多空仓位撤单平仓=>停止 ！', '提示', {
 		confirmButtonText: '确定',
 		cancelButtonText: '取消',
 		type: 'warning',
@@ -1374,11 +1593,13 @@ const 单个停止 = async (row, position_side) => {
 	if (res !== 'confirm') {
 		return
 	}
-	const data = {
-		exchange_id_list: [row.exchange_id],
-		run_id_list: [row.run_id],
-		position_side: position_side,
-	}
+	const data = [
+		{
+			exchange_id: row.exchange_id,
+			run_id_list: [row.run_id],
+			position_side: position_side,
+		},
+	]
 	await 停止(data)
 }
 
@@ -1399,47 +1620,6 @@ const 停止 = async (data) => {
 	} catch (error) {
 		ElMessage({
 			message: '停止失败：' + error,
-			type: 'error',
-		})
-	}
-}
-
-const 单个启动 = async (row, position_side) => {
-	// 先弹一个提示框确定是否停止
-	const res = await ElMessageBox.confirm('确定要启动吗？启动会运行新的马丁不是延续本次马丁 ！', '提示', {
-		confirmButtonText: '确定',
-		cancelButtonText: '取消',
-		type: 'warning',
-	})
-	if (res !== 'confirm') {
-		return
-	}
-	const data = {
-		exchange_id_list: [row.exchange_id],
-		symbols_list: [row.symbol],
-		trade_type: row.交易类型 === '合约' ? 'features' : 'spot',
-		strategy_id: row.strategy_id,
-	}
-	await 停止(data)
-}
-
-const 启动 = async (data) => {
-	try {
-		const res = await api_run_info_start(data)
-		if (res.status === 200 && res.data.code === 200) {
-			ElMessage({
-				message: '启动成功',
-				type: 'success',
-			})
-		} else {
-			ElMessage({
-				message: '启动失败：' + res.data.msg,
-				type: 'error',
-			})
-		}
-	} catch (error) {
-		ElMessage({
-			message: '启动失败：' + error,
 			type: 'error',
 		})
 	}
@@ -1475,6 +1655,169 @@ const 重新启动 = async (row) => {
 			type: 'error',
 		})
 	}
+}
+
+const 获取币安usdt交易对 = async () => {
+	try {
+		const res = await api_get_binance_api_usdt_symbols()
+		if (res.status === 200 && res.data.code === 200) {
+			binance_spot_usdt_symbols.value = res.data.data
+		} else {
+			ElMessage({
+				message: '查询币安现货usdt交易对失败：' + res.data.msg,
+				type: 'error',
+				showClose: true,
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '查询币安现货usdt交易对失败：' + error,
+			type: 'error',
+			showClose: true,
+		})
+	}
+
+	try {
+		const res = await api_get_binance_fapi_usdt_symbols()
+		if (res.status === 200 && res.data.code === 200) {
+			binance_features_usdt_symbols.value = res.data.data
+		} else {
+			ElMessage({
+				message: '查询币安现货usdt交易对失败：' + res.data.msg,
+				type: 'error',
+				showClose: true,
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '查询币安现货usdt交易对失败：' + error,
+			type: 'error',
+			showClose: true,
+		})
+	}
+}
+
+const get_strategy_page = async () => {
+	// 获取策略信息
+	try {
+		const data = {
+			is_ban: 0,
+		}
+		const res = await api_get_strategy_page(1, 100, data)
+		// console.log('res', res)
+		if (res.status === 200 && res.data.code === 200) {
+			console.log(res.data.data)
+			const items = res.data.data.items
+			strategy_options.value = items.map((item) => {
+				const 持仓方向 = item.position_side == 'LONG' ? '做多' : '做空'
+				return {
+					value: item.strategy_id,
+					label: `${持仓方向}  \u00A0|\u00A0 ${item.name}  \u00A0|\u00A0  ${item.all_profit}  \u00A0|\u00A0  ${item.running_count} \u00A0|\u00A0  ${item.running_profit}`,
+				}
+			})
+		} else {
+			ElMessage({
+				message: '查询双马丁策略列表失败：' + res.data.msg,
+				type: 'error',
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '查询双马丁策略列表失败：' + error,
+			type: 'error',
+		})
+	}
+}
+
+const get_exchanges_all_simple = async () => {
+	try {
+		const res = await api_get_exchanges_all_simple()
+		if (res.status === 200 && res.data.code === 200) {
+			exchange_options.value = res.data.data.map((item) => {
+				return {
+					value: item.id,
+					label: `${item.exchange_type}  \u00A0|\u00A0  ${item.exchange_name}`,
+				}
+			})
+		} else {
+			ElMessage({
+				message: '查询交易所信息失败：' + res.data.msg,
+				type: 'error',
+				showClose: true,
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '查询交易所信息失败：' + error,
+			type: 'error',
+			showClose: true,
+		})
+	}
+}
+
+const 确认启动马丁 = async () => {
+	if (!form_data.value.strategy_id) {
+		ElMessage({
+			message: '请选择需要运行的策略',
+			type: 'error',
+			showClose: true,
+		})
+		return
+	}
+	if (form_data.value.exchange_id_list.length === 0) {
+		ElMessage({
+			message: '请选择需要运行的账号',
+			type: 'error',
+			showClose: true,
+		})
+		return
+	}
+	if (form_data.value.symbol_list.length === 0) {
+		ElMessage({
+			message: '请选择需要运行的交易对',
+			type: 'error',
+			showClose: true,
+		})
+		return
+	}
+	if (!form_data.value.trade_type) {
+		ElMessage({
+			message: '请选择交易类型',
+			type: 'error',
+			showClose: true,
+		})
+		return
+	}
+	dialogVisiblemd.value = true
+}
+const 启动马丁 = async () => {
+	start_md_loading.value = true
+	form_data.value.strategy_id = strategy_id
+	try {
+		const res = await api_run_info_start(form_data.value)
+		if (res.status === 200 && res.data.code === 200) {
+			ElMessage({
+				message: `${JSON.stringify(res.data.data)}`,
+				type: 'success',
+				showClose: true,
+			})
+		} else {
+			ElMessage({
+				message: '启动马丁失败：' + res.data.msg,
+				type: 'error',
+				showClose: true,
+			})
+		}
+	} catch (error) {
+		ElMessage({
+			message: '启动马丁失败：' + error,
+			type: 'error',
+			showClose: true,
+		})
+	} finally {
+		start_md_loading.value = false
+	}
+	dialogVisiblemd.value = false
 }
 
 // ------------------------------------------------------------------------------------------------------------表格统计相关功能开始----------------------------------------------------------------------------------------------------

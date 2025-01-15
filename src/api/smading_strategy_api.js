@@ -2,16 +2,41 @@ import { http, http_tokyo } from './http';
 const model_url = 'smading_strategy'
 
 //-----------------------------------------------------------------------------base-------------------------------------------------
+
+//api_仓位重启
+export const api_仓位重启 = async (data) => {
+    const response = await http_tokyo.post(`/${model_url}/run_info/position_start_again`, data);
+    return response;
+};
+
 //    api_市价平仓,
 export const api_撤单平仓 = async (data) => {
-    const response = await http.post(`/${model_url}/strategy/one_key_close_position`, data);
+    const response = await http.post(`/${model_url}/run_info/one_key_close_position`, data);
+    return response;
+};
+
+//    api_市价平仓,
+export const api_一键清仓 = async (data) => {
+    const response = await http.post(`/${model_url}/run_info/one_key_clear_position`, data);
+    return response;
+};
+
+//    api_市价平仓,
+export const api_batch_撤单平仓 = async (data) => {
+    const response = await http.post(`/${model_url}/run_info/batch_one_key_close_position`, data);
+    return response;
+};
+
+//    api_市价平仓,
+export const api_batch_一键清仓 = async (data) => {
+    const response = await http.post(`/${model_url}/run_info/batch_one_key_clear_position`, data);
     return response;
 };
 
 
 // api_重挂止盈
 export const api_重挂止盈 = async (data) => {
-    const response = await http.post(`/${model_url}/strategy/reset_stop_profit`, data);
+    const response = await http.post(`/${model_url}/run_info/reset_stop_profit`, data);
     return response;
 };
 
@@ -293,17 +318,7 @@ export const api_监控墙_恢复补单 = async (symbol, strategy_id, position_s
 };
 
 
-//api_仓位重启
-export const api_仓位重启 = async (symbol, strategy_id, position_side, exchange_id) => {
-    const data = {
-        symbol: symbol,
-        strategy_id: strategy_id,
-        position_side: position_side,
-        exchange_id: exchange_id
-    };
-    const response = await http_tokyo.post(`/${model_url}/monitor/position_start_again`, data);
-    return response;
-};
+
 
 //api_停止
 export const api_停止 = async (symbol, strategy_id, exchange_id) => {
