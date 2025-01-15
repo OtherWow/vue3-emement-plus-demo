@@ -93,8 +93,16 @@
 							<el-tag type="info" effect="dark">{{ scope.row.symbol }}</el-tag>
 						</template>
 					</el-table-column>
-
+					<el-table-column prop="策略名称" label="策略名称" width="200" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="交易所" label="交易所" width="110" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="交易类型" label="交易类型" width="110" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="当前版本" label="当前版本" width="110" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="启动资金" label="启动资金" width="130" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="账户余额" label="账户余额" width="130" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column :fixed="选择框_运行时间 ? 'left' : false" prop="运行时间" label="运行时间" width="90" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column :fixed="选择框_每小时盈利 ? 'left' : false" prop="每小时盈利" label="每小时盈利" width="100" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center" v-if="can_show_all"></el-table-column>
+					<el-table-column prop="运行状态" label="运行状态" width="100" show-overflow-tooltip align="center" v-if="can_show_all"></el-table-column>
 					<el-table-column prop="最新价格" label="最新价格" width="130" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column prop="做多止盈次数" label="做多止盈次数" width="60" show-overflow-tooltip align="center" v-if="can_show_long">
 						<template #default="{ row, $index }">
@@ -259,16 +267,6 @@
 							<el-button type="danger" size="small" @click="单个停止(row, 'SHORT')" v-if="row.做空运行状态 != '已停止' && row.short_show_button" style="margin-left: 0; margin-right: 3px">停止</el-button>
 						</template>
 					</el-table-column>
-
-					<el-table-column prop="策略名称" label="策略名称" width="200" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="交易所" label="交易所" width="110" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="交易类型" label="交易类型" width="110" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="当前版本" label="当前版本" width="110" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="启动资金" label="启动资金" width="130" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="账户余额" label="账户余额" width="130" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column :fixed="选择框_运行时间 ? 'left' : false" prop="运行时间" label="运行时间" width="90" show-overflow-tooltip align="center"></el-table-column>
-					<el-table-column prop="止盈次数" label="止盈次数" width="90" show-overflow-tooltip align="center" v-if="can_show_all"></el-table-column>
-					<el-table-column prop="运行状态" label="运行状态" width="100" show-overflow-tooltip align="center" v-if="can_show_all"></el-table-column>
 
 					<!-- <el-table-column prop="禁止重开" label="禁止重开" width="130" show-overflow-tooltip align="center">
 					<template #default="{ row, $index }">
