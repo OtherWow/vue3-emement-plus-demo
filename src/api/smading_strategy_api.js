@@ -2,6 +2,19 @@ import { http, http_tokyo } from './http';
 const model_url = 'smading_strategy'
 
 //-----------------------------------------------------------------------------base-------------------------------------------------
+//    api_市价平仓,
+export const api_撤单平仓 = async (data) => {
+    const response = await http.post(`/${model_url}/strategy/one_key_close_position`, data);
+    return response;
+};
+
+
+// api_重挂止盈
+export const api_重挂止盈 = async (data) => {
+    const response = await http.post(`/${model_url}/strategy/reset_stop_profit`, data);
+    return response;
+};
+
 
 //获取双马丁策略列表
 export const api_get_strategy_page = async (page,size,form_data) => {
@@ -164,24 +177,9 @@ export const api_恢复指定id的双马丁策略 = async (data) => {
 
 //-----------------------------------------------------------------------------monitor-------------------------------------------------
 
-//    api_市价平仓,
-export const api_市价平仓 = async (symbol, strategy_id, position_side, exchange_id,trade_type) => {
-    const data = {
-        symbol: symbol,
-        strategy_id: strategy_id,
-        position_side: position_side,
-        exchange_id: exchange_id,
-        trade_type:trade_type
-    };
-    const response = await http_tokyo.post(`/${model_url}/monitor/one_key_close_market`, data);
-    return response;
-};
 
-//    api_监控墙_所有暂停,
-export const api_监控墙_所有暂停 = async (data) => {
-    const response = await http_tokyo.post(`/${model_url}/monitor/all_pause`, data);
-    return response;
-};
+
+
 
 //    api_监控墙_更新多少usdt自动重开,
 export const api_监控墙_更新多少usdt自动重开 = async (data) => {
@@ -207,12 +205,6 @@ export const api_监控墙_禁止重开 = async (data) => {
     return response;
 };
 
-
-//api_监控墙_所有停止
-export const api_监控墙_所有停止 = async (data) => {
-    const response = await http_tokyo.post(`/${model_url}/monitor/all_stop`, data);
-    return response;
-};
 
 //api_监控墙_所有重新开始
 export const api_监控墙_所有重新开始 = async (data) => {
@@ -250,18 +242,6 @@ export const api_切换成对冲双马丁 = async (symbol, strategy_id, exchange
 };
 
 
-// api_重挂止盈
-export const api_重挂止盈 = async (symbol, strategy_id, position_side, take_profit_price, exchange_id) => {
-    const data = {
-        symbol: symbol,
-        strategy_id: strategy_id,
-        position_side: position_side,
-        take_profit_price: take_profit_price,
-        exchange_id: exchange_id
-    };
-    const response = await http_tokyo.post(`/${model_url}/monitor/repull_take_profit`, data);
-    return response;
-};
 
 
 //    api_暂停,

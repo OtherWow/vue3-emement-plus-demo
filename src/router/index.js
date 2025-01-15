@@ -114,16 +114,6 @@ const routes = [
             name: 'smadingMonitor',
             component: () => import('@/views/MdBots/SmadingMonitor.vue'),
             meta: { title: '马丁机器人监控墙', requiresAuth: true }, // 需要鉴权的路由
-          }, {
-            path: 'smadingMonitor2',
-            name: 'smadingMonitor2',
-            component: () => import('@/views/MdBots/SmadingMonitor2.vue'),
-            meta: { title: '双马丁监控墙（多账号）', requiresAuth: true }, // 需要鉴权的路由
-          }, {
-            path: 'smadingMonitor3',
-            name: 'smadingMonitor3',
-            component: () => import('@/views/MdBots/SmadingMonitor3.vue'),
-            meta: { title: '双马丁监控墙（多账号2）', requiresAuth: true }, // 需要鉴权的路由
           }
         ]
       }

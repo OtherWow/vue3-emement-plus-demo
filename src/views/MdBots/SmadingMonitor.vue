@@ -336,7 +336,7 @@
 </template>
 
 <script setup>
-import { api_run_info_pause, api_run_info_run, api_run_info_start, api_run_info_stop } from '@/api/smading_strategy_api'
+import { api_run_info_pause, api_run_info_run, api_run_info_start, api_run_info_stop, api_撤单平仓, api_重挂止盈 } from '@/api/smading_strategy_api'
 import router from '@/router' // 确保你的路由实例已经导入
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 // import { useMonitorStore } from '@/store/monitor';
@@ -873,7 +873,13 @@ const 重挂止盈 = async (row, position_side, index) => {
 
 	// console.log(long_inputValues, short_inputValues, index, inputvalues, row.exchange_id, row)
 	try {
-		const res = await api_重挂止盈(row.symbol, row.strategy_id, position_side, inputvalues, row.exchange_id)
+		const data = {
+			run_id: row.run_id,
+			position_side: position_side,
+			exchange_id: row.exchange_id,
+			reset_value: inputvalues,
+		}
+		const res = await api_重挂止盈(data)
 		// console.log("res", res);
 		if (res.status === 200 && res.data.code === 200) {
 			ElMessage({
@@ -894,25 +900,31 @@ const 重挂止盈 = async (row, position_side, index) => {
 	}
 }
 
-const 市价平仓 = async (row, position_side) => {
+const 撤单平仓 = async (row, position_side) => {
 	// console.log(row, position_side);
 	try {
-		const res = await api_市价平仓(row.symbol, row.strategy_id, position_side, row.exchange_id, row.交易类型)
+		const 持仓方向 = position_side == 'LONG' ? '做多' : '做空'
+		const data = {
+			run_id: row.run_id,
+			position_side: position_side,
+			exchange_id: row.exchange_id,
+		}
+		const res = await api_撤单平仓(data)
 		// console.log("res", res);
 		if (res.status === 200 && res.data.code === 200) {
 			ElMessage({
-				message: '市价平仓成功',
+				message: 持仓方向 + '撤单平仓成功',
 				type: 'success',
 			})
 		} else {
 			ElMessage({
-				message: '市价平仓失败：' + res.data.msg,
+				message: 持仓方向 + '撤单平仓失败：' + res.data.msg,
 				type: 'error',
 			})
 		}
 	} catch (error) {
 		ElMessage({
-			message: '市价平仓失败：' + error,
+			message: 持仓方向 + '撤单平仓失败：' + error,
 			type: 'error',
 		})
 	}
