@@ -75,6 +75,12 @@ const routes = [
             name: 'transfer_infos',
             component: () => import('@/views/UserInfo/TransferInfos.vue'),
             meta: { title: '交易所划转记录查询', requiresAuth: true }, // 需要鉴权的路由
+          },
+          {
+            path: 'analysis_profit_and_loss',
+            name: CommonConstant.PATH_USER_INFO_ANALYSIS_PROFIT_AND_LOSS,
+            component: () => import('@/views/UserInfo/AnalysisProfitAndLoss.vue'),
+            meta: { title: '盈亏分析', requiresAuth: true }, // 需要鉴权的路由
           }
         ]
       }, {

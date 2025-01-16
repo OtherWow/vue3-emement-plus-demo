@@ -81,10 +81,16 @@
 										<el-col :xs="24" :sm="8" :md="8" :lg="6" :xl="6">
 											<el-form-item label="交易对">
 												<el-select v-model="form_data.symbol_list" clearable multiple filterable allow-create placeholder="支持多选 现货交易对" v-if="form_data.trade_type === 'spot'">
-													<el-option v-for="item in binance_spot_usdt_symbols" :key="item" :label="item" :value="item" />
+													<template #header>
+														<el-text type="primary" style="margin-left: 10px">交易对 | 最新价格</el-text>
+													</template>
+													<el-option v-for="item in binance_spot_usdt_symbols" :key="item.value" :label="item.label" :value="item.value" />
 												</el-select>
 												<el-select v-model="form_data.symbol_list" clearable multiple filterable allow-create placeholder="支持多选 合约交易对" v-if="form_data.trade_type === 'features'">
-													<el-option v-for="item in binance_features_usdt_symbols" :key="item" :label="item" :value="item" />
+													<template #header>
+														<el-text type="primary" style="margin-left: 10px">交易对 | 最新价格</el-text>
+													</template>
+													<el-option v-for="item in binance_features_usdt_symbols" :key="item.value" :label="item.label" :value="item.value" />
 												</el-select>
 											</el-form-item>
 										</el-col>
@@ -575,7 +581,10 @@ const 获取币安usdt交易对 = async () => {
 	try {
 		const res = await api_get_binance_api_usdt_symbols()
 		if (res.status === 200 && res.data.code === 200) {
-			binance_spot_usdt_symbols.value = res.data.data
+			binance_spot_usdt_symbols.value = Object.entries(res.data.data).map(([symbol, price]) => ({
+				label: `${symbol} \u00A0|\u00A0 ${price}`, // 显示内容
+				value: symbol, // 选中值
+			}))
 		} else {
 			ElMessage({
 				message: '查询币安现货usdt交易对失败：' + res.data.msg,
@@ -594,7 +603,10 @@ const 获取币安usdt交易对 = async () => {
 	try {
 		const res = await api_get_binance_fapi_usdt_symbols()
 		if (res.status === 200 && res.data.code === 200) {
-			binance_features_usdt_symbols.value = res.data.data
+			binance_features_usdt_symbols.value = Object.entries(res.data.data).map(([symbol, price]) => ({
+				label: `${symbol} \u00A0|\u00A0 ${price}`, // 显示内容
+				value: symbol, // 选中值
+			}))
 		} else {
 			ElMessage({
 				message: '查询币安现货usdt交易对失败：' + res.data.msg,

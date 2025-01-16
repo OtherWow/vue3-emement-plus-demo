@@ -355,10 +355,16 @@
 							<el-col :xs="24" :sm="8" :md="8" :lg="6" :xl="5">
 								<el-form-item label="交易对">
 									<el-select v-model="form_data.symbol_list" clearable multiple filterable allow-create placeholder="支持多选 现货交易对" v-if="form_data.trade_type === 'spot'">
-										<el-option v-for="item in binance_spot_usdt_symbols" :key="item" :label="item" :value="item" />
+										<template #header>
+											<el-text type="primary" style="margin-left: 10px">交易对 | 最新价格</el-text>
+										</template>
+										<el-option v-for="item in binance_spot_usdt_symbols" :key="item.value" :label="item.label" :value="item.value" />
 									</el-select>
 									<el-select v-model="form_data.symbol_list" clearable multiple filterable allow-create placeholder="支持多选 合约交易对" v-if="form_data.trade_type === 'features'">
-										<el-option v-for="item in binance_features_usdt_symbols" :key="item" :label="item" :value="item" />
+										<template #header>
+											<el-text type="primary" style="margin-left: 10px">交易对 | 最新价格</el-text>
+										</template>
+										<el-option v-for="item in binance_features_usdt_symbols" :key="item.value" :label="item.label" :value="item.value" />
 									</el-select>
 								</el-form-item>
 							</el-col>
@@ -443,7 +449,7 @@ import { api_get_binance_fapi_usdt_symbols } from '@/api/binance_fapi'
 import { api_get_exchanges_all_simple } from '@/api/exchange_infos_api'
 import { api_batch_撤单平仓, api_get_strategy_page, api_run_info_pause, api_run_info_run, api_run_info_start, api_run_info_stop, api_一键清仓, api_仓位重启, api_撤单平仓, api_重挂止盈 } from '@/api/smading_strategy_api'
 import router from '@/router' // 确保你的路由实例已经导入
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 const form_data = ref({
 	trade_type: 'spot',
@@ -457,6 +463,7 @@ const binance_features_usdt_symbols = ref([])
 const start_md_loading = ref(false)
 const exchange_options = ref([]) // 交易所下拉框
 const strategy_options = ref([]) // 策略下拉框
+let strategy_dict = {} // 策略列表
 const dialogVisiblemd = ref(false)
 const dialogVisible = ref(false)
 const 展示操作面板 = ref(false)
@@ -1661,7 +1668,10 @@ const 获取币安usdt交易对 = async () => {
 	try {
 		const res = await api_get_binance_api_usdt_symbols()
 		if (res.status === 200 && res.data.code === 200) {
-			binance_spot_usdt_symbols.value = res.data.data
+			binance_spot_usdt_symbols.value = Object.entries(res.data.data).map(([symbol, price]) => ({
+				label: `${symbol} | ${price}`, // 显示内容
+				value: symbol, // 选中值
+			}))
 		} else {
 			ElMessage({
 				message: '查询币安现货usdt交易对失败：' + res.data.msg,
@@ -1680,7 +1690,11 @@ const 获取币安usdt交易对 = async () => {
 	try {
 		const res = await api_get_binance_fapi_usdt_symbols()
 		if (res.status === 200 && res.data.code === 200) {
-			binance_features_usdt_symbols.value = res.data.data
+			binance_features_usdt_symbols.value = Object.entries(res.data.data).map(([symbol, price]) => ({
+				label: `${symbol} | ${price}`, // 显示内容
+				value: symbol, // 选中值
+			}))
+			// console.log(res.data.data, binance_features_usdt_symbols.value)
 		} else {
 			ElMessage({
 				message: '查询币安现货usdt交易对失败：' + res.data.msg,
@@ -1696,7 +1710,34 @@ const 获取币安usdt交易对 = async () => {
 		})
 	}
 }
-
+// 监听 form_data.strategy_id 的变化
+watch(
+	() => form_data.value.strategy_id, // 监听的目标
+	(newValue, oldValue) => {
+		console.log('newValue', newValue, strategy_dict[newValue])
+		const position_side = strategy_dict[newValue].position_side
+		const name = strategy_dict[newValue].name
+		if (position_side != 'LONG') {
+			form_data.value.trade_type = 'features'
+			trade_type_options.value = [{ value: 'features', label: '合约' }]
+		} else {
+			// 如果名字中包含合约，则是合约
+			if (name.includes('合约')) {
+				form_data.value.trade_type = 'features'
+				trade_type_options.value = [
+					{ value: 'spot', label: '现货' },
+					{ value: 'features', label: '合约' },
+				]
+			} else {
+				form_data.value.trade_type = 'spot'
+				trade_type_options.value = [
+					{ value: 'spot', label: '现货' },
+					{ value: 'features', label: '合约' },
+				]
+			}
+		}
+	}
+)
 const get_strategy_page = async () => {
 	// 获取策略信息
 	try {
@@ -1706,7 +1747,6 @@ const get_strategy_page = async () => {
 		const res = await api_get_strategy_page(1, 100, data)
 		// console.log('res', res)
 		if (res.status === 200 && res.data.code === 200) {
-			console.log(res.data.data)
 			const items = res.data.data.items
 			strategy_options.value = items.map((item) => {
 				const 持仓方向 = item.position_side == 'LONG' ? '做多' : '做空'
@@ -1715,6 +1755,14 @@ const get_strategy_page = async () => {
 					label: `${持仓方向}  \u00A0|\u00A0 ${item.name}  \u00A0|\u00A0  ${item.all_profit}  \u00A0|\u00A0  ${item.running_count} \u00A0|\u00A0  ${item.running_profit}`,
 				}
 			})
+
+			// console.log('items', items, 'strategy_dict', strategy_dict)
+			strategy_dict = items.reduce((acc, curr) => {
+				// console.log(acc, 'curr', curr)
+				acc[curr.strategy_id] = curr
+				return acc
+			}, {})
+			// console.log('strategy_dict', strategy_dict)
 		} else {
 			ElMessage({
 				message: '查询双马丁策略列表失败：' + res.data.msg,
@@ -1792,7 +1840,6 @@ const 确认启动马丁 = async () => {
 }
 const 启动马丁 = async () => {
 	start_md_loading.value = true
-	form_data.value.strategy_id = strategy_id
 	try {
 		const res = await api_run_info_start(form_data.value)
 		if (res.status === 200 && res.data.code === 200) {

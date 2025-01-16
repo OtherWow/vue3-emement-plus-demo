@@ -19,6 +19,7 @@
 			<el-menu-item-group>
 				<el-menu-item index="/user_info/balance_list">交易所余额查询</el-menu-item>
 				<el-menu-item index="/user_info/transfer_infos">交易所划转记录查询</el-menu-item>
+				<el-menu-item index="/user_info/analysis_profit_and_loss">盈亏分析</el-menu-item>
 				<!-- <el-menu-item index="/goods/category">产品分类</el-menu-item> -->
 			</el-menu-item-group>
 		</el-sub-menu>
@@ -78,7 +79,6 @@
 
 <script>
 import { useRoute } from 'vue-router'
-
 export default {
 	props: ['isClose'],
 	setup() {
