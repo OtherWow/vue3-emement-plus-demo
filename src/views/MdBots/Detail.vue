@@ -175,10 +175,16 @@
 		</template>
 	</el-drawer>
 
-	<el-dialog v-model="dialogVisible" title="重要提示" width="500" :before-close="handleClose" top="45vh">
-		<span>确认参数无误后，点击确认按钮即可开启马丁。</span>
-		<br />
-		<el-text class="mx-1" type="danger" style="font-weight: bolder">请勿多次点击确认按钮，多次点击会开启多个马丁！！</el-text>
+	<el-dialog v-model="dialogVisible" title="重要提示！！" width="500" :before-close="handleClose" top="45vh">
+        <el-row><el-col :span="24"><el-text >确认参数无误后，点击确认按钮即可开启马丁。</el-text></el-col><el-col :span="24"><el-text style="font-weight: bolder;margin-top: 10px">策略设置了最小启动资金，请设置启动资金</el-text>
+		<el-input type="number" v-model.number="form_data.set_cap" placeholder="请设置启动资金" style="width: 300px;margin-top: 10px">
+												<template #append>USDT</template>
+											</el-input></el-col><el-col :span="24"><el-text class="mx-1" type="danger" style="font-weight: bolder;margin-top: 10px">请勿多次点击确认按钮，多次点击会开启多个马丁！！</el-text></el-col></el-row>
+		
+
+		
+		
+		
 		<template #footer>
 			<div class="dialog-footer">
 				<el-button @click="dialogVisible = false">取消</el-button>

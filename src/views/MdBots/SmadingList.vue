@@ -50,10 +50,12 @@
 				</el-form>
 			</el-header>
 			<el-main>
-				<el-table ref="singleTableRef" :data="strategy_list" table-layout="fixed" border highlight-current-row @current-change="handleSelectionChangeOuter" row-key="id">
+				<el-table ref="singleTableRef" :data="strategy_list" table-layout="fixed" :tooltip-options='{"raw-content":true}' border highlight-current-row @current-change="handleSelectionChangeOuter" row-key="id">
 					<el-table-column type="index" width="55" label="序号" align="center" />
 
 					<el-table-column prop="name" label="策略名称" :min-width="300" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="remark" label="备注" :min-width="150" show-overflow-tooltip align="center"></el-table-column>
+					<el-table-column prop="min_cap" label="最小启动资金/USDT" :min-width="100" show-overflow-tooltip align="center"></el-table-column>
 					<el-table-column label="运行中" width="70" show-overflow-tooltip align="center">
 						<template #default="{ row }">
 							<el-tag :type="row.is_run ? 'success' : 'danger'" effect="dark">
@@ -106,11 +108,11 @@
 					</el-table-column>
 					<el-table-column label="其他操作" width="220" align="center">
 						<template #default="{ row }">
-							<el-button type="primary" size="small" @click="禁用策略(row, true)" v-if="row.is_share" plain>取消共享</el-button>
-							<el-button type="primary" size="small" @click="禁用策略(row, false)" v-if="!row.is_share" plain>共享</el-button>
-							<el-button type="danger" size="small" @click="禁用策略(row, true)" v-if="!row.is_ban" plain>禁用</el-button>
-							<el-button type="success" size="small" @click="禁用策略(row, false)" v-if="row.is_ban" plain>启用</el-button>
-							<el-button type="danger" size="small" @click="deleteStrategy(row)" plain>删除</el-button>
+							<el-button type="primary" size="small" @click="禁用策略(row, true)" v-if="row.is_share && row.is_common!=1" plain>取消共享</el-button>
+							<el-button type="primary" size="small" @click="禁用策略(row, false)" v-if="!row.is_share && row.is_common!=1" plain>共享</el-button>
+							<el-button type="danger" size="small" @click="禁用策略(row, true)" v-if="!row.is_ban && row.is_common!=1" plain>禁用</el-button>
+							<el-button type="success" size="small" @click="禁用策略(row, false)" v-if="row.is_ban && row.is_common!=1" plain>启用</el-button>
+							<el-button type="danger" size="small" @click="deleteStrategy(row)" v-if="row.is_common!=1" plain>删除</el-button>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -129,6 +131,20 @@
 									<el-col :xs="24" :sm="24" :md="24" :lg="18" :xl="18">
 										<el-form-item label="策略名称" required>
 											<el-input v-model="current_strategy.name" autosize type="textarea" placeholder="请输入策略的名称" />
+										</el-form-item>
+									</el-col>
+								</el-row>
+								<el-row :gutter="20">
+									<el-col :xs="24" :sm="12" :md="12" :lg="16" :xl="16">
+										<el-form-item label="备注">
+											<el-input v-model="current_strategy.remark" autosize type="textarea" placeholder="请输入策略的备注" />
+										</el-form-item>
+									</el-col>
+									<el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="8">
+										<el-form-item label="最小启动资金">
+											<el-input type="number" v-model.number="current_strategy.min_cap">
+												<template #append>USDT</template>
+											</el-input>
 										</el-form-item>
 									</el-col>
 								</el-row>
