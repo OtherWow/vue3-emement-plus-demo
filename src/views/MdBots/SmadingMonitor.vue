@@ -447,7 +447,7 @@
 import { api_get_binance_api_usdt_symbols } from '@/api/binance_api'
 import { api_get_binance_fapi_usdt_symbols } from '@/api/binance_fapi'
 import { api_get_exchanges_all_simple } from '@/api/exchange_infos_api'
-import { api_batch_撤单平仓, api_get_strategy_page, api_run_info_pause, api_run_info_run, api_run_info_start, api_run_info_stop, api_一键清仓, api_仓位重启, api_撤单平仓, api_重挂止盈 } from '@/api/smading_strategy_api'
+import { api_batch_一键清仓, api_batch_撤单平仓, api_get_strategy_page, api_run_info_pause, api_run_info_run, api_run_info_start, api_run_info_stop, api_一键清仓, api_仓位重启, api_撤单平仓, api_重挂止盈 } from '@/api/smading_strategy_api'
 import router from '@/router' // 确保你的路由实例已经导入
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -1055,7 +1055,7 @@ const 全部撤单平仓 = async (position_side) => {
 		// console.log("res", res);
 		if (res.status === 200 && res.data.code === 200) {
 			ElMessage({
-				message: 持仓方向 + res.data.data.msg,
+				message: 持仓方向 + res.data.msg,
 				type: 'success',
 			})
 		} else {
@@ -1097,7 +1097,7 @@ const 全部一键清仓 = async (position_side) => {
 		// console.log("res", res);
 		if (res.status === 200 && res.data.code === 200) {
 			ElMessage({
-				message: 持仓方向 + res.data.data.msg,
+				message: 持仓方向 + res.data.msg,
 				type: 'success',
 			})
 		} else {

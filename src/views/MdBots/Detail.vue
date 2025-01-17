@@ -370,11 +370,13 @@ const 暂停马丁 = async (data) => {
 }
 
 const 单个停止马丁 = async (row) => {
-	const data = {
-		exchange_id: row.exchange_id,
-		run_id_list: [row.run_id],
-		sync: true,
-	}
+	const data = [
+		{
+			exchange_id: row.exchange_id,
+			run_id_list: [row.run_id],
+			sync: true,
+		},
+	]
 	停止马丁(data)
 }
 
